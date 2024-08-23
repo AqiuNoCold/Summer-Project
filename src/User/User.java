@@ -1,3 +1,5 @@
+package User;
+
 public class User {
     // 属性定义
     public String id;       // 表管理项
@@ -100,7 +102,7 @@ public class User {
     // 重写toString方法以便于输出用户信息
     @Override
     public String toString() {
-        return "User{" +
+        return "User.User{" +
                 "id='" + id + '\'' +
                 ", pwd='" + pwd + '\'' +
                 ", age=" + age +
