@@ -1,4 +1,4 @@
-package library;
+package vCampus.Entity;
 
 public class BookList {
     private static final int DEFAULT_SIZE = 10; // 定义书架默认能放多少本书

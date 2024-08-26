@@ -1,4 +1,4 @@
-package library;
+package vCampus.Entity;
 
 public class Book {
     private String name;      // 书名
@@ -15,8 +15,6 @@ public class Book {
         this.availableCopies = availableCopies;
     }
 
-    // Getter and setter methods for the attributes (省略了详细代码)
-    // ...
 
     @Override
     public String toString() {
