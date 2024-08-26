@@ -8,83 +8,95 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class UserDao implements BaseDao<User> {
-    public Connection conn = null;
-    public PreparedStatement pstmt = null;
-    public ResultSet rs = null;
+    private Connection conn = null;
+    private PreparedStatement pstmt = null;
+    private ResultSet rs = null;
 
     @Override
     public boolean add(User user) {
-        boolean bool = false;
-        conn = DbConnection.getConnection();
+        boolean isAdded = false;
         try {
-            String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+            conn = DbConnection.getConnection();
+            String sql = "INSERT INTO tblUser (id, pwd, age, gender, role, email, card) VALUES (?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getEmail());
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getPwd());
+            pstmt.setInt(3, user.getAge());
+            pstmt.setBoolean(4, user.getGender());
+            pstmt.setString(5, user.getRole());
+            pstmt.setString(6, user.getEmail());
+            pstmt.setString(7, user.getCard());
             int rowsAffected = pstmt.executeUpdate();
-            bool = rowsAffected > 0;
+            isAdded = rowsAffected > 0;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return bool;
+        return isAdded;
     }
 
     @Override
     public boolean update(User user) {
-        boolean bool = false;
-        conn = DbConnection.getConnection();
+        boolean isUpdated = false;
         try {
-            String sql = "UPDATE users SET password = ?, email = ? WHERE id = ?";
+            conn = DbConnection.getConnection();
+            String sql = "UPDATE tblUser SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, user.getPassword());
-            pstmt.setString(2, user.getEmail());
-            pstmt.setInt(3, user.getId());
+            pstmt.setString(1, user.getPwd());
+            pstmt.setInt(2, user.getAge());
+            pstmt.setBoolean(3, user.getGender());
+            pstmt.setString(4, user.getRole());
+            pstmt.setString(5, user.getEmail());
+            pstmt.setString(6, user.getCard());
+            pstmt.setString(7, user.getId());
             int rowsAffected = pstmt.executeUpdate();
-            bool = rowsAffected > 0;
+            isUpdated = rowsAffected > 0;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return bool;
+        return isUpdated;
     }
 
     @Override
-    public boolean delete(int id) {
-        boolean bool = false;
-        conn = DbConnection.getConnection();
+    public boolean delete(String id) {
+        boolean isDeleted = false;
         try {
-            String sql = "DELETE FROM users WHERE id = ?";
+            conn = DbConnection.getConnection();
+            String sql = "DELETE FROM tblUser WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, id);
+            pstmt.setString(1, id);
             int rowsAffected = pstmt.executeUpdate();
-            bool = rowsAffected > 0;
+            isDeleted = rowsAffected > 0;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return bool;
+        return isDeleted;
     }
 
     @Override
-    public User find(int id) {
+    public User find(String id) {
         User user = null;
-        conn = DbConnection.getConnection();
         try {
-            String sql = "SELECT * FROM users WHERE id = ?";
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblUser WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, id);
+            pstmt.setString(1, id);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setEmail(rs.getString("email"));
+                user = new User(
+                        rs.getString("id"),
+                        rs.getString("pwd"),
+                        rs.getInt("age"),
+                        rs.getBoolean("gender"),
+                        rs.getString("role"),
+                        rs.getString("email"),
+                        rs.getString("card")
+                );
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,4 +105,6 @@ public class UserDao implements BaseDao<User> {
         }
         return user;
     }
+
+
 }
