@@ -1,12 +1,15 @@
+package vCampus.Entity;
+
+
 public class User {
     // 属性定义
-    public String id;       // 表管理项
-    public String pwd;      // 密码
-    public Integer age;     // 年龄
-    public Boolean gender;   // 性别
-    public String role;     // 角色
-    public String email;    // 邮箱
-    public String card;     // 一卡通号、账号
+    private String id;       // 表管理项
+    private String pwd;      // 密码
+    private Integer age;     // 年龄
+    private Boolean gender;   // 性别
+    private String role;     // 角色
+    private String email;    // 邮箱
+    private String card;     // 一卡通号、账号
 
     // 构造函数
     public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card) {
@@ -100,7 +103,7 @@ public class User {
     // 重写toString方法以便于输出用户信息
     @Override
     public String toString() {
-        return "User{" +
+        return "vCampus.User.vCampus.User{" +
                 "id='" + id + '\'' +
                 ", pwd='" + pwd + '\'' +
                 ", age=" + age +
