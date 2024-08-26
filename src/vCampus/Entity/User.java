@@ -2,16 +2,16 @@ package vCampus.Entity;
 
 public class User {
     // 属性定义
-    private String id;       // 表管理项
-    private String pwd;      // 密码
-    private Integer age;     // 年龄
-    private Boolean gender;   // 性别
-    private String role;     // 角色
-    private String email;    // 邮箱
-    private String card;     // 一卡通号、账号
-    private Float remain;    //账户余额
-    private Integer password; //支付密码
-    private Boolean lost;    //账户冻结情况
+    protected String id;       // 表管理项
+    protected String pwd;      // 密码
+    protected Integer age;     // 年龄
+    protected Boolean gender;   // 性别
+    protected String role;     // 角色
+    protected String email;    // 邮箱
+    protected String card;     // 一卡通号、账号
+    protected Float remain;    //账户余额
+    protected Integer password; //支付密码
+    protected Boolean lost;    //账户冻结情况
 
     // 构造函数
     public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost) {
