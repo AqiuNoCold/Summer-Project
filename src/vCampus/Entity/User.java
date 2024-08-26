@@ -1,4 +1,5 @@
-package User;
+package vCampus.Entity;
+
 
 public class User {
     // 属性定义
@@ -102,7 +103,7 @@ public class User {
     // 重写toString方法以便于输出用户信息
     @Override
     public String toString() {
-        return "User.User{" +
+        return "vCampus.User.vCampus.User{" +
                 "id='" + id + '\'' +
                 ", pwd='" + pwd + '\'' +
                 ", age=" + age +
