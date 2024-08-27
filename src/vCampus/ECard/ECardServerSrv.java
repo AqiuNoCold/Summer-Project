@@ -21,7 +21,7 @@ public class ECardServerSrv {
         return true;
     }
 
-    public static float showRemainServerSrv(ECard testcard) {
+    public static float showStatusServerSrv(ECard testcard) {
         return testcard.getRemain();
     }
 
