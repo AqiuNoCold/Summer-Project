@@ -1,11 +1,13 @@
 package vCampus.Dao;
 
-import vCampus.Db.DbConnection;
-import vCampus.Entity.Book;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import vCampus.Entity.Book;
+import vCampus.Util.DbConnection;
 
 public class BooksDao implements BaseDao<Book> {
     private Connection conn = null;
@@ -17,13 +19,22 @@ public class BooksDao implements BaseDao<Book> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblBooks (name, author, price, type, availableCopies) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblBooks (isbn, msrp, image, pages, title, isbn13, authors, edition, language, subjects, synopsis, publisher, title_long, date_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, book.getName());
-            pstmt.setString(2, book.getAuthor());
-            pstmt.setInt(3, book.getPrice());
-            pstmt.setString(4, book.getType());
-            pstmt.setInt(5, book.getAvailableCopies());
+            pstmt.setString(1, book.getIsbn());
+            pstmt.setString(2, book.getMsrp());
+            pstmt.setString(3, book.getImage());
+            pstmt.setString(4, book.getPages());
+            pstmt.setString(5, book.getTitle());
+            pstmt.setString(6, book.getIsbn13());
+            pstmt.setString(7, book.getAuthors());
+            pstmt.setString(8, book.getEdition());
+            pstmt.setString(9, book.getLanguage());
+            pstmt.setString(10, book.getSubjects());
+            pstmt.setString(11, book.getSynopsis());
+            pstmt.setString(12, book.getPublisher());
+            pstmt.setString(13, book.getTitleLong());
+            pstmt.setString(14, book.getDatePublished());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -39,13 +50,22 @@ public class BooksDao implements BaseDao<Book> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblBooks SET author = ?, price = ?, type = ?, availableCopies = ? WHERE name = ?";
+            String sql = "UPDATE tblBooks SET msrp = ?, image = ?, pages = ?, title = ?, authors = ?, edition = ?, language = ?, subjects = ?, synopsis = ?, publisher = ?, title_long = ?, date_published = ? WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, book.getAuthor());
-            pstmt.setInt(2, book.getPrice());
-            pstmt.setString(3, book.getType());
-            pstmt.setInt(4, book.getAvailableCopies());
-            pstmt.setString(5, book.getName());
+            pstmt.setString(1, book.getMsrp());
+            pstmt.setString(2, book.getImage());
+            pstmt.setString(3, book.getPages());
+            pstmt.setString(4, book.getTitle());
+            pstmt.setString(5, book.getAuthors());
+            pstmt.setString(6, book.getEdition());
+            pstmt.setString(7, book.getLanguage());
+            pstmt.setString(8, book.getSubjects());
+            pstmt.setString(9, book.getSynopsis());
+            pstmt.setString(10, book.getPublisher());
+            pstmt.setString(11, book.getTitleLong());
+            pstmt.setString(12, book.getDatePublished());
+            pstmt.setString(13, book.getIsbn());
+            pstmt.setString(14, book.getIsbn13());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
@@ -57,13 +77,17 @@ public class BooksDao implements BaseDao<Book> {
     }
 
     @Override
-    public boolean delete(String name) {
+    public boolean delete(String id) {
         boolean isDeleted = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "DELETE FROM tblBooks WHERE name = ?";
+            String[] ids = id.split(",");
+            String isbn = ids[0];
+            String isbn13 = ids[1];
+            String sql = "DELETE FROM tblBooks WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, name);
+            pstmt.setString(1, isbn);
+            pstmt.setString(2, isbn13);
             int rowsAffected = pstmt.executeUpdate();
             isDeleted = rowsAffected > 0;
         } catch (Exception e) {
@@ -75,21 +99,34 @@ public class BooksDao implements BaseDao<Book> {
     }
 
     @Override
-    public Book find(String name) {
+    public Book find(String id) {
         Book book = null;
         try {
             conn = DbConnection.getConnection();
-            String sql = "SELECT * FROM tblBooks WHERE name = ?";
+            String[] ids = id.split(",");
+            String isbn = ids[0];
+            String isbn13 = ids[1];
+            String sql = "SELECT * FROM tblBooks WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, name);
+            pstmt.setString(1, isbn);
+            pstmt.setString(2, isbn13);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 book = new Book(
-                        rs.getString("name"),
-                        rs.getString("author"),
-                        rs.getInt("price"),
-                        rs.getString("type"),
-                        rs.getInt("availableCopies")
+                    rs.getString("isbn"),
+                    rs.getString("msrp"),
+                    rs.getString("image"),
+                    rs.getString("pages"),
+                    rs.getString("title"),
+                    rs.getString("isbn13"),
+                    rs.getString("authors"),
+                    rs.getString("edition"),
+                    rs.getString("language"),
+                    rs.getString("subjects"),
+                    rs.getString("synopsis"),
+                    rs.getString("publisher"),
+                    rs.getString("title_long"),
+                    rs.getString("date_published")
                 );
             }
         } catch (Exception e) {
