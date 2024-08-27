@@ -34,7 +34,7 @@ public class ECardClientSrv {
             System.out.println("Successfully charged!");
     }
 
-    public static void showRemainClientSrv(){
+    public static void showStatusClientSrv(){
 //        请求服务端showRemainSSrv后展示服务端返回的数据,假设为currentBalance
         float currentBalance=200f;
         System.out.println("Current Balance: "+currentBalance);
