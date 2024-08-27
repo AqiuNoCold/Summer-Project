@@ -17,8 +17,12 @@ public class DbCreator {
                 + "gender BOOLEAN, "
                 + "role ENUM('ST', 'TC', 'AD') NOT NULL, "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z]{2,6}$'), "
-                + "card CHAR(9) CHECK (LENGTH(card) = 9)"
+                + "card CHAR(9) CHECK (LENGTH(card) = 9), "
+                + "remain FLOAT DEFAULT 0 CHECK (remain >= 0), "
+                + "password INT , "
+                + "lost BOOLEAN DEFAULT FALSE"
                 + ")";
+
 
         try (Connection conn = DbConnection.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -64,8 +68,30 @@ public class DbCreator {
         }
     }
 
+    public static void ECardCreator() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblECard ("
+                + "id VARCHAR(255) PRIMARY KEY, "
+                + "card CHAR(9) NOT NULL, "
+                + "lost BOOLEAN DEFAULT FALSE, "
+                + "password INT NOT NULL CHECK (LENGTH(CAST(password AS CHAR(6))) = 6), "
+                + "remain FLOAT NOT NULL CHECK (remain >= 0)"
+                + ")";
+
+        try (Connection conn = DbConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute(createTableSQL);
+            logger.info("表 tblECard 创建成功。");
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "创建表失败", e);
+            throw new RuntimeException("创建表失败", e);
+        }
+    }
+
     public static void main(String[] args) {
         UserCreator();
         BooksCreator();
+        ECardCreator();
     }
 }

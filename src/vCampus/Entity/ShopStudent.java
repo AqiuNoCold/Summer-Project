@@ -1,22 +1,10 @@
 package vCampus.Entity;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ShopStudent extends User {
     //private String card;
 
-
-    /*
-    之后要修改的。
-    private Text favorites;
-    private Text belongs;
-    private Text bill;
-    */
     private List<Product> favorites = new ArrayList<>();
     private List<Product> belongs = new ArrayList<>();
     private List<Product> bill = new ArrayList<>();
@@ -64,10 +52,9 @@ public class ShopStudent extends User {
                 remain -= product.getPrice()*nums;
                 System.out.println("购买成功！");
                 Date datetime = new Date();
-                int ID = bill.size()+1;
-                String strId = ID+"";
+                String ID = String.valueOf(bill.size()+1);
                 float cost = product.countPrice();
-                Product hisProduct = new Product(strId, product.getName(), product.getPrice(),nums, product.getOwner());
+                Product hisProduct = new Product(ID, product.getName(), product.getPrice(),nums, product.getOwner());
                 bill.add(hisProduct);
                 return true;
             }
@@ -85,7 +72,7 @@ public class ShopStudent extends User {
         Scanner scanner = new Scanner(System.in);
 
         //System.out.print("请输入商品ID: ");
-        String newId = size+1+"";
+        String newId = String.valueOf(size+1);
         System.out.print("请输入新的商品名称: ");
         String newName = scanner.nextLine();
         System.out.print("请输入新的商品数量: ");
@@ -120,7 +107,7 @@ public class ShopStudent extends User {
     public void deleteProduct(String id){
         int Index = 0;
         for (Product product : belongs) {
-            if (id.equals(product.getId())) {
+            if (Objects.equals(product.getId(), id)) {
                 belongs.remove(Index);
                 break;
             }
@@ -157,7 +144,7 @@ public class ShopStudent extends User {
 
     public boolean isMine(String id){
         for (Product product : belongs) {
-            if(id.equals(product.getId()))
+            if(Objects.equals(id, product.getId()))
                 return true;
         }
         return false;

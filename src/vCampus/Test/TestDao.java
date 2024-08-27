@@ -8,7 +8,8 @@ public class TestDao {
         UserDao userDao = new UserDao();
 
         // Create a User object
-        User user = new User("user123", "password", 25, true, "ST", "user123@example.com", "123456789");
+        User user = new User("user123", "password", 25, true, "ST", "user123@example.com", "123456789",
+                1.23F, 122, false);
 
         // Test add method
         boolean isAdded = userDao.add(user);
