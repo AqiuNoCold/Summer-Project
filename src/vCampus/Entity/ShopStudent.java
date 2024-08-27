@@ -1,5 +1,7 @@
 package vCampus.Entity;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +10,13 @@ import java.util.Scanner;
 public class ShopStudent extends User {
     //private String card;
 
+
+    /*
+    之后要修改的。
+    private Text favorites;
+    private Text belongs;
+    private Text bill;
+    */
     private List<Product> favorites = new ArrayList<>();
     private List<Product> belongs = new ArrayList<>();
     private List<Product> bill = new ArrayList<>();
