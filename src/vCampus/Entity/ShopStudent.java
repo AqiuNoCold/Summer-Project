@@ -56,8 +56,9 @@ public class ShopStudent extends User {
                 System.out.println("购买成功！");
                 Date datetime = new Date();
                 int ID = bill.size()+1;
+                String strId = ID+"";
                 float cost = product.countPrice();
-                Product hisProduct = new Product(ID, product.getName(), product.getPrice(),nums, product.getOwner());
+                Product hisProduct = new Product(strId, product.getName(), product.getPrice(),nums, product.getOwner());
                 bill.add(hisProduct);
                 return true;
             }
@@ -75,7 +76,7 @@ public class ShopStudent extends User {
         Scanner scanner = new Scanner(System.in);
 
         //System.out.print("请输入商品ID: ");
-        int newId = size+1;
+        String newId = size+1+"";
         System.out.print("请输入新的商品名称: ");
         String newName = scanner.nextLine();
         System.out.print("请输入新的商品数量: ");
@@ -107,10 +108,10 @@ public class ShopStudent extends User {
         System.out.println("商品信息更新成功！");
     }
 
-    public void deleteProduct(int id){
+    public void deleteProduct(String id){
         int Index = 0;
         for (Product product : belongs) {
-            if (product.getId() == id) {
+            if (id.equals(product.getId())) {
                 belongs.remove(Index);
                 break;
             }
@@ -145,9 +146,9 @@ public class ShopStudent extends User {
         }
     }
 
-    public boolean isMine(int id){
+    public boolean isMine(String id){
         for (Product product : belongs) {
-            if(id == product.getId())
+            if(id.equals(product.getId()))
                 return true;
         }
         return false;

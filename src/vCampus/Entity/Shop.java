@@ -12,24 +12,55 @@ public class Shop {
     }
 
     public void addProduct(Product product) {
-        int id = product.getId();
-        String Id= id+"";
-        products.put(Id, product);
+        String id = product.getId();
+        products.put(id, product);
     }
 
     public void addNew(){
         int size = products.size();
         Product newProduct = student.addProduct(size);
-        int id = newProduct.getId();
-        String Id= id+"";
-        products.put(Id, newProduct);
+        String id = newProduct.getId();
+        products.put(id, newProduct);
     }
 
     public void viewProducts() {
         System.out.println("商店商品列表：");
-        for (Product product : products.values()) {
+        int shopSize = products.size();
+
+        //随机数组
+        Set<String> shopSet = new HashSet<String>();
+        while((shopSet.size()) < 8 && (shopSet.size()<shopSize))
+        {
+            String[] keys = products.keySet().toArray(new String[0]);
+            Random random = new Random();
+            String randomKey = keys[random.nextInt(keys.length)];
+            shopSet.add(randomKey);
+        }
+
+        for (String Element : shopSet) {
+            Product randomProduct = products.get(Element);
+            System.out.println(randomProduct);
+        }
+    }
+
+    public void viewPrice(Shop searchShop){
+        System.out.println("按价格排列：");
+        System.out.println("1.价格从大到小");
+        System.out.println("2.价格从小到大");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请选择：");
+        int choice = scanner.nextInt();
+        for (Product product:searchShop.products.values()) {
             System.out.println(product);
         }
+    }
+
+    public void searchProduct(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请输入你要查找的商品：");
+        String searchName = scanner.nextLine();
+
+
     }
 
     public void purchaseProduct(String productId,int buyNums) {
@@ -38,7 +69,7 @@ public class Shop {
             if (student.buyProduct(product,buyNums)) {
                 int nums = product.getNumbers();
                 product.setNumbers(nums-buyNums);
-                // 可以在这里进一步处理购买后的逻辑,账单
+                // 购买之后余额打给卖家
             }
         } else {
             System.out.println("商品不存在！");
@@ -55,8 +86,7 @@ public class Shop {
             System.out.println("商品不存在！");
             return false;
         }
-        int ID = Integer.parseInt(updateId);
-        if(student.isMine(ID)) {
+        if(student.isMine(updateId)) {
             System.out.print("请输入新的商品名称: ");
             String newName = scanner.nextLine();
             System.out.print("请输入新的商品数量: ");
@@ -83,11 +113,10 @@ public class Shop {
         Scanner scanner = new Scanner(System.in);
         viewBelongs();
         System.out.println("请输入你要删除的商品ID： ");
-        int id = scanner.nextInt();
+        String id = scanner.nextLine();
         if(student.isMine(id)) {
             student.deleteProduct(id);
-            String ID = id+"";
-            products.remove(ID);
+            products.remove(id);
             System.out.println("删除成功！");
         } else {
             System.out.println("该商品不属于您！");
