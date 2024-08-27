@@ -1,18 +1,20 @@
 package vCampus.Entity;
 
-
 public class User {
     // 属性定义
-    private String id;       // 表管理项
-    private String pwd;      // 密码
-    private Integer age;     // 年龄
-    private Boolean gender;   // 性别
-    private String role;     // 角色
-    private String email;    // 邮箱
-    private String card;     // 一卡通号、账号
+    protected String id;       // 表管理项
+    protected String pwd;      // 密码
+    protected Integer age;     // 年龄
+    protected Boolean gender;   // 性别
+    protected String role;     // 角色
+    protected String email;    // 邮箱
+    protected String card;     // 一卡通号、账号
+    protected Float remain;    //账户余额
+    protected Integer password; //支付密码
+    protected Boolean lost;    //账户冻结情况
 
     // 构造函数
-    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card) {
+    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost) {
         setId(id);
         setPwd(pwd);
         setAge(age);
@@ -20,6 +22,9 @@ public class User {
         setRole(role);
         setEmail(email);
         setCard(card);
+        setRemain(remain);
+        setPassword(password);
+        setLost(lost);
     }
 
     // id的getter和setter
@@ -100,10 +105,37 @@ public class User {
         this.card = card;
     }
 
+    // remain的getter和setter
+    public float getRemain() {
+        return remain;
+    }
+
+    public void setRemain(Float remain) {
+        this.remain = remain; // 可以根据需要添加更多验证
+    }
+
+    // password的getter和setter
+    public Integer getPassword() {
+        return password;
+    }
+
+    public void setPassword(Integer password) {
+        this.password = password; // 可以根据需要添加更多验证
+    }
+
+    // lost的getter和setter
+    public Boolean getLost() {
+        return lost;
+    }
+
+    public void setLost(Boolean lost) {
+        this.lost = lost; // 可以根据需要添加更多验证
+    }
+
     // 重写toString方法以便于输出用户信息
     @Override
     public String toString() {
-        return "vCampus.User.vCampus.User{" +
+        return "User{" +
                 "id='" + id + '\'' +
                 ", pwd='" + pwd + '\'' +
                 ", age=" + age +
@@ -111,6 +143,9 @@ public class User {
                 ", role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", card='" + card + '\'' +
+                ", remain=" + remain +
+                ", password='" + password + '\'' +
+                ", lost=" + (lost ? "正常" : "冻结") +
                 '}';
     }
 }
