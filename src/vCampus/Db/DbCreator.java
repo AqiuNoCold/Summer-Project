@@ -17,6 +17,7 @@ public class DbCreator {
         createShopStudentTable();
         createProductTable();
         createTransactionTable();
+        createCourseTable();
     }
 
     private static void createUserTable() {
@@ -139,6 +140,24 @@ public class DbCreator {
                 + ")";
 
         executeSQL(createTableSQL, "tblTransaction");
+    }
+
+    private static void createCourseTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblCourse ("
+                + "course_ID VARCHAR(255) PRIMARY KEY, "
+                + "course_name VARCHAR(255), "
+                + "teacher_name VARCHAR(255), "
+                + "time INT, "
+                + "start_time INT, "
+                + "end_time INT, "
+                + "status ENUM('必修', '选修'), "
+                + "now_num INT, "
+                + "max_num INT, "
+                + "classroom VARCHAR(225), "
+                + "num INT"
+                + ")";
+
+        executeSQL(createTableSQL, "tblCourse");
     }
 
     private static void executeSQL(String sql, String tableName) {
