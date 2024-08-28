@@ -5,11 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import vCampus.Entity.Book;
 import vCampus.Util.DbConnection;
 
-public class BooksDao implements BaseDao<Book> {
+public class BookDao implements BaseDao<Book> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
@@ -113,21 +114,20 @@ public class BooksDao implements BaseDao<Book> {
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 book = new Book(
-                    rs.getString("isbn"),
-                    rs.getString("msrp"),
-                    rs.getString("image"),
-                    rs.getString("pages"),
-                    rs.getString("title"),
-                    rs.getString("isbn13"),
-                    rs.getString("authors"),
-                    rs.getString("edition"),
-                    rs.getString("language"),
-                    rs.getString("subjects"),
-                    rs.getString("synopsis"),
-                    rs.getString("publisher"),
-                    rs.getString("title_long"),
-                    rs.getString("date_published")
-                );
+                        rs.getString("isbn"),
+                        rs.getString("msrp"),
+                        rs.getString("image"),
+                        rs.getString("pages"),
+                        rs.getString("title"),
+                        rs.getString("isbn13"),
+                        rs.getString("authors"),
+                        rs.getString("edition"),
+                        rs.getString("language"),
+                        rs.getString("subjects"),
+                        rs.getString("synopsis"),
+                        rs.getString("publisher"),
+                        rs.getString("title_long"),
+                        rs.getString("date_published"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,5 +135,43 @@ public class BooksDao implements BaseDao<Book> {
             DbConnection.closeConnection(conn);
         }
         return book;
+    }
+
+    public List<String> search(Map<String, String> searchCriteria) {
+        List<String> bookIds = new ArrayList<>();
+        try {
+            conn = DbConnection.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (value.contains("%")) {
+                    sql.append(" AND ").append(key).append(" LIKE ?");
+                } else {
+                    sql.append(" AND ").append(key).append(" = ?");
+                }
+                params.add(value);
+            }
+
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String isbn = rs.getString("isbn");
+                String isbn13 = rs.getString("isbn13");
+                String bookId = isbn + "," + isbn13;
+                bookIds.add(bookId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return bookIds;
     }
 }
