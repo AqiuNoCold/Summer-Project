@@ -1,22 +1,24 @@
 package vCampus.Entity;
 
 public class Book {
-    private String isbn;          // ISBN
-    private String msrp;          // 建议零售价
-    private String image;         // 图片
-    private String pages;         // 页数
-    private String title;         // 标题
-    private String isbn13;        // ISBN-13
-    private String authors;       // 作者
-    private String edition;       // 版本
-    private String language;      // 语言
-    private String subjects;      // 主题
-    private String synopsis;      // 简介
-    private String publisher;     // 出版社
-    private String titleLong;     // 长标题
+    private String isbn; // ISBN
+    private String msrp; // 建议零售价
+    private String image; // 图片
+    private String pages; // 页数
+    private String title; // 标题
+    private String isbn13; // ISBN-13
+    private String authors; // 作者
+    private String edition; // 版本
+    private String language; // 语言
+    private String subjects; // 主题
+    private String synopsis; // 简介
+    private String publisher; // 出版社
+    private String titleLong; // 长标题
     private String datePublished; // 出版日期
 
-    public Book(String isbn, String msrp, String image, String pages, String title, String isbn13, String authors, String edition, String language, String subjects, String synopsis, String publisher, String titleLong, String datePublished) {
+    public Book(String isbn, String msrp, String image, String pages, String title, String isbn13, String authors,
+            String edition, String language, String subjects, String synopsis, String publisher, String titleLong,
+            String datePublished) {
         this.isbn = isbn;
         this.msrp = msrp;
         this.image = image;
@@ -144,5 +146,30 @@ public class Book {
 
     public void setDatePublished(String datePublished) {
         this.datePublished = datePublished;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "+-----------------+----------------------------------+\n" +
+                        "| Field           | Value                            |\n" +
+                        "+-----------------+----------------------------------+\n" +
+                        "| ISBN            | %-32s |\n" +
+                        "| MSRP            | %-32s |\n" +
+                        "| Image           | %-32s |\n" +
+                        "| Pages           | %-32s |\n" +
+                        "| Title           | %-32s |\n" +
+                        "| ISBN13          | %-32s |\n" +
+                        "| Authors         | %-32s |\n" +
+                        "| Edition         | %-32s |\n" +
+                        "| Language        | %-32s |\n" +
+                        "| Subjects        | %-32s |\n" +
+                        "| Synopsis        | %-32s |\n" +
+                        "| Publisher       | %-32s |\n" +
+                        "| Title Long      | %-32s |\n" +
+                        "| Date Published  | %-32s |\n" +
+                        "+-----------------+----------------------------------+\n",
+                isbn, msrp, image, pages, title, isbn13, authors, edition, language, subjects, synopsis, publisher,
+                titleLong, datePublished);
     }
 }
