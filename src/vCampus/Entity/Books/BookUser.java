@@ -1,4 +1,4 @@
-package vCampus.Entity.Book;
+package vCampus.Entity.Books;
 
 import java.util.List;
 

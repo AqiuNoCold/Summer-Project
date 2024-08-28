@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import vCampus.Entity.Book;
 import vCampus.Db.DbConnection;
+import vCampus.Entity.Books.Book;
 
 public class BookDao implements BaseDao<Book> {
     private Connection conn = null;

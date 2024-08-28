@@ -1,4 +1,4 @@
-package vCampus.Entity.Book;
+package vCampus.Entity.Books;
 
 public class BorrowRecord {
 
