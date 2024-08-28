@@ -12,6 +12,11 @@ public class Product {
     private String owner;
     private float discount;
     private Date time;
+    /*
+    可选功能：
+    private int into;
+    into表示被收藏次数，如果name == ‘NULL’并且into == 0，那么这个id就可以释放。
+    */
     public Product(String id, String name, float price,int numbers,String owner) {
         this.id = id;
         this.name = name;
@@ -66,24 +71,6 @@ public class Product {
     }
     public void setDiscount(float discount){
         this.discount = discount;
-    }
-
-    public float countPrice(){
-        return price*discount;
-    }
-
-    public boolean comparePrice(Product product){
-        if((price*discount)>=(product.countPrice()))
-            return true;
-        else
-            return false;
-    }
-
-    public boolean compareTime(Product product){
-        if(time.getTime() >=product.time.getTime())
-            return true;
-        else
-            return false;
     }
 
     @Override
