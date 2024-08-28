@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import vCampus.Entity.Book;
-import vCampus.Util.DbConnection;
+import vCampus.Db.DbConnection;
 
 public class BookDao implements BaseDao<Book> {
     private Connection conn = null;
