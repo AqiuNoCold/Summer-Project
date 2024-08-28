@@ -1,21 +1,21 @@
 package vCampus.Entity;
 
-public class Userinfo {
-    private static Userinfo currentUser;
+public class UserInfo {
+    private static UserInfo currentUser;
 
     private String role; // 角色
     private String card; // 一卡通号、账号
     private Boolean lost; // 账户冻结情况
 
-    public Userinfo(String role, String card, Boolean lost) {
+    public UserInfo(String role, String card, Boolean lost) {
         this.role = role;
         this.card = card;
         this.lost = lost;
     }
 
     // 从 User 对象创建 Userinfo 对象的静态方法
-    public static Userinfo fromUser(User user) {
-        return new Userinfo(user.getRole(), user.getCard(), user.getLost());
+    public static UserInfo fromUser(User user) {
+        return new UserInfo(user.getRole(), user.getCard(), user.getLost());
     }
 
     // getters 和 setters
@@ -43,11 +43,11 @@ public class Userinfo {
         this.lost = lost;
     }
 
-    public static Userinfo getCurrentUser() {
+    public static UserInfo getCurrentUser() {
         return currentUser;
     }
 
-    public static void setCurrentUser(Userinfo user) {
+    public static void setCurrentUser(UserInfo user) {
         currentUser = user;
     }
 
