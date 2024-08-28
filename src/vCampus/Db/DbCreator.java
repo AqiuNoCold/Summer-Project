@@ -20,17 +20,18 @@ public class DbCreator {
     }
 
     private static void createUserTable() {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
+        String createTableSQL =  "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
                 + "age INT CHECK (age > 0), "
                 + "gender BOOLEAN, "
                 + "role ENUM('ST', 'TC', 'AD'), "
-                + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z]{2,6}$'), "
+                + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
                 + "remain FLOAT CHECK (remain >= 0), "
                 + "password INT, "
-                + "lost BOOLEAN DEFAULT FALSE"
+                + "lost BOOLEAN DEFAULT FALSE, "
+                + "courses TEXT"
                 + ")";
 
         executeSQL(createTableSQL, "tblUser");

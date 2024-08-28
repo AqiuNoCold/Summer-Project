@@ -1,5 +1,7 @@
 package vCampus.Entity;
 
+import java.util.ArrayList;
+
 public class User {
     // 属性定义
     protected String id;       // 表管理项
@@ -12,9 +14,10 @@ public class User {
     protected Float remain;    //账户余额
     protected Integer password; //支付密码
     protected Boolean lost;    //账户冻结情况
+    protected ArrayList<String> courses;
 
     // 构造函数
-    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost) {
+    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost, ArrayList<String> courses) {
         setId(id);
         setPwd(pwd);
         setAge(age);
@@ -25,6 +28,7 @@ public class User {
         setRemain(remain);
         setPassword(password);
         setLost(lost);
+        setCourses(courses);
     }
 
     // id的getter和setter
@@ -98,6 +102,10 @@ public class User {
         return card;
     }
 
+    public ArrayList<String> getCourses() {
+        return courses;
+    }
+
     public void setCard(String card) {
         if (card.length() != 9) {
             throw new IllegalArgumentException("一卡通号必须是9个字符");
@@ -132,6 +140,17 @@ public class User {
         this.lost = lost; // 可以根据需要添加更多验证
     }
 
+    public void setCourses(ArrayList<String> courses) {
+        this.courses = courses;
+    }
+
+    public void addCourse(String course) {
+        if (courses == null) {
+            courses = new ArrayList<>();
+        }
+        courses.add(course);
+    }
+
     // 重写toString方法以便于输出用户信息
     @Override
     public String toString() {
@@ -146,6 +165,7 @@ public class User {
                 ", remain=" + remain +
                 ", password='" + password + '\'' +
                 ", lost=" + (lost ? "正常" : "冻结") +
+                ", courses=" + courses +
                 '}';
     }
 }

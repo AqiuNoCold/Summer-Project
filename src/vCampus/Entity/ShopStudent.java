@@ -13,8 +13,8 @@ public class ShopStudent extends User {
     //private boolean lost;
     //private String password;
 
-    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost){
-        super(id, pwd, age, gender, role, email, card, remain, password, lost);
+    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost,ArrayList<String> courses){
+        super(id, pwd, age, gender, role, email, card, remain, password, lost, courses);
         /*
         this.remain = balance;
         this.lost = false;

@@ -8,7 +8,7 @@ public class ECard extends User{
     private ArrayList<String> transactionHistory;
 
     public ECard(User user) {
-        super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(), user.getCard(), user.getRemain(), user.getPassword(), user.getLost());
+        super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(), user.getCard(), user.getRemain(), user.getPassword(), user.getLost(), user.getCourses());
     }
 
     public ArrayList<String> getTransactionHistory() {
