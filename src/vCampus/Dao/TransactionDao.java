@@ -33,15 +33,15 @@ public class TransactionDao{
     }
 
     // 更新交易记录
-    public boolean update(ECard eCard) {
+    public boolean update(String newHistory,String card) {
         boolean isUpdated = false;
         String sql = "UPDATE tblTransaction SET transaction= ? WHERE card = ?";
 
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, String.join(",", eCard.getTransactionHistory()));
-            pstmt.setString(2, eCard.getCard());
+            pstmt.setString(1, String.join(",", newHistory));
+            pstmt.setString(2, card);
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {
