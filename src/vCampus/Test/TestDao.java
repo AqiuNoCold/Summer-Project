@@ -1,40 +1,62 @@
 package vCampus.Test;
 
-import vCampus.Dao.UserDao;
-import vCampus.Entity.User;
+import vCampus.Dao.ShopStudentDao;
+import vCampus.Entity.ShopStudent;
+import vCampus.Entity.Product;
+
+import java.util.ArrayList;
 
 public class TestDao {
     public static void main(String[] args) {
-        UserDao userDao = new UserDao();
+        // Create a ShopStudentDao instance
+        ShopStudentDao shopStudentDao = new ShopStudentDao();
+        ArrayList<String> courses = new ArrayList<String>();
+        // Create some Product instances
+        Product product1 = new Product("p1", "Product1", 10.0F, 5, "shop123");
+        Product product2 = new Product("p2", "Product2", 20.0F, 10, "shop123");
 
-        // Create a User object
-        User user = new User("user123", "password", 25, true, "ST", "user123@example.com", "123456789");
+        // Create a ShopStudent object with initial data
+        ShopStudent shopStudent = new ShopStudent(
+                "user123", "password", 25, true, "ST", "user123@example.com", "123456789",
+                1.23F, 122, false, courses
+        );
+        shopStudent.getFavorites().add(product1);
+        shopStudent.getFavorites().add(product2);
+        shopStudent.getBelongs().add(product2);
+        shopStudent.getBill().add(product1);
 
         // Test add method
-        boolean isAdded = userDao.add(user);
-        System.out.println("User added: " + isAdded);
+        boolean isAdded = shopStudentDao.add(shopStudent);
+        System.out.println("ShopStudent added: " + isAdded);
 
         // Test find method
-        User foundUser = userDao.find("user123");
-        System.out.println("User found: " + foundUser);
+        ShopStudentDao.ShopStudentData foundData = shopStudentDao.find("user123");
+        System.out.println("ShopStudent found: " + foundData);
 
-        // Update user details
-        if (foundUser != null) {
-            foundUser.setEmail("newemail@example.com");
-            boolean isUpdated = userDao.update(foundUser);
-            System.out.println("User updated: " + isUpdated);
+        // Update ShopStudent details
+        if (foundData != null) {
+            // Creating a new ShopStudent object with updated details
+            ShopStudent updatedShopStudent = new ShopStudent(
+                    "user123", "newpassword", 26, false, "TC", "newuser@example.com", "987654321",
+                    2.34F, 321, true, courses
+            );
+            updatedShopStudent.getFavorites().add(product2);
+            updatedShopStudent.getBelongs().add(product1);
+            updatedShopStudent.getBill().add(product2);
+            boolean isUpdated = shopStudentDao.update(updatedShopStudent);
+            System.out.println("ShopStudent updated: " + isUpdated);
 
             // Test find method again to see the updated details
-            User updatedUser = userDao.find("user123");
-            System.out.println("Updated user: " + updatedUser);
+            ShopStudentDao.ShopStudentData updatedData = shopStudentDao.find("user123");
+            System.out.println("Updated ShopStudent: " + updatedData);
         }
 
         // Test delete method
-        boolean isDeleted = userDao.delete("user123");
-        System.out.println("User deleted: " + isDeleted);
+        boolean isDeleted = shopStudentDao.delete("user123");
+        System.out.println("ShopStudent deleted: " + isDeleted);
 
         // Test find method after deletion
-        User deletedUser = userDao.find("user123");
-        System.out.println("User after deletion: " + deletedUser);
+        ShopStudentDao.ShopStudentData deletedData = shopStudentDao.find("user123");
+        System.out.println("ShopStudent after deletion: " + deletedData);
     }
 }

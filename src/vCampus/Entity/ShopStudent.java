@@ -1,9 +1,6 @@
 package vCampus.Entity;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ShopStudent extends User {
     //private String card;
@@ -16,8 +13,8 @@ public class ShopStudent extends User {
     //private boolean lost;
     //private String password;
 
-    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost){
-        super(id, pwd, age, gender, role, email, card, remain, password, lost);
+    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost,ArrayList<String> courses){
+        super(id, pwd, age, gender, role, email, card, remain, password, lost, courses);
         /*
         this.remain = balance;
         this.lost = false;
@@ -34,8 +31,34 @@ public class ShopStudent extends User {
     public List<Product> getBill() {
         return bill;
     }
-    //public boolean getLost(){return lost;}
 
+    /*
+    用于数据库操作，存放productid
+     */
+    public String getFavoritesId() {
+        List<String> favoritesId = new ArrayList<>();
+        for (Product p : favorites) {
+            favoritesId.add(p.getId());
+        }
+        return String.join(",", favoritesId);
+    }
+
+    public String getBelongsId() {
+        List<String> belongsId = new ArrayList<>();
+        for (Product p : belongs) {
+            belongsId.add(p.getId());
+        }
+        return String.join(",", belongsId);
+    }
+
+    public String getBillId() {
+        List<String> billId = new ArrayList<>();
+        for (Product p : bill) {
+            billId.add(p.getId());
+        }
+        return String.join(",", billId);
+    }
+    //public boolean getLost(){return lost;}
     public boolean buyProduct(Product product,int nums) {
         Scanner scanner = new Scanner(System.in);
 
@@ -55,7 +78,7 @@ public class ShopStudent extends User {
                 remain -= product.getPrice()*nums;
                 System.out.println("购买成功！");
                 Date datetime = new Date();
-                int ID = bill.size()+1;
+                String ID = String.valueOf(bill.size()+1);
                 float cost = product.countPrice();
                 Product hisProduct = new Product(ID, product.getName(), product.getPrice(),nums, product.getOwner());
                 bill.add(hisProduct);
@@ -75,7 +98,7 @@ public class ShopStudent extends User {
         Scanner scanner = new Scanner(System.in);
 
         //System.out.print("请输入商品ID: ");
-        int newId = size+1;
+        String newId = String.valueOf(size+1);
         System.out.print("请输入新的商品名称: ");
         String newName = scanner.nextLine();
         System.out.print("请输入新的商品数量: ");
@@ -107,10 +130,10 @@ public class ShopStudent extends User {
         System.out.println("商品信息更新成功！");
     }
 
-    public void deleteProduct(int id){
+    public void deleteProduct(String id){
         int Index = 0;
         for (Product product : belongs) {
-            if (product.getId() == id) {
+            if (Objects.equals(product.getId(), id)) {
                 belongs.remove(Index);
                 break;
             }
@@ -145,9 +168,9 @@ public class ShopStudent extends User {
         }
     }
 
-    public boolean isMine(int id){
+    public boolean isMine(String id){
         for (Product product : belongs) {
-            if(id == product.getId())
+            if(Objects.equals(id, product.getId()))
                 return true;
         }
         return false;

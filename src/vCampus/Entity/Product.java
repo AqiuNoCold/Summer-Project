@@ -5,14 +5,14 @@ import java.util.*;
 
 // 商品类
 public class Product {
-    private int id;
+    private String id;
     private String name;
     private float price;
     private int numbers;
     private String owner;
     private float discount;
     private Date time;
-    public Product(int id, String name, float price,int numbers,String owner) {
+    public Product(String id, String name, float price,int numbers,String owner) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -22,7 +22,7 @@ public class Product {
         this.discount = 1;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
     public String getName() {
@@ -44,7 +44,7 @@ public class Product {
         return discount;
     }
 
-    public void setId(int id){
+    public void setId(String id){
         this.id = id;
     }
 

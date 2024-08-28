@@ -3,9 +3,12 @@ package vCampus.Dao;
 import vCampus.Db.DbConnection;
 import vCampus.Entity.User;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UserDao implements BaseDao<User> {
     private Connection conn = null;
@@ -17,7 +20,7 @@ public class UserDao implements BaseDao<User> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblUser (id, pwd, age, gender, role, email, card) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblUser (id, pwd, age, gender, role, email, card, remain, password, lost, courses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, user.getId());
             pstmt.setString(2, user.getPwd());
@@ -26,6 +29,10 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(5, user.getRole());
             pstmt.setString(6, user.getEmail());
             pstmt.setString(7, user.getCard());
+            pstmt.setFloat(8, user.getRemain());
+            pstmt.setInt(9, user.getPassword());
+            pstmt.setBoolean(10, user.getLost());
+            pstmt.setString(11, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -41,7 +48,7 @@ public class UserDao implements BaseDao<User> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblUser SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ? WHERE id = ?";
+            String sql = "UPDATE tblUser SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ?, remain = ?, password = ?, lost = ?, courses = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, user.getPwd());
             pstmt.setInt(2, user.getAge());
@@ -49,7 +56,11 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(4, user.getRole());
             pstmt.setString(5, user.getEmail());
             pstmt.setString(6, user.getCard());
-            pstmt.setString(7, user.getId());
+            pstmt.setFloat(7, user.getRemain());
+            pstmt.setInt(8, user.getPassword());
+            pstmt.setBoolean(9, user.getLost());
+            pstmt.setString(10, user.getId());
+            pstmt.setString(11, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
@@ -88,6 +99,8 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(1, id);
             rs = pstmt.executeQuery();
             if (rs.next()) {
+                String coursesStr = rs.getString("courses");
+                ArrayList<String> courses = new ArrayList<>(Arrays.asList(coursesStr.split(",")));
                 user = new User(
                         rs.getString("id"),
                         rs.getString("pwd"),
@@ -95,7 +108,11 @@ public class UserDao implements BaseDao<User> {
                         rs.getBoolean("gender"),
                         rs.getString("role"),
                         rs.getString("email"),
-                        rs.getString("card")
+                        rs.getString("card"),
+                        rs.getFloat("remain"),
+                        rs.getInt("password"),
+                        rs.getBoolean("lost"),
+                        courses
                 );
             }
         } catch (Exception e) {
@@ -105,6 +122,4 @@ public class UserDao implements BaseDao<User> {
         }
         return user;
     }
-
-
 }
