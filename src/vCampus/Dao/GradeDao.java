@@ -3,10 +3,9 @@ package vCampus.Dao;
 import vCampus.Db.DbConnection;
 import vCampus.Entity.Grade;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GradeDao implements BaseDao<Grade> {
     private Connection conn = null;
@@ -85,6 +84,68 @@ public class GradeDao implements BaseDao<Grade> {
             DbConnection.closeConnection(conn);
         }
         return isDeleted;
+    }
+
+    public boolean delete_course(String id, String course_id) {
+        boolean isDeleted = false;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "DELETE FROM tblGrade WHERE card_id = ? AND course_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, id);
+            pstmt.setString(2, course_id);
+            System.out.println(pstmt.toString());
+            int rowsAffected = pstmt.executeUpdate();
+            isDeleted = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isDeleted;
+    }
+
+    public ArrayList<ArrayList<String>> searchPrivateCourse(String condition_name, String condition) {
+        Statement statement = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        ArrayList<ArrayList<String>> al = new ArrayList<ArrayList<String>>();
+        ArrayList<String> temp = null;
+        boolean isInt = false;
+
+        try {
+            conn = DbConnection.getConnection();
+            String sql = null;
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            if (condition_name.equals("null") && condition.equals("null")) {
+                sql = "SELECT* FROM tblprivate_course";
+            } else { // 如果两个参数不为空
+                if (condition_name.equals("card_id")) {
+                    isInt = true;
+                }
+
+                if (isInt)
+                    sql = "SELECT* FROM tblGrade" + " WHERE " + condition_name + "=" + condition;
+                else
+                    sql = "SELECT* FROM tblGrade" + " WHERE " + condition_name + " LIKE" + "'%" + condition + "%'";
+            }
+            System.out.println(sql);
+            rs = statement.executeQuery(sql);
+            rsmd = rs.getMetaData();
+            while (rs.next()) {
+                temp = new ArrayList<String>();
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    temp.add(rs.getString(i));
+                }
+                al.add(temp);
+            }
+            return al;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return al;
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
     }
 
     @Override
