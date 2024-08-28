@@ -2,26 +2,25 @@ package vCampus.Dao;
 
 import vCampus.Db.DbConnection;
 import vCampus.Entity.ECard;  // 假设你有一个 Transaction 类
-import vCampus.Entity.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TransactionDao {
+public class TransactionDao{
     private Connection conn = null;
     private PreparedStatement pstmt = null;
 
     // 添加交易记录
     public boolean add(ECard eCard) {
         boolean isAdded = false;
-        String sql = "INSERT INTO tblTransaction (transactionHistory, card) VALUES (?, ?)";
+        String sql = "INSERT INTO tblTransaction (transaction, card) VALUES (?, ?)";
 
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, eCard.getTransactionHistory().toString());
+            pstmt.setString(1, String.join(",", eCard.getTransactionHistory()));
             pstmt.setString(2, eCard.getCard());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
@@ -36,12 +35,12 @@ public class TransactionDao {
     // 更新交易记录
     public boolean update(ECard eCard) {
         boolean isUpdated = false;
-        String sql = "UPDATE tblTransaction SET transactionHistory = ? WHERE card = ?";
+        String sql = "UPDATE tblTransaction SET transaction= ? WHERE card = ?";
 
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, eCard.getTransactionHistory().toString());
+            pstmt.setString(1, String.join(",", eCard.getTransactionHistory()));
             pstmt.setString(2, eCard.getCard());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;

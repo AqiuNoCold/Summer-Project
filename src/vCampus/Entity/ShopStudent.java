@@ -31,8 +31,34 @@ public class ShopStudent extends User {
     public List<Product> getBill() {
         return bill;
     }
-    //public boolean getLost(){return lost;}
 
+    /*
+    用于数据库操作，存放productid
+     */
+    public String getFavoritesId() {
+        List<String> favoritesId = new ArrayList<>();
+        for (Product p : favorites) {
+            favoritesId.add(p.getId());
+        }
+        return String.join(",", favoritesId);
+    }
+
+    public String getBelongsId() {
+        List<String> belongsId = new ArrayList<>();
+        for (Product p : belongs) {
+            belongsId.add(p.getId());
+        }
+        return String.join(",", belongsId);
+    }
+
+    public String getBillId() {
+        List<String> billId = new ArrayList<>();
+        for (Product p : bill) {
+            billId.add(p.getId());
+        }
+        return String.join(",", billId);
+    }
+    //public boolean getLost(){return lost;}
     public boolean buyProduct(Product product,int nums) {
         Scanner scanner = new Scanner(System.in);
 
