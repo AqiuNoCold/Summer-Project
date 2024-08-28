@@ -1,4 +1,4 @@
-package vCampus.Entity;
+package vCampus.Entity.Book;
 
 public class BookReview {
 
