@@ -1,6 +1,8 @@
-package vCampus.Entity;
+package vCampus.Entity.Book;
 
 import java.util.List;
+
+import vCampus.Entity.UserInfo;
 
 public class BookUser {
     private UserInfo userInfo; // 用户信息
