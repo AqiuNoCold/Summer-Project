@@ -1,26 +1,26 @@
 package vCampus.Dao;
 
 import vCampus.Db.DbConnection;
-import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.ECard.ECardDTO;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class TransactionDao{
+public class ECardDao {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
 
-    // 添加交易记录
-    public boolean add(ECard eCard) {
+    public boolean add(ECardDTO cardInfo) {
         boolean isAdded = false;
-        String sql = "INSERT INTO tblTransaction (transaction, card) VALUES (?, ?)";
-
+        String sql = "INSERT INTO tblECard (remain, password, card) VALUES (?, ?, ?)";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, String.join(",", eCard.getTransactionHistory()));
-            pstmt.setString(2, eCard.getCard());
+            pstmt.setFloat(1, cardInfo.getRemain());
+            pstmt.setInt(2, cardInfo.getPassword());
+            pstmt.setString(3, cardInfo.getCard());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -30,17 +30,16 @@ public class TransactionDao{
         }
         return isAdded;
     }
-
-    // 更新交易记录
-    public boolean update(String newHistory,String card) {
+    public boolean update(ECardDTO cardInfo) {
         boolean isUpdated = false;
-        String sql = "UPDATE tblTransaction SET transaction= ? WHERE card = ?";
+        String sql = "UPDATE tblECard SET remain = ?, password = ? WHERE card = ?";
 
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, String.join(",", newHistory));
-            pstmt.setString(2, card);
+            pstmt.setFloat(1, cardInfo.getRemain());
+            pstmt.setInt(2, cardInfo.getPassword());
+            pstmt.setString(3, cardInfo.getCard());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {
@@ -54,7 +53,7 @@ public class TransactionDao{
     // 删除交易记录
     public boolean delete(String card) {
         boolean isDeleted = false;
-        String sql = "DELETE FROM tblTransaction WHERE card = ?";
+        String sql = "DELETE FROM tblECard WHERE card = ?";
 
         try {
             conn = DbConnection.getConnection();
@@ -71,9 +70,9 @@ public class TransactionDao{
     }
 
     // 查找交易记录
-    public String find(String card) {
-        ECard eCard = null;
-        String sql = "SELECT * FROM tblTransaction WHERE card = ?";
+    public ECardDTO find(String card) {
+        ECardDTO cardInfo = null;
+        String sql = "SELECT * FROM tblECard WHERE card = ?";
         ResultSet rs = null;
         String transaction = null;
         try {
@@ -83,13 +82,17 @@ public class TransactionDao{
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                transaction = rs.getString("transactionHistory");
+                cardInfo = new ECardDTO(
+                        rs.getFloat("remain"),
+                        rs.getInt("password"),
+                        rs.getString("card")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return transaction;
+        return cardInfo;
     }
 }
