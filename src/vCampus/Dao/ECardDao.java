@@ -33,7 +33,6 @@ public class ECardDao {
     public boolean update(ECardDTO cardInfo) {
         boolean isUpdated = false;
         String sql = "UPDATE tblECard SET remain = ?, password = ? WHERE card = ?";
-
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -50,7 +49,24 @@ public class ECardDao {
         return isUpdated;
     }
 
-    // 删除交易记录
+    public boolean updatePassword(Integer password, String card) {
+        boolean isUpdated = false;
+        String sql = "UPDATE tblECard SET  password = ? WHERE card = ?";
+        try {
+            conn = DbConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, password);
+            pstmt.setString(2, card);
+            int rowsAffected = pstmt.executeUpdate();
+            isUpdated = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isUpdated;
+    }
+    // 删除
     public boolean delete(String card) {
         boolean isDeleted = false;
         String sql = "DELETE FROM tblECard WHERE card = ?";
@@ -69,7 +85,7 @@ public class ECardDao {
         return isDeleted;
     }
 
-    // 查找交易记录
+    // 查找
     public ECardDTO find(String card) {
         ECardDTO cardInfo = null;
         String sql = "SELECT * FROM tblECard WHERE card = ?";

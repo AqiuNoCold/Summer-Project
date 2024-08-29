@@ -84,5 +84,10 @@ public class ECardClientSrv {
         if(ServerResult)
         System.out.println("Password changed successfully!");
     }
+
+    public static boolean payClientSrv(){
+        comparePasswordClientSrv();
+        return true;
+    }
 }
  

@@ -2,14 +2,15 @@ package vCampus.Entity.ECard;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.LinkedList;
+
 import vCampus.Entity.User;
 
 public class ECard extends User {
     protected Float remain;    //账户余额
     protected Integer password; //支付密码
 //    protected Boolean lost;    //账户冻结情况
-    private ArrayList<String> transactionHistory;
+    private LinkedList<String> transactionHistory;
 
     public ECard(User user,ECardDTO testDTO) {
         super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(), user.getCard(),user.getLost(),user.getCourses());
@@ -22,11 +23,11 @@ public class ECard extends User {
 //        super(id, pwd, age, gender, role, email, card,lost,NULL);
 //    }
 
-    public ArrayList<String> getTransactionHistory() {
+    public LinkedList<String> getTransactionHistory() {
         return transactionHistory;
     }
 
-    public void setTransactionHistory(ArrayList<String> transactionHistory) {
+    public void setTransactionHistory(LinkedList<String> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }
 
@@ -47,34 +48,9 @@ public class ECard extends User {
         this.password = password; // 可以根据需要添加更多验证
     }
 
-    public boolean isLost() {
-        boolean result =!lost;
-        this.lost=true;
-        return result;
-    }
-
-    public boolean notLost() {
-        boolean result =lost;
-        lost=false;
-        return result;
-    }
-
     void deposit(float amount) {
         remain+=amount;
     }
 
-    String addTransaction(float amount,String reason) {
-        LocalDateTime now = LocalDateTime.now();
-        // 自定义格式化
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedNow = now.format(formatter);
-
-        return  formattedNow + ","+ amount +","+reason;
-    }
-
-    public String charge(float amount) {
-        deposit(amount);
-        return addTransaction(amount,"Charged");
-    }
 
 }
