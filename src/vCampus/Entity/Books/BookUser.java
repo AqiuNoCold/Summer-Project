@@ -1,5 +1,6 @@
 package vCampus.Entity.Books;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import vCampus.Entity.UserInfo;
@@ -13,9 +14,15 @@ public class BookUser {
         this.borrowRecords = new ArrayList<>();
     }
 
-    // 添加借阅记录
-    public void addBorrowRecord(BorrowRecord borrowRecord) {
-        borrowRecords.add(borrowRecord);
+    // 添加借阅记录，返回布尔值表示是否成功
+    public boolean addBorrowRecord(BorrowRecord borrowRecord) {
+        if (userInfo.isLost()) {
+            // 用户账户被冻结，无法添加借阅记录
+            return false;
+        } else {
+            borrowRecords.add(borrowRecord);
+            return true;
+        }
     }
 
     // 获取用户的所有借阅记录
