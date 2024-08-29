@@ -35,12 +35,19 @@ public class UserInfo {
         this.card = card;
     }
 
-    public Boolean getLost() {
+    // 判断账户是否被冻结
+    public boolean isLost() {
         return lost;
     }
 
-    public void setLost(Boolean lost) {
-        this.lost = lost;
+    // 冻结账户
+    public void freezeAccount() {
+        lost = true;
+    }
+
+    // 解冻账户
+    public void unfreezeAccount() {
+        lost = false;
     }
 
     public static UserInfo getCurrentUser() {

@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Scanner;
 
 import vCampus.Db.DbConnection;
 import vCampus.Entity.Books.Book;
@@ -137,10 +139,126 @@ public class BookDao implements BaseDao<Book> {
         return book;
     }
 
-    public List<String> search(Map<String, String> searchCriteria) {
+    public int getTotalBooks(Map<String, String> searchCriteria) {
+        int totalBooks = 0;
+        try {
+            Connection conn = DbConnection.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBooks WHERE 1=1");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                switch (key) {
+                    case "isbn":
+                    case "isbn13":
+                        sql.append(" AND ").append(key).append(" = ?");
+                        params.add(value);
+                        break;
+                    case "language":
+                        sql.append(" AND ").append(key).append(" LIKE ?");
+                        params.add(value + "%");
+                        break;
+                    case "title":
+                    case "authors":
+                    case "subjects":
+                    case "synopsis":
+                    case "publisher":
+                    case "title_long":
+                        if (value.contains("%")) {
+                            sql.append(" AND ").append(key).append(" LIKE ?");
+                        } else {
+                            sql.append(" AND ").append(key).append(" = ?");
+                        }
+                        params.add(value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                totalBooks = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return totalBooks;
+    }
+
+    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
         List<String> bookIds = new ArrayList<>();
         try {
-            conn = DbConnection.getConnection();
+            Connection conn = DbConnection.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                switch (key) {
+                    case "isbn":
+                    case "isbn13":
+                        sql.append(" AND ").append(key).append(" = ?");
+                        params.add(value);
+                        break;
+                    case "language":
+                        sql.append(" AND ").append(key).append(" LIKE ?");
+                        params.add(value + "%");
+                        break;
+                    case "title":
+                        sql.append(
+                                " AND (MATCH(title) AGAINST (? IN BOOLEAN MODE) OR MATCH(title_long) AGAINST (? IN BOOLEAN MODE))");
+                        params.add(value);
+                        params.add(value);
+                        break;
+                    case "authors":
+                    case "subjects":
+                    case "synopsis":
+                    case "publisher":
+                        sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
+                        params.add(value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            sql.append(" LIMIT ? OFFSET ?");
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+            pstmt.setInt(params.size() + 1, pageSize);
+            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String isbn = rs.getString("isbn");
+                String isbn13 = rs.getString("isbn13");
+                String bookId = isbn + "," + isbn13;
+                bookIds.add(bookId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return bookIds;
+    }
+
+    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
+        List<String> bookIds = new ArrayList<>();
+        try {
+            Connection conn = DbConnection.getConnection();
             StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
             List<String> params = new ArrayList<>();
 
@@ -155,12 +273,15 @@ public class BookDao implements BaseDao<Book> {
                 params.add(value);
             }
 
-            pstmt = conn.prepareStatement(sql.toString());
+            sql.append(" LIMIT ? OFFSET ?");
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
             for (int i = 0; i < params.size(); i++) {
                 pstmt.setString(i + 1, params.get(i));
             }
+            pstmt.setInt(params.size() + 1, pageSize);
+            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
 
-            rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 String isbn = rs.getString("isbn");
                 String isbn13 = rs.getString("isbn13");
