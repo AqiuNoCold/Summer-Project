@@ -17,6 +17,7 @@ public class DbCreator {
         createBorrowRecordTable();
         createShopStudentTable();
         createProductTable();
+        createECardTable();
         createTransactionTable();
         createCourseTable();
     }
@@ -30,8 +31,8 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-                + "remain FLOAT CHECK (remain >= 0), "
-                + "password INT, "
+//                + "remain FLOAT CHECK (remain >= 0), "
+//                + "password INT, "
                 + "lost BOOLEAN DEFAULT FALSE, "
                 + "courses TEXT"
                 + ")";
@@ -156,9 +157,20 @@ public class DbCreator {
         executeSQL(createTableSQL, "tblProduct");
     }
 
+    private static void createECardTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblECard ("
+                + "remain FLOAT CHECK (remain >= 0), "
+                + "password INT, "
+                + "card CHAR(9) CHECK (LENGTH(card) = 9)"
+                + ")";
+
+        executeSQL(createTableSQL, "tblECard");
+    }
+
+
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("
-                + "transaction VARCHAR(255), "
+                + "transaction TEXT, "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9)"
                 + ")";
 
