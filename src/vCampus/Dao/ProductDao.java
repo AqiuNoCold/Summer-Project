@@ -107,4 +107,68 @@ public class ProductDao implements BaseDao<Product> {
         }
         return product;
     }
+
+    public int getRecordCount(String tableName) {
+        int count = 0;
+        try {
+            conn = DbConnection.getConnection();
+            String query = "SELECT COUNT(*) FROM " + tableName;
+            pstmt = conn.prepareStatement(query);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1); // 获取计数结果
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return count;
+    }
+
+    /*
+    public String searchProduct(String keyword) {
+        try {
+            conn = DbConnection.getConnection();
+            String query = "SELECT COUNT(*) FROM " + tableName;
+            pstmt = conn.prepareStatement(query);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1); // 获取计数结果
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+
+
+        // JDBC连接、查询和结果处理
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            // SQL查询，使用LIKE进行模糊匹配
+            String sql = "SELECT * FROM products WHERE product_name LIKE ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                // 设置查询参数
+                statement.setString(1, "%" + keyword + "%");
+
+                // 执行查询
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    // 处理结果
+                    while (resultSet.next()) {
+                        int id = resultSet.getInt("id");
+                        String productName = resultSet.getString("product_name");
+                        double price = resultSet.getDouble("price");
+
+                        System.out.println("ID: " + id);
+                        System.out.println("Product Name: " + productName);
+                        System.out.println("Price: " + price);
+                        System.out.println("--------------------");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    */
 }
