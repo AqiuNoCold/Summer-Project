@@ -14,8 +14,8 @@ public class ShopStudent extends ECard {
     private List<Product> belongs;
     private List<String> bill;
 
-    public ShopStudent(User user, ECardDTO testDTO){
-        super(user,testDTO);
+    public ShopStudent(User user){
+        super(user);
         //初始化商店用户
         ShopStudentDao dao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = dao.find(id);

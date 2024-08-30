@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import vCampus.Dao.Books.BookDao;
+import vCampus.Dao.Books.BookReviewDao;
+
 public class BookShelf {
     private Long id; // 书架ID
     private String name; // 书架名称
@@ -12,10 +15,13 @@ public class BookShelf {
     private Long userId; // 用户ID
     private List<Book> books; // 书架上的图书
     private List<BookReview> reviews; // 书架上的书评
+    private List<String> bookIds; // 图书ID列表
+    private List<String> reviewIds; // 书评ID列表
     private boolean isDirty = false; // 脏数据标志
 
     // 构造方法
-    public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime) {
+    public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime,
+            List<String> bookIds, List<String> reviewIds) {
         this.id = id;
         this.name = name;
         this.userId = userId;
@@ -23,6 +29,8 @@ public class BookShelf {
         this.updateTime = updateTime;
         this.books = new ArrayList<>();
         this.reviews = new ArrayList<>();
+        this.bookIds = bookIds != null ? new ArrayList<>(bookIds) : new ArrayList<>();
+        this.reviewIds = reviewIds != null ? new ArrayList<>(reviewIds) : new ArrayList<>();
     }
 
     // Getter和Setter方法
@@ -71,7 +79,33 @@ public class BookShelf {
         this.isDirty = true;
     }
 
+    public List<String> getBookIds() {
+        if (bookIds.isEmpty() && !books.isEmpty()) {
+            bookIds = new ArrayList<>();
+            for (Book book : books) {
+                bookIds.add(book.getId());
+            }
+        }
+        return bookIds;
+    }
+
+    public void setBookIds(List<String> bookIds) {
+        this.bookIds = bookIds;
+        this.books.clear();
+        this.isDirty = true;
+    }
+
+    // 获取图书列表
     public List<Book> getBooks() {
+        if (books.isEmpty() && !bookIds.isEmpty()) {
+            BookDao bookDao = new BookDao();
+            for (String bookId : bookIds) {
+                Book book = bookDao.find(bookId);
+                if (book != null) {
+                    books.add(book);
+                }
+            }
+        }
         return books;
     }
 
@@ -80,7 +114,33 @@ public class BookShelf {
         this.isDirty = true;
     }
 
+    public List<String> getReviewIds() {
+        if (reviewIds.isEmpty() && !reviews.isEmpty()) {
+            reviewIds = new ArrayList<>();
+            for (BookReview review : reviews) {
+                reviewIds.add(String.valueOf(review.getId()));
+            }
+        }
+        return reviewIds;
+    }
+
+    public void setReviewIds(List<String> reviewIds) {
+        this.reviewIds = reviewIds;
+        this.reviews.clear();
+        this.isDirty = true;
+    }
+
+    // 获取书评列表
     public List<BookReview> getReviews() {
+        if (reviews.isEmpty() && !reviewIds.isEmpty()) {
+            BookReviewDao reviewDao = new BookReviewDao();
+            for (String reviewId : reviewIds) {
+                BookReview review = reviewDao.find(reviewId);
+                if (review != null) {
+                    reviews.add(review);
+                }
+            }
+        }
         return reviews;
     }
 
@@ -98,17 +158,22 @@ public class BookShelf {
     }
 
     // 添加图书
-    public void addBook(Book book) {
+    public boolean addBook(Book book) {
         if (!books.contains(book)) {
             books.add(book);
             this.isDirty = true;
+            return true;
         }
+        return false;
     }
 
     // 移除图书
-    public void removeBook(Book book) {
-        books.remove(book);
-        this.isDirty = true;
+    public boolean removeBook(Book book) {
+        if (books.remove(book)) {
+            this.isDirty = true;
+            return true;
+        }
+        return false;
     }
 
     // 添加书评
@@ -121,7 +186,14 @@ public class BookShelf {
 
     // 复制书架
     public BookShelf copy() {
-        BookShelf copy = new BookShelf(null, this.name, this.userId, LocalDateTime.now(), LocalDateTime.now());
+        BookShelf copy = new BookShelf(
+                null,
+                this.name,
+                this.userId,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                this.bookIds,
+                this.reviewIds);
         copy.setBooks(new ArrayList<>(this.books));
         copy.setReviews(new ArrayList<>(this.reviews));
         return copy;

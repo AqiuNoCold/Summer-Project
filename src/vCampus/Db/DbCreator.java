@@ -14,6 +14,7 @@ public class DbCreator {
         createStuTable();
         createGradeTable();
         createBooksTable();
+        createBookShelfTable();
         createBorrowRecordTable();
         createShopStudentTable();
         createProductTable();
@@ -22,8 +23,8 @@ public class DbCreator {
         createCourseTable();
     }
 
-    private static void createUserTable() {//删除了courses属性
-        String createTableSQL =  "CREATE TABLE IF NOT EXISTS tblUser ("
+    private static void createUserTable() {// 删除了courses属性
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
                 + "age INT CHECK (age > 0), "
@@ -31,8 +32,8 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-//                + "remain FLOAT CHECK (remain >= 0), "
-//                + "password INT, "
+                // + "remain FLOAT CHECK (remain >= 0), "
+                // + "password INT, "
                 + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
@@ -84,7 +85,7 @@ public class DbCreator {
                 + "image TEXT, "
                 + "pages INT, "
                 + "title VARCHAR(255), "
-                + "isbn13 CHAR(13) PRIMARY KEY, "  // 将 isbn13 作为主键
+                + "isbn13 CHAR(13) PRIMARY KEY, " // 将 isbn13 作为主键
                 + "authors TEXT, "
                 + "binding VARCHAR(50), "
                 + "edition VARCHAR(50), "
@@ -120,6 +121,20 @@ public class DbCreator {
                 + ")";
 
         executeSQL(createTableSQL, "tblBorrowRecord");
+    }
+
+    private static void createBookShelfTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookShelf ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "name VARCHAR(255) NOT NULL, "
+                + "createTime TIMESTAMP NOT NULL, "
+                + "updateTime TIMESTAMP NOT NULL, "
+                + "userId BIGINT NOT NULL, "
+                + "bookIds TEXT, "
+                + "reviewIds TEXT, "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookShelf");
     }
 
     private static void createShopStudentTable() {
@@ -165,7 +180,6 @@ public class DbCreator {
 
         executeSQL(createTableSQL, "tblECard");
     }
-
 
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("
