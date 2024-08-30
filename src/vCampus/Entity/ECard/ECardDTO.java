@@ -11,6 +11,13 @@ public class ECardDTO {
         this.card = card;
     }
 
+    public ECardDTO(String card) {
+        remain = 0f;
+        password = Integer.parseInt(card.substring(card.length() - 6));
+        this.card = card;
+    }
+
+
     public Float getRemain() {
         return remain;
     }
