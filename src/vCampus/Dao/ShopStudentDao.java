@@ -1,7 +1,7 @@
 package vCampus.Dao;
 
 import vCampus.Db.DbConnection;
-import vCampus.Entity.ShopStudent;
+import vCampus.Entity.Shop.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
