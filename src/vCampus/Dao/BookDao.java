@@ -255,44 +255,44 @@ public class BookDao implements BaseDao<Book> {
         return bookIds;
     }
 
-    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
-        List<String> bookIds = new ArrayList<>();
-        try {
-            Connection conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
-            List<String> params = new ArrayList<>();
-
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (value.contains("%")) {
-                    sql.append(" AND ").append(key).append(" LIKE ?");
-                } else {
-                    sql.append(" AND ").append(key).append(" = ?");
-                }
-                params.add(value);
-            }
-
-            sql.append(" LIMIT ? OFFSET ?");
-            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-            for (int i = 0; i < params.size(); i++) {
-                pstmt.setString(i + 1, params.get(i));
-            }
-            pstmt.setInt(params.size() + 1, pageSize);
-            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
-
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                String isbn = rs.getString("isbn");
-                String isbn13 = rs.getString("isbn13");
-                String bookId = isbn + "," + isbn13;
-                bookIds.add(bookId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DbConnection.closeConnection(conn);
-        }
-        return bookIds;
-    }
+//    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
+//        List<String> bookIds = new ArrayList<>();
+//        try {
+//            Connection conn = DbConnection.getConnection();
+//            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
+//            List<String> params = new ArrayList<>();
+//
+//            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+//                String key = entry.getKey();
+//                String value = entry.getValue();
+//                if (value.contains("%")) {
+//                    sql.append(" AND ").append(key).append(" LIKE ?");
+//                } else {
+//                    sql.append(" AND ").append(key).append(" = ?");
+//                }
+//                params.add(value);
+//            }
+//
+//            sql.append(" LIMIT ? OFFSET ?");
+//            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+//            for (int i = 0; i < params.size(); i++) {
+//                pstmt.setString(i + 1, params.get(i));
+//            }
+//            pstmt.setInt(params.size() + 1, pageSize);
+//            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
+//
+//            ResultSet rs = pstmt.executeQuery();
+//            while (rs.next()) {
+//                String isbn = rs.getString("isbn");
+//                String isbn13 = rs.getString("isbn13");
+//                String bookId = isbn + "," + isbn13;
+//                bookIds.add(bookId);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            DbConnection.closeConnection(conn);
+//        }
+//        return bookIds;
+//    }
 }

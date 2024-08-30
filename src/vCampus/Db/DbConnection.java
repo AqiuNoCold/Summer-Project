@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public final class DbConnection {
     private static final Logger logger = Logger.getLogger(DbConnection.class.getName());
     private static final String URL = "jdbc:mysql://localhost:3306/vCampus?serverTimezone=UTC";
-    private static final String USERNAME = "tester";
+    private static final String USERNAME = "Tester";
     private static final String PASSWORD = "12345678";
 
     /*
