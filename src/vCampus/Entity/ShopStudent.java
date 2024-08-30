@@ -1,18 +1,22 @@
 package vCampus.Entity;
 
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import vCampus.Dao.*;
+import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.ECard.ECardDTO;
 
 
-public class ShopStudent extends User {
+public class ShopStudent extends ECard {
 
     private List<Product> favorites;
     private List<Product> belongs;
     private List<String> bill;
 
-    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost){
-        super(id, pwd, age, gender, role, email, card, remain, password, lost);
+    public ShopStudent(User user, ECardDTO testDTO){
+        super(user,testDTO);
+        //初始化商店用户
         ShopStudentDao dao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = dao.find(id);
         turnFavorites(data.getFavorites());
