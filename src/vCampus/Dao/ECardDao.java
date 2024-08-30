@@ -105,7 +105,7 @@ public class ECardDao {
 
     // 查找
     public ECardDTO find(String card) {
-        ECardDTO cardInfo = null;
+        ECardDTO cardInfo = new ECardDTO(card);
         String sql = "SELECT * FROM tblECard WHERE card = ?";
         ResultSet rs = null;
         try {
@@ -120,6 +120,9 @@ public class ECardDao {
                         rs.getInt("password"),
                         rs.getString("card")
                 );
+            }
+            else{
+                add(cardInfo);
             }
         } catch (SQLException e) {
             e.printStackTrace();
