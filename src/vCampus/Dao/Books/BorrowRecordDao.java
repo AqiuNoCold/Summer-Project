@@ -23,8 +23,8 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             conn = DbConnection.getConnection();
             String sql = "INSERT INTO tblBorrowRecord (borrowDate, returnDate, bookId, bookUserId, status) VALUES (?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
-            pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
+            pstmt.setDate(1, java.sql.Date.valueOf(borrowRecord.getBorrowDate()));
+            pstmt.setDate(2, java.sql.Date.valueOf(borrowRecord.getReturnDate()));
             pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
             pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
             pstmt.setString(5, borrowRecord.getStatus().name());
@@ -45,8 +45,8 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             conn = DbConnection.getConnection();
             String sql = "UPDATE tblBorrowRecord SET borrowDate = ?, returnDate = ?, bookId = ?, bookUserId = ?, status = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
-            pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
+            pstmt.setDate(1, java.sql.Date.valueOf(borrowRecord.getBorrowDate()));
+            pstmt.setDate(2, java.sql.Date.valueOf(borrowRecord.getReturnDate()));
             pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
             pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
             pstmt.setString(5, borrowRecord.getStatus().name());
@@ -88,14 +88,14 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                BorrowRecord borrowRecord = new BorrowRecord(
-                        rs.getLong("id"),
-                        rs.getDate("borrowDate"),
-                        rs.getDate("returnDate"),
-                        new BookDao().find(String.valueOf(rs.getLong("bookId"))),
-                        new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
-                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
-                return borrowRecord;
+                // BorrowRecord borrowRecord = new BorrowRecord(
+                // rs.getLong("id"),
+                // rs.getDate("borrowDate"),
+                // rs.getDate("returnDate"),
+                // new BookDao().find(String.valueOf(rs.getLong("bookId"))),
+                // new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
+                // BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
+                // return borrowRecord;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -132,14 +132,14 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setInt(2, (page - 1) * pageSize);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                BorrowRecord borrowRecord = new BorrowRecord(
-                        rs.getLong("id"),
-                        rs.getDate("borrowDate"),
-                        rs.getDate("returnDate"),
-                        new BookDao().find(String.valueOf(rs.getLong("bookId"))),
-                        new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
-                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
-                borrowRecords.add(borrowRecord);
+                // BorrowRecord borrowRecord = new BorrowRecord(
+                // rs.getLong("id"),
+                // rs.getDate("borrowDate"),
+                // rs.getDate("returnDate"),
+                // new BookDao().find(String.valueOf(rs.getLong("bookId"))),
+                // new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
+                // BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
+                // borrowRecords.add(borrowRecord);
             }
         } catch (SQLException e) {
             e.printStackTrace();

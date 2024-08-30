@@ -85,7 +85,7 @@ public class DbCreator {
                 + "image TEXT, "
                 + "pages INT, "
                 + "title VARCHAR(255), "
-                + "isbn13 CHAR(13) PRIMARY KEY, " // 将 isbn13 作为主键
+                + "isbn13 CHAR(13)"
                 + "authors TEXT, "
                 + "binding VARCHAR(50), "
                 + "edition VARCHAR(50), "
