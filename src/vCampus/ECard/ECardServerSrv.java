@@ -17,8 +17,8 @@ import vCampus.Entity.ECard.ECardDTO;
 public class ECardServerSrv {
 
     public static boolean isLostServerSrv(ECard testcard) {
-        boolean result =!testcard.getLost();
-        if(result) {
+        boolean result = !testcard.getLost();
+        if (result) {
             testcard.setLost(true);
             UserDao userDao = new UserDao();
             userDao.update(testcard);
@@ -27,8 +27,8 @@ public class ECardServerSrv {
     }
 
     public static boolean notLostServerSrv(ECard testcard) {
-        boolean result =testcard.getLost();
-        if(result) {
+        boolean result = testcard.getLost();
+        if (result) {
             testcard.setLost(false);
             UserDao userDao = new UserDao();
             userDao.update(testcard);
@@ -36,17 +36,18 @@ public class ECardServerSrv {
         return result;
     }
 
-    public static boolean addTransaction(String card,float amount,String reason) {
-        TransactionDao transactionDao = new TransactionDao();
-        String oldHistory=transactionDao.find(card);
+    // public static boolean addTransaction(String card,float amount,String reason)
+    // {
+    // TransactionDao transactionDao = new TransactionDao();
+    // String oldHistory=transactionDao.find(card);
 
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedNow = now.format(formatter);
-        String newHistory = formattedNow + ","+ amount +","+reason+";";
-//        transactionDao.update(oldHistory+newHistory,card);
-    }
-
+    // LocalDateTime now = LocalDateTime.now();
+    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+    // HH:mm:ss");
+    // String formattedNow = now.format(formatter);
+    // String newHistory = formattedNow + ","+ amount +","+reason+";";
+    // // transactionDao.update(oldHistory+newHistory,card);
+    // }
 
     public static float showStatusServerSrv(ECard testcard) {
         return testcard.getRemain();
@@ -57,35 +58,35 @@ public class ECardServerSrv {
         String items = transactionDao.find(testcard.getCard());
         String[] items_mid = items.split(";");
         LinkedList<String> transaction = new LinkedList<>(Arrays.asList(items_mid));
-        //        连接数据库获取流水后转化成ArrayList格式，传递给客户端
+        // 连接数据库获取流水后转化成ArrayList格式，传递给客户端
         return transaction;
     }
 
-    public static boolean comparePasswordServerSrv(ECard testcard,Integer oldPassword) {
-        return testcard.getPassword()==oldPassword;
+    public static boolean comparePasswordServerSrv(ECard testcard, Integer oldPassword) {
+        return testcard.getPassword() == oldPassword;
     }
 
-    public static boolean newPasswordServerSrv(ECard testcard,Integer newPassword) {
+    public static boolean newPasswordServerSrv(ECard testcard, Integer newPassword) {
         testcard.setPassword(newPassword);
-//        更新数据库tblUser
+        // 更新数据库tblUser
         ECardDao cardDao = new ECardDao();
-        cardDao.updatePassword(newPassword,testcard.getCard());
+        cardDao.updatePassword(newPassword, testcard.getCard());
         return true;
     }
 
-    public static boolean payServerSrv(String card,float amount,String reason,Integer passwordEntered) {
+    public static boolean payServerSrv(String card, float amount, String reason, Integer passwordEntered) {
 
         TransactionDao transactionDao = new TransactionDao();
         ECardDao cardDao = new ECardDao();
-        ECardDTO cardInfo=cardDao.find(card);
-//
-        if(passwordEntered!=cardInfo.getPassword()) {
+        ECardDTO cardInfo = cardDao.find(card);
+        //
+        if (passwordEntered != cardInfo.getPassword()) {
             return false;
         }
-        cardInfo.setRemain(cardInfo.getRemain()-amount);
+        cardInfo.setRemain(cardInfo.getRemain() - amount);
         cardDao.update(cardInfo);
 
-        addTransaction(cardInfo.getCard(),amount,reason);
+        // addTransaction(cardInfo.getCard(), amount, reason);
         return true;
     }
 }

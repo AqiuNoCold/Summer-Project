@@ -1,5 +1,6 @@
 package vCampus.Entity.Books;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class BorrowRecord {
@@ -80,49 +81,6 @@ public class BorrowRecord {
 
     public void setStatus(BorrowStatus status) {
         this.status = status;
-    }
-
-    // 判断是否逾期
-    public boolean isOverdue() {
-        if (status == BorrowStatus.BORROWING && returnDate != null) {
-            Date currentDate = new Date();
-            return currentDate.after(returnDate);
-        }
-        return false;
-    }
-
-    // 计算逾期天数
-    public int calculateOverdueDays() {
-        if (isOverdue()) {
-            Date currentDate = new Date();
-            long diffInMillies = currentDate.getTime() - returnDate.getTime();
-            return (int) (diffInMillies / (1000 * 60 * 60 * 24));
-        }
-        return 0;
-    }
-
-    // 计算罚款金额
-    public double calculateFine() {
-        int overdueDays = calculateOverdueDays();
-        return overdueDays * DAILY_FINE_RATE;
-    }
-
-    // 处理书籍丢失或罚款达到建议零售价
-    public boolean handleOverdueAndLost() {
-        if (isOverdue()) {
-            double fine = calculateFine();
-            double suggestedRetailPrice;
-            try {
-                suggestedRetailPrice = Double.parseDouble(book.getMsrp());
-            } catch (NumberFormatException e) {
-                return false; // 无法解析书籍的建议零售价
-            }
-
-            if (fine >= suggestedRetailPrice) {
-                status = BorrowStatus.LOST;
-            }
-        }
-        return true;
     }
 
     @Override

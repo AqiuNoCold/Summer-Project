@@ -14,6 +14,7 @@ public class DbCreator {
         createStuTable();
         createGradeTable();
         createBooksTable();
+        createBookShelfTable();
         createBorrowRecordTable();
         createShopStudentTable();
         createProductTable();
@@ -31,8 +32,8 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-//                + "remain FLOAT CHECK (remain >= 0), "
-//                + "password INT, "
+                // + "remain FLOAT CHECK (remain >= 0), "
+                // + "password INT, "
                 + "lost BOOLEAN DEFAULT FALSE, "
                 + "courses TEXT"
                 + ")";
@@ -123,6 +124,20 @@ public class DbCreator {
         executeSQL(createTableSQL, "tblBorrowRecord");
     }
 
+    private static void createBookShelfTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookShelf ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "name VARCHAR(255) NOT NULL, "
+                + "createTime TIMESTAMP NOT NULL, "
+                + "updateTime TIMESTAMP NOT NULL, "
+                + "userId BIGINT NOT NULL, "
+                + "bookIds TEXT, "
+                + "reviewIds TEXT, "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookShelf");
+    }
+
     private static void createShopStudentTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblShopStudent ("
                 + "id VARCHAR(255) PRIMARY KEY, "
@@ -166,7 +181,6 @@ public class DbCreator {
 
         executeSQL(createTableSQL, "tblECard");
     }
-
 
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("

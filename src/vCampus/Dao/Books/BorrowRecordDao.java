@@ -18,30 +18,32 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
 
     @Override
     public boolean add(BorrowRecord borrowRecord) {
-        String sql = "INSERT INTO tblBorrowRecord (borrowDate, returnDate, bookId, bookUserId, status) VALUES (?, ?, ?, ?, ?)";
+        boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
+            String sql = "INSERT INTO tblBorrowRecord (borrowDate, returnDate, bookId, bookUserId, status) VALUES (?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
             pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
             pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
             pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getId()));
             pstmt.setString(5, borrowRecord.getStatus().name());
-            int rows = pstmt.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
+            int rowsAffected = pstmt.executeUpdate();
+            isAdded = rowsAffected > 0;
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
+        return isAdded;
     }
 
     @Override
     public boolean update(BorrowRecord borrowRecord) {
-        String sql = "UPDATE tblBorrowRecord SET borrowDate = ?, returnDate = ?, bookId = ?, bookUserId = ?, status = ? WHERE id = ?";
+        boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
+            String sql = "UPDATE tblBorrowRecord SET borrowDate = ?, returnDate = ?, bookId = ?, bookUserId = ?, status = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
             pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
@@ -50,30 +52,31 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setString(5, borrowRecord.getStatus().name());
             pstmt.setLong(6, borrowRecord.getId());
             int rows = pstmt.executeUpdate();
-            return rows > 0;
+            isUpdated = rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
+        return isUpdated;
     }
 
     @Override
     public boolean delete(String id) {
-        String sql = "DELETE FROM tblBorrowRecord WHERE id = ?";
+        boolean isDeleted = false;
         try {
             conn = DbConnection.getConnection();
+            String sql = "DELETE FROM tblBorrowRecord WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, Long.parseLong(id));
             int rows = pstmt.executeUpdate();
-            return rows > 0;
+            isDeleted = rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
+        return isDeleted;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
         return null;
     }
@@ -114,7 +117,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
         return 0;
     }
@@ -141,7 +144,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            DbConnection.close(conn, pstmt, rs);
+            DbConnection.closeConnection(conn);
         }
         return borrowRecords;
     }

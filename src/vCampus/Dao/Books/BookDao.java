@@ -62,22 +62,32 @@ public class BookDao implements BaseDao<Book> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblBooks SET msrp = ?, image = ?, pages = ?, title = ?, authors = ?, edition = ?, language = ?, subjects = ?, synopsis = ?, publisher = ?, title_long = ?, date_published = ? WHERE isbn = ? AND isbn13 = ?";
+            String sql = "UPDATE tblBooks SET msrp = ?, image = ?, pages = ?, title = ?, authors = ?, binding = ?, edition = ?, related = ?, language = ?, subjects = ?, synopsis = ?, publisher = ?, dimensions = ?, title_long = ?, date_published = ?, copy_count = ?, review_count = ?, average_rating = ?, favorite_count = ?, borrow_count = ?, is_active = ?, is_deleted = ? WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setBigDecimal(1, book.getMsrp());
             pstmt.setString(2, book.getImage());
             pstmt.setInt(3, book.getPages());
             pstmt.setString(4, book.getTitle());
             pstmt.setString(5, book.getAuthors());
-            pstmt.setString(6, book.getEdition());
-            pstmt.setString(7, book.getLanguage());
-            pstmt.setString(8, book.getSubjects());
-            pstmt.setString(9, book.getSynopsis());
-            pstmt.setString(10, book.getPublisher());
-            pstmt.setString(11, book.getTitleLong());
-            pstmt.setString(12, book.getDatePublished());
-            pstmt.setString(13, book.getIsbn());
-            pstmt.setString(14, book.getIsbn13());
+            pstmt.setString(6, book.getBinding());
+            pstmt.setString(7, book.getEdition());
+            pstmt.setString(8, book.getRelated());
+            pstmt.setString(9, book.getLanguage());
+            pstmt.setString(10, book.getSubjects());
+            pstmt.setString(11, book.getSynopsis());
+            pstmt.setString(12, book.getPublisher());
+            pstmt.setString(13, book.getDimensions());
+            pstmt.setString(14, book.getTitleLong());
+            pstmt.setString(15, book.getDatePublished());
+            pstmt.setInt(16, book.getCopyCount());
+            pstmt.setInt(17, book.getReviewCount());
+            pstmt.setBigDecimal(18, book.getAverageRating());
+            pstmt.setInt(19, book.getFavoriteCount());
+            pstmt.setInt(20, book.getBorrowCount());
+            pstmt.setBoolean(21, book.isActive());
+            pstmt.setBoolean(22, book.isDeleted());
+            pstmt.setString(23, book.getIsbn());
+            pstmt.setString(24, book.getIsbn13());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
@@ -179,16 +189,16 @@ public class BookDao implements BaseDao<Book> {
                         params.add(value + "%");
                         break;
                     case "title":
+                        sql.append(
+                                " AND (MATCH(title) AGAINST (? IN BOOLEAN MODE) OR MATCH(title_long) AGAINST (? IN BOOLEAN MODE))");
+                        params.add(value);
+                        params.add(value);
+                        break;
                     case "authors":
                     case "subjects":
                     case "synopsis":
                     case "publisher":
-                    case "title_long":
-                        if (value.contains("%")) {
-                            sql.append(" AND ").append(key).append(" LIKE ?");
-                        } else {
-                            sql.append(" AND ").append(key).append(" = ?");
-                        }
+                        sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
                         params.add(value);
                         break;
                     default:
