@@ -1,4 +1,4 @@
-package vCampus.Dao;
+package vCampus.Dao.Books;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
 import vCampus.Entity.Books.Book;
 
