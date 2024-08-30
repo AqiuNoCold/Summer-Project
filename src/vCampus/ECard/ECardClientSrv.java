@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ECardClientSrv {
+     public static void cardIniClientSrv()
+    {
+//        请求服务端进行初始化
+    }
+
     public static void isLostClientSrv(){
 //        请求服务端isLostSSrv并根据返回值输出提示语（关于是否挂失成功）,先假设存放返回值的变量名为result
 
@@ -46,19 +51,19 @@ public class ECardClientSrv {
     }
 
     public static void comparePasswordClientSrv(){
-        Scanner scanner = new   Scanner(System.in);
-        String input = "";
-        while (true) {
-            System.out.print("Please enter the old password: ");
-            input = scanner.nextLine();
-            if (input.matches("\\d{6}")) {
-                break;
-            } else {
-                System.out.println("Invalid input，please make sure you enter 6 digits");
-            }
-        }
-        int inputPassword =Integer.parseInt(input);
-        scanner.close();
+//        Scanner scanner = new   Scanner(System.in);
+//        String input = "";
+//        while (true) {
+//            System.out.print("Please enter the old password: ");
+//            input = scanner.nextLine();
+//            if (input.matches("\\d{6}")) {
+//                break;
+//            } else {
+//                System.out.println("Invalid input，please make sure you enter 6 digits");
+//            }
+//        }
+//        int inputPassword =Integer.parseInt(input);
+//        scanner.close();
 //        输入原支付密码提交给服务端，获取返回值，假设为ServerResult
         boolean ServerResult=false;
         if(!ServerResult)
@@ -66,19 +71,19 @@ public class ECardClientSrv {
     }
 
     public static void newPasswordClientSrv(){
-        Scanner scanner = new Scanner(System.in);
-        String input = "";
-        while (true) {
-            System.out.print("Please enter the new password: ");
-            input = scanner.nextLine();
-            if (input.matches("\\d{6}")) {
-                break;
-            } else {
-                System.out.println("Invalid input，please make sure you enter 6 digits");
-            }
-        }
-        int newPassword =Integer.parseInt(input);
-        scanner.close();
+//        Scanner scanner = new Scanner(System.in);
+//        String input = "";
+//        while (true) {
+//            System.out.print("Please enter the new password: ");
+//            input = scanner.nextLine();
+//            if (input.matches("\\d{6}")) {
+//                break;
+//            } else {
+//                System.out.println("Invalid input，please make sure you enter 6 digits");
+//            }
+//        }
+//        int newPassword =Integer.parseInt(input);
+//        scanner.close();
 //        将新密码提交给服务端，获取返回值表示修改成功
         boolean ServerResult=true;
         if(ServerResult)
