@@ -29,10 +29,10 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(5, user.getRole());
             pstmt.setString(6, user.getEmail());
             pstmt.setString(7, user.getCard());
-//            pstmt.setFloat(8, user.getRemain());
-//            pstmt.setInt(9, user.getPassword());
+            // pstmt.setFloat(8, user.getRemain());
+            // pstmt.setInt(9, user.getPassword());
             pstmt.setBoolean(8, user.getLost());
-//            pstmt.setString(9, String.join(",", user.getCourses()));
+            // pstmt.setString(9, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -56,11 +56,11 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(4, user.getRole());
             pstmt.setString(5, user.getEmail());
             pstmt.setString(6, user.getCard());
-//            pstmt.setFloat(7, user.getRemain());
-//            pstmt.setInt(8, user.getPassword());
+            // pstmt.setFloat(7, user.getRemain());
+            // pstmt.setInt(8, user.getPassword());
             pstmt.setBoolean(7, user.getLost());
             pstmt.setString(8, user.getId());
-//            pstmt.setString(9, String.join(",", user.getCourses()));
+            // pstmt.setString(9, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
@@ -99,8 +99,9 @@ public class UserDao implements BaseDao<User> {
             pstmt.setString(1, id);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-//                String coursesStr = rs.getString("courses");
-//                ArrayList<String> courses = new ArrayList<>(Arrays.asList(coursesStr.split(",")));
+                // String coursesStr = rs.getString("courses");
+                // ArrayList<String> courses = new
+                // ArrayList<>(Arrays.asList(coursesStr.split(",")));
                 user = new User(
                         rs.getString("id"),
                         rs.getString("pwd"),
@@ -109,10 +110,10 @@ public class UserDao implements BaseDao<User> {
                         rs.getString("role"),
                         rs.getString("email"),
                         rs.getString("card"),
-//                        rs.getFloat("remain"),
-//                        rs.getInt("password"),
+                        // rs.getFloat("remain"),
+                        // rs.getInt("password"),
                         rs.getBoolean("lost")
-//                        courses
+                // courses
                 );
             }
         } catch (Exception e) {
