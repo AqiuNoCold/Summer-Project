@@ -4,20 +4,21 @@ import java.util.ArrayList;
 
 public class User {
     // 属性定义
-    protected String id;       // 表管理项
-    protected String pwd;      // 密码
-    protected Integer age;     // 年龄
-    protected Boolean gender;   // 性别
-    protected String role;     // 角色
-    protected String email;    // 邮箱
-    protected String card;     // 一卡通号、账号
-    protected Boolean lost;    //账户冻结情况
-//    protected ArrayList<String> courses;//删除了courses属性
+    protected String id; // 表管理项
+    protected String pwd; // 密码
+    protected Integer age; // 年龄
+    protected Boolean gender; // 性别
+    protected String role; // 角色
+    protected String email; // 邮箱
+    protected String card; // 一卡通号、账号
+    protected Boolean lost; // 账户冻结情况
+    // protected ArrayList<String> courses;//删除了courses属性
 
-    protected static User currentUser; //当前用户，用于验证用户登录
+    protected static User currentUser; // 当前用户，用于验证用户登录
 
     // 构造函数
-    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Boolean lost) {
+    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,
+            Boolean lost) {
         setId(id);
         setPwd(pwd);
         setAge(age);
@@ -25,10 +26,10 @@ public class User {
         setRole(role);
         setEmail(email);
         setCard(card);
-//        setRemain(remain);
-//        setPassword(password);
+        // setRemain(remain);
+        // setPassword(password);
         setLost(lost);
-//        setCourses(courses);
+        // setCourses(courses);
     }
 
     // id的getter和setter
@@ -102,9 +103,9 @@ public class User {
         return card;
     }
 
-//    public ArrayList<String> getCourses() {
-//        return courses;
-//    }
+    // public ArrayList<String> getCourses() {
+    // return courses;
+    // }
 
     public void setCard(String card) {
         if (card.length() != 9) {
@@ -122,16 +123,16 @@ public class User {
         this.lost = lost; // 可以根据需要添加更多验证
     }
 
-//    public void setCourses(ArrayList<String> courses) {
-//        this.courses = courses;
-//    }
+    // public void setCourses(ArrayList<String> courses) {
+    // this.courses = courses;
+    // }
 
-//    public void addCourse(String course) {
-//        if (courses == null) {
-//            courses = new ArrayList<>();
-//        }
-//        courses.add(course);
-//    }
+    // public void addCourse(String course) {
+    // if (courses == null) {
+    // courses = new ArrayList<>();
+    // }
+    // courses.add(course);
+    // }
 
     public static User getCurrentUser() {
         return currentUser;
@@ -152,12 +153,10 @@ public class User {
                 ", role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", card='" + card + '\'' +
-//                ", remain=" + remain +
-//                ", password='" + password + '\'' +
+                // ", remain=" + remain +
+                // ", password='" + password + '\'' +
                 ", lost=" + (lost ? "正常" : "冻结") +
-//                ", courses=" + courses +
+                // ", courses=" + courses +
                 '}';
     }
 }
-
-
