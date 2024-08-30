@@ -20,7 +20,7 @@ public class DbCreator {
         createCourseTable();
     }
 
-    private static void createUserTable() {
+    private static void createUserTable() {//删除了courses属性
         String createTableSQL =  "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "

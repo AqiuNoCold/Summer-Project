@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UserDao implements BaseDao<User> {
+public class UserDao implements BaseDao<User> {//删除了courses属性
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;

@@ -14,7 +14,7 @@ public class User {
     protected Float remain;    //账户余额
     protected Integer password; //支付密码
     protected Boolean lost;    //账户冻结情况
-//    protected ArrayList<String> courses;
+//    protected ArrayList<String> courses;//删除了courses属性
 
     // 构造函数
     public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost) {//, ArrayList<String> courses
