@@ -11,7 +11,7 @@ public class ECard extends User {
     private String transactionHistory;
 
     public ECard(User user) {
-        super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(), user.getCard(),user.getLost(),user.getCourses());
+        super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(), user.getCard(),user.getLost());
         ECardDao dao = new ECardDao();
         ECardDTO cardInfo=dao.find(user.getCard());
         if(cardInfo==null){
