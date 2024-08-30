@@ -60,6 +60,20 @@ public class ECard extends User {
     void deposit(float amount) {
         remain+=amount;
     }
-
-
+    @Override
+    public String toString() {
+        return "ECard{" +
+                "id='" + id + '\'' +
+                ", pwd='" + pwd + '\'' +
+                ", age=" + age +
+                ", gender=" + (gender ? "男" : "女") +
+                ", role='" + role + '\'' +
+                ", email='" + email + '\'' +
+                ", card='" + card + '\'' +
+                ", lost=" + (lost ? "正常" : "冻结") +
+                ", remain=" + remain +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }
+
