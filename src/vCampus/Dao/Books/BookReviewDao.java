@@ -24,7 +24,7 @@ public class BookReviewDao implements BaseDao<BookReview> {
             conn = DbConnection.getConnection();
             String sql = "INSERT INTO tblBookReviews (userId, bookId, content, rating, createTime, updateTime) VALUES (?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setLong(1, bookReview.getUser().getId());
+            pstmt.setString(1, bookReview.getUser().getCard());
             pstmt.setString(2, bookReview.getBook().getId());
             pstmt.setString(3, bookReview.getContent());
             pstmt.setBigDecimal(4, bookReview.getRating());

@@ -161,4 +161,33 @@ public class BookShelfDao implements BaseDao<BookShelf> {
         }
         return generatedId;
     }
+
+    public List<BookShelf> findByPage(int pageNumber, int pageSize) {
+        List<BookShelf> bookShelves = new ArrayList<>();
+        int offset = (pageNumber - 1) * pageSize;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblBookShelf LIMIT ? OFFSET ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, pageSize);
+            pstmt.setInt(2, offset);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                BookShelf bookShelf = new BookShelf(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getLong("userId"),
+                        rs.getTimestamp("createTime").toLocalDateTime(),
+                        rs.getTimestamp("updateTime").toLocalDateTime(),
+                        List.of(rs.getString("bookIds").split(",")),
+                        List.of(rs.getString("reviewIds").split(",")));
+                bookShelves.add(bookShelf);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return bookShelves;
+    }
 }
