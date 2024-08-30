@@ -1,15 +1,11 @@
 package vCampus.Entity;
 
-import vCampus.Dao.ECardDao;
-import vCampus.Dao.ShopStudentDao;
-import vCampus.Dao.TransactionDao;
-import vCampus.Dao.UserDao;
+import vCampus.Dao.*;
 import vCampus.Entity.ECard.ECard;
 import vCampus.Entity.ECard.ECardDTO;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 
 // 商店类
 public class Shop {
@@ -18,13 +14,18 @@ public class Shop {
 
     public Shop(ShopStudent student) {
         this.student = student;
+        initialShop(8);
+        //初始化展示
+        this.viewProducts();
     }
 
     public float countPrice(Product product,int nums){
+        //计算总价格,1为单价
         return product.getPrice()*product.getDiscount()*nums;
     }
 
     public boolean comparePrice(Product product1,Product product2){
+        //左比较右，大者为true
         if((countPrice(product1,1))>=(countPrice(product2,1)))
             return true;
         else
@@ -32,24 +33,54 @@ public class Shop {
     }
 
     public boolean compareTime(Product product1,Product product2){
+        //左比较右，新的为true
         if(product1.getTime().getTime() >=product2.getTime().getTime())
             return true;
         else
             return false;
     }
 
-
     public void addProduct(Product product) {
+        //给商店添加已有商品
         String id = product.getId();
         products.put(id, product);
     }
 
+    public void initialShop(int nums){
+        ProductDao productDao = new ProductDao();
+        int totalNums = productDao.getRecordCount("tblproduct");
+
+        //添加随机商品与收藏夹商品与所属商品
+        Set<String> shopSet = new HashSet<String>();
+        while((shopSet.size()) < nums && (shopSet.size() < totalNums))
+        {
+            Random rand = new Random();
+            int random = rand.nextInt(totalNums);
+            String id = random+"";
+            shopSet.add(id);
+        }
+
+        for(Product product : student.getFavorites()){
+            shopSet.add(product.getId());
+        }
+
+        for(Product product : student.getBelongs()){
+            shopSet.add(product.getId());
+        }
+
+        for (String Element : shopSet) {
+            Product randomProduct = productDao.find(Element);
+            products.put(Element,randomProduct);
+        }
+
+    }
+
     public void addNew(){
         int size = products.size();
+        ProductDao productDao = new ProductDao();
 
         Scanner scanner = new Scanner(System.in);
-        //System.out.print("请输入商品ID: ");
-        String newId = String.valueOf(size+1);
+        String newId = String.valueOf(productDao.getRecordCount("tblproduct")+1);
         System.out.print("请输入新的商品名称: ");
         String newName = scanner.nextLine();
         System.out.print("请输入新的商品数量: ");
@@ -72,6 +103,8 @@ public class Shop {
         String id = newProduct.getId();
         products.put(id, newProduct);
 
+        //更新数据库
+        productDao.update(newProduct);
         ShopStudentDao shopStudentDao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = shopStudentDao.find(student.id);
     }
@@ -80,7 +113,7 @@ public class Shop {
         System.out.println("商店商品列表：");
         int shopSize = products.size();
 
-        //随机数组
+        //随机数组展示随机商品
         Set<String> shopSet = new HashSet<String>();
         while((shopSet.size()) < 8 && (shopSet.size()<shopSize))
         {
@@ -119,11 +152,12 @@ public class Shop {
     public void purchaseProduct(String productId,int buyNums) {
         Product product = products.get(productId);
         if (product != null) {
-
             if (buyProduct(product,buyNums)) {
                 int nums = product.getNumbers();
                 product.setNumbers(nums-buyNums);
                 // 数据库更新
+                ProductDao productDao = new ProductDao();
+                productDao.update(product);
             }
         } else {
             System.out.println("商品不存在！");
@@ -133,6 +167,10 @@ public class Shop {
     public boolean buyProduct(Product product,int nums) {
         Scanner scanner = new Scanner(System.in);
 
+        if( isMine(product.getId()) ){
+            System.out.println("请不要自卖自销！");
+            return false;
+        }
         if(product.getNumbers()< nums){
             System.out.println("商品数量不足！");
             return false;
@@ -149,6 +187,12 @@ public class Shop {
                 float cost = countPrice(product,nums);
                 float newRemain = student.getRemain()-cost;
                 student.setRemain(newRemain);;
+
+                //更新商品数据库
+                product.setNumbers(product.getNumbers()-nums);
+                ProductDao productDao = new ProductDao();
+                productDao.update(product);
+
                 System.out.println("购买成功！");
 
                 //信息整理
@@ -158,13 +202,13 @@ public class Shop {
                 String ID = String.valueOf(student.getBill().size()+1);
 
                 //添加到商店账单
-                String hisProduct = "商品ID：" + ID+" 商品名称： "+product.getName()+" 商品主人： "+product.getOwner()+" 购买时间："+formatTime+
+                String hisProduct = "历史ID：" + ID+" 商品名称： "+product.getName()+" 商品主人： "+product.getOwner()+" 购买时间："+formatTime+
                         " 商品数量 "+ nums+" 商品单价："+product.getPrice()+" 商品折扣："+product.getDiscount()+
                         " 总价格："+cost;
                 student.getBill().add(hisProduct);
                 //添加到一卡通账单
                 TransactionDao transactionDao = new TransactionDao();
-                //扣费
+                //扣费与上传
                 String transaction = transactionDao.find(student.card);
                 String transactionBuy = transaction+formatTime+",-"+cost+",购买商品;";
                 transactionDao.update(transactionBuy,student.card);
@@ -173,8 +217,7 @@ public class Shop {
                 UserDao userDao = new UserDao();
                 User uSeller = userDao.find(product.getOwner());
                 ECardDao eCardDao = new ECardDao();
-                ECardDTO eCardDTO = eCardDao.find(product.getOwner());
-                ECard eSeller = new ECard(uSeller,eCardDTO);
+                ECard eSeller = new ECard(uSeller);
                 //修改与上传
                 newRemain = eSeller.getRemain()+cost;
                 eCardDao.updateRemain(newRemain,eSeller.getCard());
@@ -207,7 +250,7 @@ public class Shop {
             System.out.print("请输入新的商品名称: ");
             String newName = scanner.nextLine();
             System.out.print("请输入新的商品数量: ");
-            int  newNums = scanner.nextInt();
+            int newNums = scanner.nextInt();
             System.out.print("请输入新的商品价格: ");
             float newPrice = scanner.nextFloat();
             float newDiscount;
@@ -223,6 +266,10 @@ public class Shop {
             product.setNumbers(newNums);
             product.setPrice(newPrice);
             product.setDiscount(newDiscount);
+            //更新数据库
+            ProductDao productDao = new ProductDao();
+            productDao.update(product);
+
             System.out.println("商品信息更新成功！");
             return true;
         } else {
@@ -237,15 +284,15 @@ public class Shop {
         System.out.println("请输入你要删除的商品ID： ");
         String id = scanner.nextLine();
         if(isMine(id)) {
-            int Index = 0;
-            for (Product product : student.getBelongs()) {
-                if (Objects.equals(product.getId(), id)) {
-                    student.getBelongs().remove(Index);
-                    break;
-                }
-                Index++;
-            }
-            products.remove(id);
+            student.getBelongs().remove(id);
+            //更新数据库
+            ProductDao productDao = new ProductDao();
+            Product product = products.get(id);
+            product.setName("该商品已失效");
+            product.setNumbers(0);
+            product.setDiscount(1);
+            product.setPrice(0);
+            productDao.update(product);
             System.out.println("删除成功！");
         } else {
             System.out.println("该商品不属于您！");
@@ -257,6 +304,16 @@ public class Shop {
         if (product != null) {
             student.getFavorites().add(product);
             System.out.println("已收藏商品: " + product.getName());
+        } else {
+            System.out.println("商品不存在！");
+        }
+    }
+
+    public void deleteFavorite(String productId){
+        Product product = products.get(productId);
+        if (product != null) {
+            student.getFavorites().remove(product);
+            System.out.println("已取消收藏商品: " + product.getName());
         } else {
             System.out.println("商品不存在！");
         }
@@ -294,6 +351,11 @@ public class Shop {
                 return true;
         }
         return false;
+    }
+
+    public void close(){
+        ShopStudentDao dao = new ShopStudentDao();
+        dao.update(student);
     }
 
 }
