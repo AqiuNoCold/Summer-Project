@@ -18,6 +18,8 @@ public class DbCreator {
         createBooksTable();
         createBookShelfTable();
         createBorrowRecordTable();
+        createBookReviewTable();
+        createBookUserTable();
         createShopStudentTable();
         createProductTable();
         createECardTable();
@@ -30,14 +32,16 @@ public class DbCreator {
                 "tblUser",
                 "tblStu",
                 "tblGrade",
-                "tblBooks",
+                // "tblBooks", 谁敢删我表！
                 "tblBookShelf",
                 "tblBorrowRecord",
                 "tblShopStudent",
                 "tblProduct",
                 "tblECard",
                 "tblTransaction",
-                "tblCourse"
+                "tblCourse",
+                "tblBookReview",
+                "tblBookUser"
         };
 
         try (Connection conn = DbConnection.getConnection();
@@ -140,31 +144,57 @@ public class DbCreator {
         executeSQL(createTableSQL, "tblBooks");
     }
 
+    private static void createBookShelfTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookShelf ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "name VARCHAR(255) NOT NULL, "
+                + "create_time TIMESTAMP NOT NULL, "
+                + "update_time TIMESTAMP NOT NULL, "
+                + "user_id BIGINT NOT NULL, "
+                + "book_ids TEXT, "
+                + "review_ids TEXT "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookShelf");
+    }
+
     private static void createBorrowRecordTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBorrowRecord ("
                 + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
-                + "borrowDate DATE, "
-                + "returnDate DATE, "
-                + "bookId BIGINT, "
-                + "bookUserId BIGINT, "
-                + "status VARCHAR(20)"
+                + "borrow_date DATE, "
+                + "return_date DATE, "
+                + "book_id BIGINT, "
+                + "user_id BIGINT, "
+                + "status VARCHAR(10), "
+                + "is_deleted BOOLEAN "
                 + ")";
 
         executeSQL(createTableSQL, "tblBorrowRecord");
     }
 
-    private static void createBookShelfTable() {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookShelf ("
+    private static void createBookReviewTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookReview ("
                 + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
-                + "name VARCHAR(255) NOT NULL, "
-                + "createTime TIMESTAMP NOT NULL, "
-                + "updateTime TIMESTAMP NOT NULL, "
-                + "userId BIGINT NOT NULL, "
-                + "bookIds TEXT, "
-                + "reviewIds TEXT "
+                + "user_id BIGINT, "
+                + "book_id BIGINT, "
+                + "content TEXT, "
+                + "rating DECIMAL(3, 2), "
+                + "create_time TIMESTAMP, "
+                + "update_time TIMESTAMP "
                 + ")";
 
-        executeSQL(createTableSQL, "tblBookShelf");
+        executeSQL(createTableSQL, "tblBookReview");
+    }
+
+    private static void createBookUserTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookUser ("
+                + "id CHAR(9) PRIMARY KEY, "
+                + "borrow_record_ids TEXT, "
+                + "default_shelf_id BIGINT, "
+                + "shelf_ids TEXT "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookUser");
     }
 
     private static void createShopStudentTable() {
