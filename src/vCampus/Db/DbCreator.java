@@ -16,12 +16,13 @@ public class DbCreator {
         createBooksTable();
         createShopStudentTable();
         createProductTable();
+        createECardTable();
         createTransactionTable();
         createCourseTable();
     }
 
     private static void createUserTable() {
-        String createTableSQL =  "CREATE TABLE IF NOT EXISTS tblUser ("
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
                 + "age INT CHECK (age > 0), "
@@ -29,8 +30,8 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-                + "remain FLOAT CHECK (remain >= 0), "
-                + "password INT, "
+//                + "remain FLOAT CHECK (remain >= 0), "
+//                + "password INT, "
                 + "lost BOOLEAN DEFAULT FALSE, "
                 + "courses TEXT"
                 + ")";
@@ -81,23 +82,35 @@ public class DbCreator {
                 + "isbn CHAR(10), "
                 + "msrp VARCHAR(20), "
                 + "image TEXT, "
-                + "pages INT, "
+                + "pages VARCHAR(20), "
                 + "title TEXT, "
-                + "isbn13 CHAR(13) PRIMARY KEY, "  // 将 isbn13 作为主键
+                + "isbn13 CHAR(13), "
                 + "authors TEXT, "
-                + "edition INT, "
-                + "language VARCHAR(50), "
+                + "edition TEXT, "
+                + "language TEXT, "
                 + "subjects TEXT, "
                 + "synopsis TEXT, "
                 + "publisher TEXT, "
                 + "title_long TEXT, "
-                + "date_published DATE, "
-                + "UNIQUE (isbn)"  // isbn 作为唯一键
+                + "date_published TEXT, "
+                + "PRIMARY KEY (isbn, isbn13)"
                 + ")";
 
         executeSQL(createTableSQL, "tblBooks");
     }
 
+    private static void createBorrowRecordTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBorrowRecord ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "borrowDate DATE, "
+                + "returnDate DATE, "
+                + "bookId BIGINT, "
+                + "bookUserId BIGINT, "
+                + "status VARCHAR(20)"
+                + ")";
+
+        executeSQL(createTableSQL, "tblBorrowRecord");
+    }
 
     private static void createShopStudentTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblShopStudent ("
@@ -133,9 +146,20 @@ public class DbCreator {
         executeSQL(createTableSQL, "tblProduct");
     }
 
+    private static void createECardTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblECard ("
+                + "remain FLOAT CHECK (remain >= 0), "
+                + "password INT, "
+                + "card CHAR(9) CHECK (LENGTH(card) = 9)"
+                + ")";
+
+        executeSQL(createTableSQL, "tblECard");
+    }
+
+
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("
-                + "transaction VARCHAR(255), "
+                + "transaction TEXT, "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9)"
                 + ")";
 
@@ -162,7 +186,7 @@ public class DbCreator {
 
     private static void executeSQL(String sql, String tableName) {
         try (Connection conn = DbConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql);
             logger.info("表 " + tableName + " 创建成功。");

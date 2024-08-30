@@ -1,46 +1,91 @@
 package vCampus.ECard;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import vCampus.Entity.User;
-import vCampus.Entity.ECard;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.SimpleTimeZone;
 
+import vCampus.Dao.ECardDao;
+import vCampus.Dao.TransactionDao;
+import vCampus.Entity.ECard.ECard;
+import vCampus.Dao.UserDao;
+import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.ECard.ECardDTO;
 
 public class ECardServerSrv {
+
     public static boolean isLostServerSrv(ECard testcard) {
-        return testcard.isLost();
+        boolean result =!testcard.getLost();
+        if(result) {
+            testcard.setLost(true);
+            UserDao userDao = new UserDao();
+            userDao.update(testcard);
+        }
+        return result;
     }
 
     public static boolean notLostServerSrv(ECard testcard) {
-
-        return testcard.notLost();
+        boolean result =testcard.getLost();
+        if(result) {
+            testcard.setLost(false);
+            UserDao userDao = new UserDao();
+            userDao.update(testcard);
+        }
+        return result;
     }
 
-    public static boolean chargeServerSrv(ECard testcard, float amount) {
-        String newHistory = testcard.charge(amount);
-//        用newHistory更新数据库tblTransactionHistory
-        return true;
+    public static boolean addTransaction(String card,float amount,String reason) {
+        TransactionDao transactionDao = new TransactionDao();
+        String oldHistory=transactionDao.find(card);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+        String newHistory = formattedNow + ","+ amount +","+reason+";";
+//        transactionDao.update(oldHistory+newHistory,card);
     }
+
 
     public static float showStatusServerSrv(ECard testcard) {
         return testcard.getRemain();
     }
 
-    public static ArrayList<String> getTransactionHistoryServerSrv(ECard testcard) {
-//        连接数据库获取流水后转化成ArrayList格式，传递给客户端
-        ArrayList<String> currentHistory=new ArrayList<String>();
-        currentHistory.add("yyyy-MM-dd HH:mm:ss,-500,Charged");
-        return currentHistory;
+    public static LinkedList<String> getTransactionHistoryServerSrv(ECard testcard) {
+        TransactionDao transactionDao = new TransactionDao();
+        String items = transactionDao.find(testcard.getCard());
+        String[] items_mid = items.split(";");
+        LinkedList<String> transaction = new LinkedList<>(Arrays.asList(items_mid));
+        //        连接数据库获取流水后转化成ArrayList格式，传递给客户端
+        return transaction;
     }
 
     public static boolean comparePasswordServerSrv(ECard testcard,Integer oldPassword) {
-        if(testcard.getPassword()==oldPassword)
-            return true;
-        else return false;
+        return testcard.getPassword()==oldPassword;
     }
 
     public static boolean newPasswordServerSrv(ECard testcard,Integer newPassword) {
         testcard.setPassword(newPassword);
 //        更新数据库tblUser
+        ECardDao cardDao = new ECardDao();
+        cardDao.updatePassword(newPassword,testcard.getCard());
+        return true;
+    }
+
+    public static boolean payServerSrv(String card,float amount,String reason,Integer passwordEntered) {
+
+        TransactionDao transactionDao = new TransactionDao();
+        ECardDao cardDao = new ECardDao();
+        ECardDTO cardInfo=cardDao.find(card);
+//
+        if(passwordEntered!=cardInfo.getPassword()) {
+            return false;
+        }
+        cardInfo.setRemain(cardInfo.getRemain()-amount);
+        cardDao.update(cardInfo);
+
+        addTransaction(cardInfo.getCard(),amount,reason);
         return true;
     }
 }

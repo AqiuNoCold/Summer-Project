@@ -11,13 +11,11 @@ public class User {
     protected String role;     // 角色
     protected String email;    // 邮箱
     protected String card;     // 一卡通号、账号
-    protected Float remain;    //账户余额
-    protected Integer password; //支付密码
     protected Boolean lost;    //账户冻结情况
     protected ArrayList<String> courses;
 
     // 构造函数
-    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost, ArrayList<String> courses) {
+    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Boolean lost, ArrayList<String> courses) {
         setId(id);
         setPwd(pwd);
         setAge(age);
@@ -25,8 +23,8 @@ public class User {
         setRole(role);
         setEmail(email);
         setCard(card);
-        setRemain(remain);
-        setPassword(password);
+//        setRemain(remain);
+//        setPassword(password);
         setLost(lost);
         setCourses(courses);
     }
@@ -113,24 +111,6 @@ public class User {
         this.card = card;
     }
 
-    // remain的getter和setter
-    public float getRemain() {
-        return remain;
-    }
-
-    public void setRemain(Float remain) {
-        this.remain = remain; // 可以根据需要添加更多验证
-    }
-
-    // password的getter和setter
-    public Integer getPassword() {
-        return password;
-    }
-
-    public void setPassword(Integer password) {
-        this.password = password; // 可以根据需要添加更多验证
-    }
-
     // lost的getter和setter
     public Boolean getLost() {
         return lost;
@@ -162,8 +142,8 @@ public class User {
                 ", role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", card='" + card + '\'' +
-                ", remain=" + remain +
-                ", password='" + password + '\'' +
+//                ", remain=" + remain +
+//                ", password='" + password + '\'' +
                 ", lost=" + (lost ? "正常" : "冻结") +
                 ", courses=" + courses +
                 '}';

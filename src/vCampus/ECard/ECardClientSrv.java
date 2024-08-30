@@ -1,7 +1,5 @@
 package vCampus.ECard;
 
-import vCampus.Entity.User;
-import vCampus.Entity.ECard;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -85,6 +83,11 @@ public class ECardClientSrv {
         boolean ServerResult=true;
         if(ServerResult)
         System.out.println("Password changed successfully!");
+    }
+
+    public static boolean payClientSrv(){
+        comparePasswordClientSrv();
+        return true;
     }
 }
  
