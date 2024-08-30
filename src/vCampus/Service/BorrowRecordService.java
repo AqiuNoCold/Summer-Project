@@ -1,10 +1,10 @@
 package vCampus.Service;
 
 import vCampus.Entity.Books.BorrowRecord;
-import vCampus.Entity.Books.Book;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class BorrowRecordService {
     private static final BigDecimal DAILY_FINE_RATE = new BigDecimal("0.50"); // 示例罚款率
@@ -12,8 +12,8 @@ public class BorrowRecordService {
     // 判断是否逾期
     public boolean isOverdue(BorrowRecord record) {
         if (record.getStatus() == BorrowRecord.BorrowStatus.BORROWING && record.getReturnDate() != null) {
-            Date currentDate = new Date();
-            return currentDate.after(record.getReturnDate());
+            LocalDate currentDate = LocalDate.now();
+            return currentDate.isAfter(record.getReturnDate());
         }
         return false;
     }
@@ -21,9 +21,9 @@ public class BorrowRecordService {
     // 计算逾期天数
     public int calculateOverdueDays(BorrowRecord record) {
         if (isOverdue(record)) {
-            Date currentDate = new Date();
-            long diffInMillies = currentDate.getTime() - record.getReturnDate().getTime();
-            return (int) (diffInMillies / (1000 * 60 * 60 * 24));
+            LocalDate currentDate = LocalDate.now();
+            long diffInDays = ChronoUnit.DAYS.between(record.getReturnDate(), currentDate);
+            return (int) diffInDays;
         }
         return 0;
     }

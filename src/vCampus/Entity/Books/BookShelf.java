@@ -19,7 +19,7 @@ public class BookShelf {
     private List<String> reviewIds; // 书评ID列表
     private boolean isDirty = false; // 脏数据标志
 
-    // 构造方法
+    // 原有的构造方法
     public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime,
             List<String> bookIds, List<String> reviewIds) {
         this.id = id;
@@ -31,6 +31,26 @@ public class BookShelf {
         this.reviews = new ArrayList<>();
         this.bookIds = bookIds != null ? new ArrayList<>(bookIds) : new ArrayList<>();
         this.reviewIds = reviewIds != null ? new ArrayList<>(reviewIds) : new ArrayList<>();
+    }
+
+    // 新增的构造方法1：不包含 bookIds 和 reviewIds
+    public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime) {
+        this(id, name, userId, createTime, updateTime, new ArrayList<>(), new ArrayList<>());
+    }
+
+    // 新增的构造方法2：只包含 id 和 name
+    public BookShelf(Long id, String name) {
+        this(id, name, null, null, null, new ArrayList<>(), new ArrayList<>());
+    }
+
+    // 新增的构造方法3：只包含 id
+    public BookShelf(Long id) {
+        this(id, null, null, null, null, new ArrayList<>(), new ArrayList<>());
+    }
+
+    // 新增的构造方法4：无参数构造方法
+    public BookShelf() {
+        this(null, null, null, null, null, new ArrayList<>(), new ArrayList<>());
     }
 
     // Getter和Setter方法

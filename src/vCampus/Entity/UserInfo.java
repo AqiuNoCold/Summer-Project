@@ -1,5 +1,7 @@
 package vCampus.Entity;
 
+import vCampus.Dao.UserDao;
+
 public class UserInfo {
     private static UserInfo currentUser;
 
@@ -11,6 +13,14 @@ public class UserInfo {
         this.role = role;
         this.card = card;
         this.lost = lost;
+    }
+
+    // 新增的构造函数，根据id来完成构造
+    public UserInfo(String id) {
+        UserInfo userInfo = fromUser(new UserDao().find(id));
+        this.role = userInfo.getRole();
+        this.card = userInfo.getCard();
+        this.lost = userInfo.isLost();
     }
 
     // 从 User 对象创建 Userinfo 对象的静态方法

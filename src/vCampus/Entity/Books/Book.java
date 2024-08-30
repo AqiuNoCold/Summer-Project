@@ -2,6 +2,8 @@ package vCampus.Entity.Books;
 
 import java.math.BigDecimal;
 
+import vCampus.Dao.Books.BookDao;
+
 public class Book {
     private String isbn; // ISBN
     private BigDecimal msrp; // 建议零售价
@@ -57,6 +59,38 @@ public class Book {
         this.borrowCount = borrowCount;
         this.isActive = isActive;
         this.isDeleted = isDeleted;
+    }
+
+    // 新增的构造函数，仅接受id
+    public Book(String id) {
+        BookDao bookDao = new BookDao();
+        Book book = bookDao.find(id);
+        if (book != null) {
+            this.isbn = book.isbn;
+            this.msrp = book.msrp;
+            this.image = book.image;
+            this.pages = book.pages;
+            this.title = book.title;
+            this.isbn13 = book.isbn13;
+            this.authors = book.authors;
+            this.binding = book.binding;
+            this.edition = book.edition;
+            this.related = book.related;
+            this.language = book.language;
+            this.subjects = book.subjects;
+            this.synopsis = book.synopsis;
+            this.publisher = book.publisher;
+            this.dimensions = book.dimensions;
+            this.titleLong = book.titleLong;
+            this.datePublished = book.datePublished;
+            this.copyCount = book.copyCount;
+            this.reviewCount = book.reviewCount;
+            this.averageRating = book.averageRating;
+            this.favoriteCount = book.favoriteCount;
+            this.borrowCount = book.borrowCount;
+            this.isActive = book.isActive;
+            this.isDeleted = book.isDeleted;
+        }
     }
 
     // 返回组合主键

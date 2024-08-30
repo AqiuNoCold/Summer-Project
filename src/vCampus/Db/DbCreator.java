@@ -10,6 +10,8 @@ public class DbCreator {
     private static final Logger logger = Logger.getLogger(DbCreator.class.getName());
 
     public static void createTables() {
+        dropAllTables();
+
         createUserTable();
         createStuTable();
         createGradeTable();
@@ -23,6 +25,36 @@ public class DbCreator {
         createCourseTable();
     }
 
+    private static void dropAllTables() {
+        String[] tables = {
+                "tblUser",
+                "tblStu",
+                "tblGrade",
+                "tblBooks",
+                "tblBookShelf",
+                "tblBorrowRecord",
+                "tblShopStudent",
+                "tblProduct",
+                "tblECard",
+                "tblTransaction",
+                "tblCourse"
+        };
+
+        try (Connection conn = DbConnection.getConnection();
+                Statement stmt = conn.createStatement()) {
+
+            for (String table : tables) {
+                String dropTableSQL = "DROP TABLE IF EXISTS " + table;
+                stmt.execute(dropTableSQL);
+                logger.info("表 " + table + " 删除成功。");
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "删除表失败", e);
+            throw new RuntimeException("删除表失败", e);
+        }
+    }
+
     private static void createUserTable() {// 删除了courses属性
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
@@ -32,8 +64,6 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-                // + "remain FLOAT CHECK (remain >= 0), "
-                // + "password INT, "
                 + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
@@ -85,7 +115,7 @@ public class DbCreator {
                 + "image TEXT, "
                 + "pages INT, "
                 + "title VARCHAR(255), "
-                + "isbn13 CHAR(13) PRIMARY KEY, " // 将 isbn13 作为主键
+                + "isbn13 CHAR(13)"
                 + "authors TEXT, "
                 + "binding VARCHAR(50), "
                 + "edition VARCHAR(50), "
@@ -131,7 +161,7 @@ public class DbCreator {
                 + "updateTime TIMESTAMP NOT NULL, "
                 + "userId BIGINT NOT NULL, "
                 + "bookIds TEXT, "
-                + "reviewIds TEXT, "
+                + "reviewIds TEXT "
                 + ")";
 
         executeSQL(createTableSQL, "tblBookShelf");

@@ -1,11 +1,11 @@
 package vCampus.Entity.Books;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class BorrowRecord {
     private Long id; // 借阅记录ID
-    private Date borrowDate; // 借阅日期
-    private Date returnDate; // 归还日期
+    private LocalDate borrowDate; // 借阅日期
+    private LocalDate returnDate; // 归还日期
     private Book book; // 借阅的图书
     private BookUser bookUser; // 借阅的用户
 
@@ -15,8 +15,18 @@ public class BorrowRecord {
 
     private BorrowStatus status;
 
+    // 新增的isOverdue方法
+    public boolean isOverdue() {
+        if (status == BorrowStatus.BORROWING && returnDate != null) {
+            return returnDate.isBefore(LocalDate.now());
+        }
+        return false;
+    }
+
     // 构造方法
-    public BorrowRecord(Long id, Date borrowDate, Date returnDate, Book book, BookUser bookUser, BorrowStatus status) {
+    public BorrowRecord(Long id,
+            LocalDate borrowDate,
+            LocalDate returnDate, Book book, BookUser bookUser, BorrowStatus status) {
         this.id = id;
         this.borrowDate = borrowDate;
         this.returnDate = returnDate;
@@ -34,27 +44,19 @@ public class BorrowRecord {
         this.id = id;
     }
 
-    public Date getBorrowDate() {
+    public LocalDate getBorrowDate() {
         return borrowDate;
     }
 
-    public void setBorrowDate(Date borrowDate) {
-        if (borrowDate == null) {
-            this.borrowDate = new Date(); // 使用当前时间
-        } else {
-            this.borrowDate = borrowDate;
-        }
+    public void setBorrowDate(LocalDate borrowDate) {
+        this.borrowDate = borrowDate;
     }
 
-    public void setBorrowDate() {
-        setBorrowDate(new Date());
-    }
-
-    public Date getReturnDate() {
+    public LocalDate getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(Date returnDate) {
+    public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
     }
 
