@@ -26,7 +26,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
             pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
             pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
-            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getId()));
+            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
             pstmt.setString(5, borrowRecord.getStatus().name());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
@@ -48,7 +48,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setDate(1, new java.sql.Date(borrowRecord.getBorrowDate().getTime()));
             pstmt.setDate(2, new java.sql.Date(borrowRecord.getReturnDate().getTime()));
             pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
-            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getId()));
+            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
             pstmt.setString(5, borrowRecord.getStatus().name());
             pstmt.setLong(6, borrowRecord.getId());
             int rows = pstmt.executeUpdate();

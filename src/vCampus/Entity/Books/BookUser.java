@@ -14,6 +14,7 @@ public class BookUser {
     public BookUser(UserInfo userInfo) {
         this.userInfo = userInfo;
         this.borrowRecords = new ArrayList<>();
+        this.bookShelves = new ArrayList<>();
     }
 
     // 添加借阅记录，返回布尔值表示是否成功
@@ -37,8 +38,47 @@ public class BookUser {
         return userInfo;
     }
 
-    // 其他方法，例如：
-    // - 判断用户是否逾期
-    // - 获取用户借阅的图书总数
-    // - ...
+    public String getCard() {
+        return userInfo.getCard();
+    }
+
+    // 获取默认书架
+    public BookShelf getDefaultBookShelf() {
+        return defaultBookShelf;
+    }
+
+    // 获取所有书架
+    public List<BookShelf> getBookShelves() {
+        return bookShelves;
+    }
+
+    // 添加书架
+    public void addBookShelf(BookShelf bookShelf) {
+        if (!bookShelves.contains(bookShelf)) {
+            bookShelves.add(bookShelf);
+        }
+    }
+
+    // 移除书架
+    public boolean removeBookShelf(BookShelf bookShelf) {
+        if (bookShelves.remove(bookShelf)) {
+            return true;
+        }
+        return false;
+    }
+
+    // 获取用户借阅的图书总数
+    public int getTotalBorrowedBooks() {
+        return borrowRecords.size();
+    }
+
+    // 判断用户是否逾期
+    public boolean isOverdue() {
+        for (BorrowRecord record : borrowRecords) {
+            if (record.isOverdue()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
