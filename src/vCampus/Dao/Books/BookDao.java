@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Scanner;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
@@ -23,22 +21,32 @@ public class BookDao implements BaseDao<Book> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblBooks (isbn, msrp, image, pages, title, isbn13, authors, edition, language, subjects, synopsis, publisher, title_long, date_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblBooks (isbn, msrp, image, pages, title, isbn13, authors, binding, edition, related, language, subjects, synopsis, publisher, dimensions, title_long, date_published, copy_count, review_count, average_rating, favorite_count, borrow_count, is_active, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, book.getIsbn());
-            pstmt.setString(2, book.getMsrp());
+            pstmt.setBigDecimal(2, book.getMsrp());
             pstmt.setString(3, book.getImage());
-            pstmt.setString(4, book.getPages());
+            pstmt.setInt(4, book.getPages());
             pstmt.setString(5, book.getTitle());
             pstmt.setString(6, book.getIsbn13());
             pstmt.setString(7, book.getAuthors());
-            pstmt.setString(8, book.getEdition());
-            pstmt.setString(9, book.getLanguage());
-            pstmt.setString(10, book.getSubjects());
-            pstmt.setString(11, book.getSynopsis());
-            pstmt.setString(12, book.getPublisher());
-            pstmt.setString(13, book.getTitleLong());
-            pstmt.setString(14, book.getDatePublished());
+            pstmt.setString(8, book.getBinding());
+            pstmt.setString(9, book.getEdition());
+            pstmt.setString(10, book.getRelated());
+            pstmt.setString(11, book.getLanguage());
+            pstmt.setString(12, book.getSubjects());
+            pstmt.setString(13, book.getSynopsis());
+            pstmt.setString(14, book.getPublisher());
+            pstmt.setString(15, book.getDimensions());
+            pstmt.setString(16, book.getTitleLong());
+            pstmt.setString(17, book.getDatePublished());
+            pstmt.setInt(18, book.getCopyCount());
+            pstmt.setInt(19, book.getReviewCount());
+            pstmt.setBigDecimal(20, book.getAverageRating());
+            pstmt.setInt(21, book.getFavoriteCount());
+            pstmt.setInt(22, book.getBorrowCount());
+            pstmt.setBoolean(23, book.isActive());
+            pstmt.setBoolean(24, book.isDeleted());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -56,9 +64,9 @@ public class BookDao implements BaseDao<Book> {
             conn = DbConnection.getConnection();
             String sql = "UPDATE tblBooks SET msrp = ?, image = ?, pages = ?, title = ?, authors = ?, edition = ?, language = ?, subjects = ?, synopsis = ?, publisher = ?, title_long = ?, date_published = ? WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, book.getMsrp());
+            pstmt.setBigDecimal(1, book.getMsrp());
             pstmt.setString(2, book.getImage());
-            pstmt.setString(3, book.getPages());
+            pstmt.setInt(3, book.getPages());
             pstmt.setString(4, book.getTitle());
             pstmt.setString(5, book.getAuthors());
             pstmt.setString(6, book.getEdition());
@@ -118,19 +126,29 @@ public class BookDao implements BaseDao<Book> {
             if (rs.next()) {
                 book = new Book(
                         rs.getString("isbn"),
-                        rs.getString("msrp"),
+                        rs.getBigDecimal("msrp"),
                         rs.getString("image"),
-                        rs.getString("pages"),
+                        rs.getInt("pages"),
                         rs.getString("title"),
                         rs.getString("isbn13"),
                         rs.getString("authors"),
+                        rs.getString("binding"),
                         rs.getString("edition"),
+                        rs.getString("related"),
                         rs.getString("language"),
                         rs.getString("subjects"),
                         rs.getString("synopsis"),
                         rs.getString("publisher"),
+                        rs.getString("dimensions"),
                         rs.getString("title_long"),
-                        rs.getString("date_published"));
+                        rs.getString("date_published"),
+                        rs.getInt("copy_count"),
+                        rs.getInt("review_count"),
+                        rs.getBigDecimal("average_rating"),
+                        rs.getInt("favorite_count"),
+                        rs.getInt("borrow_count"),
+                        rs.getBoolean("is_active"),
+                        rs.getBoolean("is_deleted"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -231,47 +249,6 @@ public class BookDao implements BaseDao<Book> {
                     default:
                         break;
                 }
-            }
-
-            sql.append(" LIMIT ? OFFSET ?");
-            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-            for (int i = 0; i < params.size(); i++) {
-                pstmt.setString(i + 1, params.get(i));
-            }
-            pstmt.setInt(params.size() + 1, pageSize);
-            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
-
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                String isbn = rs.getString("isbn");
-                String isbn13 = rs.getString("isbn13");
-                String bookId = isbn + "," + isbn13;
-                bookIds.add(bookId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            DbConnection.closeConnection(conn);
-        }
-        return bookIds;
-    }
-
-    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
-        List<String> bookIds = new ArrayList<>();
-        try {
-            Connection conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
-            List<String> params = new ArrayList<>();
-
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (value.contains("%")) {
-                    sql.append(" AND ").append(key).append(" LIKE ?");
-                } else {
-                    sql.append(" AND ").append(key).append(" = ?");
-                }
-                params.add(value);
             }
 
             sql.append(" LIMIT ? OFFSET ?");
