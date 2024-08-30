@@ -50,7 +50,7 @@ public class ECardServerSrv {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedNow = now.format(formatter);
         String newHistory = formattedNow + "," + amount + "," + reason + ";";
-        // transactionDao.update(oldHistory+newHistory,card);
+         transactionDao.update(oldHistory+newHistory,card);
     }
 
     public static float showStatusServerSrv(ECard testcard) {
@@ -59,9 +59,7 @@ public class ECardServerSrv {
 
     public static String getTransactionHistoryServerSrv(ECard testcard) {
         TransactionDao transactionDao = new TransactionDao();
-        String items = transactionDao.find(testcard.getCard());
-        String[] items_mid = items.split(";");
-        LinkedList<String> transaction = new LinkedList<>(Arrays.asList(items_mid));
+        String transaction = transactionDao.find(testcard.getCard());
         // 连接数据库获取流水后转化成ArrayList格式，传递给客户端
         return transaction;
     }
@@ -83,14 +81,14 @@ public class ECardServerSrv {
         TransactionDao transactionDao = new TransactionDao();
         ECardDao cardDao = new ECardDao();
         ECardDTO cardInfo = cardDao.find(card);
-        //
+
         if (passwordEntered != cardInfo.getPassword()) {
             return false;
         }
         cardInfo.setRemain(cardInfo.getRemain() - amount);
         cardDao.update(cardInfo);
 
-        // addTransaction(cardInfo.getCard(), amount, reason);
+        addTransaction(cardInfo.getCard(), amount, reason);
         return true;
     }
 }
