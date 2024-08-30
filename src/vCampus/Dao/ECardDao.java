@@ -66,6 +66,24 @@ public class ECardDao {
         }
         return isUpdated;
     }
+
+    public boolean updateRemain(Float remain, String card)  {
+        boolean isUpdated = false;
+        String sql = "UPDATE tblECard SET  remain = ? WHERE card = ?";
+        try {
+            conn = DbConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setFloat(1, remain);
+            pstmt.setString(2, card);
+            int rowsAffected = pstmt.executeUpdate();
+            isUpdated = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isUpdated;
+    }
     // 删除
     public boolean delete(String card) {
         boolean isDeleted = false;
@@ -90,7 +108,6 @@ public class ECardDao {
         ECardDTO cardInfo = null;
         String sql = "SELECT * FROM tblECard WHERE card = ?";
         ResultSet rs = null;
-        String transaction = null;
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);

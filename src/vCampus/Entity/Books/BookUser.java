@@ -8,6 +8,8 @@ import vCampus.Entity.UserInfo;
 public class BookUser {
     private UserInfo userInfo; // 用户信息
     private List<BorrowRecord> borrowRecords; // 借阅记录列表
+    private BookShelf defaultBookShelf; // 默认书架
+    private List<BookShelf> bookShelves; // 所有书架
 
     public BookUser(UserInfo userInfo) {
         this.userInfo = userInfo;

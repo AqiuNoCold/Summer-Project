@@ -1,11 +1,15 @@
 package vCampus.Entity;
 
+import vCampus.Dao.ECardDao;
 import vCampus.Dao.ShopStudentDao;
 import vCampus.Dao.TransactionDao;
 import vCampus.Dao.UserDao;
+import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.ECard.ECardDTO;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 
 // 商店类
 public class Shop {
@@ -133,7 +137,7 @@ public class Shop {
             System.out.println("商品数量不足！");
             return false;
         }
-        if (countPrice(product,nums) > student.remain) {
+        if (countPrice(product,nums) > student.getRemain()) {
             System.out.println("余额不足！");
             return false;
         }
@@ -141,9 +145,10 @@ public class Shop {
         while(true) {
             System.out.print("请输入支付密码: ");
             int input = scanner.nextInt();
-            if(input == student.password) {
+            if(input == student.getPassword()) {
                 float cost = countPrice(product,nums);
-                student.remain -= cost;
+                float newRemain = student.getRemain()-cost;
+                student.setRemain(newRemain);;
                 System.out.println("购买成功！");
 
                 //信息整理
@@ -164,10 +169,15 @@ public class Shop {
                 String transactionBuy = transaction+formatTime+",-"+cost+",购买商品;";
                 transactionDao.update(transactionBuy,student.card);
                 //获得money方
+                //获得seller
                 UserDao userDao = new UserDao();
-                User seller = userDao.find(product.getOwner());
-                seller.remain += cost;
-                userDao.update(seller);
+                User uSeller = userDao.find(product.getOwner());
+                ECardDao eCardDao = new ECardDao();
+                ECardDTO eCardDTO = eCardDao.find(product.getOwner());
+                ECard eSeller = new ECard(uSeller,eCardDTO);
+                //修改与上传
+                newRemain = eSeller.getRemain()+cost;
+                eCardDao.updateRemain(newRemain,eSeller.getCard());
                 transaction = transactionDao.find(product.getOwner());
                 String transactionSell = transaction + formatTime+",+"+cost+",出售商品;";
                 transactionDao.update(transactionSell,student.card);

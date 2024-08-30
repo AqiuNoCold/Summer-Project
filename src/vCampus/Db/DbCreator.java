@@ -14,6 +14,7 @@ public class DbCreator {
         createStuTable();
         createGradeTable();
         createBooksTable();
+        createBorrowRecordTable();
         createShopStudentTable();
         createProductTable();
         createECardTable();
@@ -21,8 +22,8 @@ public class DbCreator {
         createCourseTable();
     }
 
-    private static void createUserTable() {
-        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
+    private static void createUserTable() {//删除了courses属性
+        String createTableSQL =  "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
                 + "age INT CHECK (age > 0), "
@@ -32,8 +33,7 @@ public class DbCreator {
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
 //                + "remain FLOAT CHECK (remain >= 0), "
 //                + "password INT, "
-                + "lost BOOLEAN DEFAULT FALSE, "
-                + "courses TEXT"
+                + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
         executeSQL(createTableSQL, "tblUser");
@@ -50,7 +50,7 @@ public class DbCreator {
                 + "grade VARCHAR(255), "
                 + "major VARCHAR(20), "
                 + "email VARCHAR(255) CHECK (email LIKE '%@%.com'), "
-                + "stage VARCHAR(3), "
+                + "stage VARCHAR(30), "
                 + "honor TEXT, "
                 + "punish TEXT, "
                 + "stu_code VARCHAR(19)"
@@ -80,19 +80,29 @@ public class DbCreator {
     private static void createBooksTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBooks ("
                 + "isbn CHAR(10), "
-                + "msrp VARCHAR(20), "
+                + "msrp DECIMAL(10,2), "
                 + "image TEXT, "
-                + "pages VARCHAR(20), "
-                + "title TEXT, "
-                + "isbn13 CHAR(13), "
+                + "pages INT, "
+                + "title VARCHAR(255), "
+                + "isbn13 CHAR(13) PRIMARY KEY, "  // 将 isbn13 作为主键
                 + "authors TEXT, "
-                + "edition TEXT, "
-                + "language TEXT, "
+                + "binding VARCHAR(50), "
+                + "edition VARCHAR(50), "
+                + "related TEXT, "
+                + "language VARCHAR(20), "
                 + "subjects TEXT, "
                 + "synopsis TEXT, "
-                + "publisher TEXT, "
+                + "publisher VARCHAR(100), "
+                + "dimensions VARCHAR(50), "
                 + "title_long TEXT, "
-                + "date_published TEXT, "
+                + "date_published VARCHAR(20), "
+                + "copy_count INT, "
+                + "review_count INT, "
+                + "average_rating DECIMAL(2,1), "
+                + "favorite_count INT, "
+                + "borrow_count INT, "
+                + "is_active BOOLEAN, "
+                + "is_deleted BOOLEAN, "
                 + "PRIMARY KEY (isbn, isbn13)"
                 + ")";
 
