@@ -17,7 +17,7 @@ import vCampus.Entity.User;
 
 public class ECardServerSrv {
 
-    static ECard cardIniServerSrv(User user) {
+    public static ECard cardIniServerSrv(User user) {
         return new ECard(user);
         // 请求服务端进行初始化
     }
