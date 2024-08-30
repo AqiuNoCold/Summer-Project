@@ -23,7 +23,7 @@ public class DbCreator {
         createCourseTable();
     }
 
-    private static void createUserTable() {
+    private static void createUserTable() {// 删除了courses属性
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
@@ -34,8 +34,7 @@ public class DbCreator {
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
                 // + "remain FLOAT CHECK (remain >= 0), "
                 // + "password INT, "
-                + "lost BOOLEAN DEFAULT FALSE, "
-                + "courses TEXT"
+                + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
         executeSQL(createTableSQL, "tblUser");
@@ -52,7 +51,7 @@ public class DbCreator {
                 + "grade VARCHAR(255), "
                 + "major VARCHAR(20), "
                 + "email VARCHAR(255) CHECK (email LIKE '%@%.com'), "
-                + "stage VARCHAR(3), "
+                + "stage VARCHAR(30), "
                 + "honor TEXT, "
                 + "punish TEXT, "
                 + "stu_code VARCHAR(19)"
@@ -86,7 +85,7 @@ public class DbCreator {
                 + "image TEXT, "
                 + "pages INT, "
                 + "title VARCHAR(255), "
-                + "isbn13 CHAR(13), "
+                + "isbn13 CHAR(13) PRIMARY KEY, " // 将 isbn13 作为主键
                 + "authors TEXT, "
                 + "binding VARCHAR(50), "
                 + "edition VARCHAR(50), "

@@ -13,8 +13,14 @@ import vCampus.Entity.ECard.ECard;
 import vCampus.Dao.UserDao;
 import vCampus.Entity.ECard.ECard;
 import vCampus.Entity.ECard.ECardDTO;
+import vCampus.Entity.User;
 
 public class ECardServerSrv {
+
+    static ECard cardIniServerSrv(User user) {
+        return new ECard(user);
+        // 请求服务端进行初始化
+    }
 
     public static boolean isLostServerSrv(ECard testcard) {
         boolean result = !testcard.getLost();
@@ -36,24 +42,22 @@ public class ECardServerSrv {
         return result;
     }
 
-    // public static boolean addTransaction(String card,float amount,String reason)
-    // {
-    // TransactionDao transactionDao = new TransactionDao();
-    // String oldHistory=transactionDao.find(card);
+    public static void addTransaction(String card, float amount, String reason) {
+        TransactionDao transactionDao = new TransactionDao();
+        String oldHistory = transactionDao.find(card);
 
-    // LocalDateTime now = LocalDateTime.now();
-    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
-    // HH:mm:ss");
-    // String formattedNow = now.format(formatter);
-    // String newHistory = formattedNow + ","+ amount +","+reason+";";
-    // // transactionDao.update(oldHistory+newHistory,card);
-    // }
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+        String newHistory = formattedNow + "," + amount + "," + reason + ";";
+        // transactionDao.update(oldHistory+newHistory,card);
+    }
 
     public static float showStatusServerSrv(ECard testcard) {
         return testcard.getRemain();
     }
 
-    public static LinkedList<String> getTransactionHistoryServerSrv(ECard testcard) {
+    public static String getTransactionHistoryServerSrv(ECard testcard) {
         TransactionDao transactionDao = new TransactionDao();
         String items = transactionDao.find(testcard.getCard());
         String[] items_mid = items.split(";");

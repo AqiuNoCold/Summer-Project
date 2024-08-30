@@ -67,7 +67,7 @@ public class ECardDao {
         return isUpdated;
     }
 
-    public boolean updateRemain(Float remain, String card) {
+    public boolean updateRemain(Float remain, String card)  {
         boolean isUpdated = false;
         String sql = "UPDATE tblECard SET  remain = ? WHERE card = ?";
         try {
@@ -108,7 +108,6 @@ public class ECardDao {
         ECardDTO cardInfo = null;
         String sql = "SELECT * FROM tblECard WHERE card = ?";
         ResultSet rs = null;
-        String transaction = null;
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
