@@ -91,8 +91,8 @@ public class BookReviewDao implements BaseDao<BookReview> {
             if (rs.next()) {
                 bookReview = new BookReview(
                         rs.getLong("id"),
-                        new BookUserDao().find(rs.getString("userId")),
-                        new BookDao().find(rs.getString("bookId")),
+                        rs.getString("userId"),
+                        rs.getString("bookId"),
                         rs.getString("content"),
                         rs.getBigDecimal("rating"),
                         rs.getTimestamp("createTime").toLocalDateTime(),
@@ -116,8 +116,8 @@ public class BookReviewDao implements BaseDao<BookReview> {
             while (rs.next()) {
                 BookReview bookReview = new BookReview(
                         rs.getLong("id"),
-                        new BookUserDao().find(rs.getString("userId")),
-                        new BookDao().find(rs.getString("bookId")),
+                        rs.getString("userId"),
+                        rs.getString("bookId"),
                         rs.getString("content"),
                         rs.getBigDecimal("rating"),
                         rs.getTimestamp("createTime").toLocalDateTime(),

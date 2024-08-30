@@ -1,6 +1,8 @@
 package vCampus.Entity;
 
-import java.util.ArrayList;
+import vCampus.Dao.UserDao;
+
+// import java.util.ArrayList;
 
 public class User {
     // 属性定义
@@ -30,6 +32,21 @@ public class User {
         // setPassword(password);
         setLost(lost);
         // setCourses(courses);
+    }
+
+    // 仅接受id的构造方法
+    public User(String id) {
+        User user = new UserDao().find(id);
+        if (user != null) {
+            this.id = user.getId();
+            this.pwd = user.getPwd();
+            this.age = user.getAge();
+            this.gender = user.getGender();
+            this.role = user.getRole();
+            this.email = user.getEmail();
+            this.card = user.getCard();
+            this.lost = user.getLost();
+        }
     }
 
     // id的getter和setter

@@ -6,6 +6,7 @@ import java.util.List;
 
 import vCampus.Dao.Books.BookDao;
 import vCampus.Dao.Books.BookReviewDao;
+import vCampus.Dao.Books.BookShelfDao;
 
 public class BookShelf {
     private Long id; // 书架ID
@@ -19,7 +20,7 @@ public class BookShelf {
     private List<String> reviewIds; // 书评ID列表
     private boolean isDirty = false; // 脏数据标志
 
-    // 原有的构造方法
+    // 原有的构造方法，用于从数据库中直接获取数据
     public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime,
             List<String> bookIds, List<String> reviewIds) {
         this.id = id;
@@ -33,24 +34,52 @@ public class BookShelf {
         this.reviewIds = reviewIds != null ? new ArrayList<>(reviewIds) : new ArrayList<>();
     }
 
-    // 新增的构造方法1：不包含 bookIds 和 reviewIds
-    public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime) {
-        this(id, name, userId, createTime, updateTime, new ArrayList<>(), new ArrayList<>());
+    // 拷贝构造函数，用于用户尝试收藏别人的书架
+    public BookShelf(BookShelf other) {
+        this.id = other.id;
+        this.name = other.name;
+        this.userId = other.userId;
+        this.createTime = other.createTime;
+        this.updateTime = other.updateTime;
+        this.books = new ArrayList<>(other.books);
+        this.reviews = new ArrayList<>(other.reviews);
+        this.bookIds = new ArrayList<>(other.bookIds);
+        this.reviewIds = new ArrayList<>(other.reviewIds);
     }
 
-    // 新增的构造方法2：只包含 id 和 name
-    public BookShelf(Long id, String name) {
-        this(id, name, null, null, null, new ArrayList<>(), new ArrayList<>());
+    // 克隆构造函数，用于用户尝试克隆别人的书架
+    public BookShelf(BookShelf other, Long newUserId) {
+        this.name = other.name;
+        this.userId = newUserId; // 使用提供的userId
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
+        this.books = new ArrayList<>(other.books);
+        this.reviews = new ArrayList<>(other.reviews);
+        this.bookIds = new ArrayList<>(other.bookIds);
+        this.reviewIds = new ArrayList<>(other.reviewIds);
+
+        // 保存到数据库并获取自动分配的ID
+        BookShelfDao bookShelfDao = new BookShelfDao();
+        this.id = bookShelfDao.save(this);
     }
 
-    // 新增的构造方法3：只包含 id
+    // 仅提供id的构造函数
     public BookShelf(Long id) {
-        this(id, null, null, null, null, new ArrayList<>(), new ArrayList<>());
-    }
-
-    // 新增的构造方法4：无参数构造方法
-    public BookShelf() {
-        this(null, null, null, null, null, new ArrayList<>(), new ArrayList<>());
+        BookShelfDao bookShelfDao = new BookShelfDao();
+        BookShelf bookShelf = bookShelfDao.find(String.valueOf(id));
+        if (bookShelf != null) {
+            this.id = bookShelf.getId();
+            this.name = bookShelf.getName();
+            this.userId = bookShelf.getUserId();
+            this.createTime = bookShelf.getCreateTime();
+            this.updateTime = bookShelf.getUpdateTime();
+            this.books = bookShelf.getBooks();
+            this.reviews = bookShelf.getReviews();
+            this.bookIds = bookShelf.getBookIds();
+            this.reviewIds = bookShelf.getReviewIds();
+        } else {
+            throw new IllegalArgumentException("BookShelf with id " + id + " not found.");
+        }
     }
 
     // Getter和Setter方法
@@ -202,20 +231,5 @@ public class BookShelf {
             reviews.add(review);
             this.isDirty = true;
         }
-    }
-
-    // 复制书架
-    public BookShelf copy() {
-        BookShelf copy = new BookShelf(
-                null,
-                this.name,
-                this.userId,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                this.bookIds,
-                this.reviewIds);
-        copy.setBooks(new ArrayList<>(this.books));
-        copy.setReviews(new ArrayList<>(this.reviews));
-        return copy;
     }
 }

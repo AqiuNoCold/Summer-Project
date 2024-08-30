@@ -22,7 +22,7 @@ public class Book {
     private String dimensions; // 尺寸
     private String titleLong; // 长标题
     private String datePublished; // 出版日期
-    private int copyCount; // 复本数量
+    private int copyCount; // 副本数量
     private int reviewCount; // 书评数量
     private BigDecimal averageRating; // 平均评分
     private int favoriteCount; // 收藏数量
@@ -61,36 +61,45 @@ public class Book {
         this.isDeleted = isDeleted;
     }
 
-    // 新增的构造函数，仅接受id
+    // 拷贝构造函数
+    public Book(Book book) {
+        copyFrom(book);
+    }
+
+    // 仅接受id的构造函数
     public Book(String id) {
-        BookDao bookDao = new BookDao();
-        Book book = bookDao.find(id);
+        Book book = new BookDao().find(id);
         if (book != null) {
-            this.isbn = book.isbn;
-            this.msrp = book.msrp;
-            this.image = book.image;
-            this.pages = book.pages;
-            this.title = book.title;
-            this.isbn13 = book.isbn13;
-            this.authors = book.authors;
-            this.binding = book.binding;
-            this.edition = book.edition;
-            this.related = book.related;
-            this.language = book.language;
-            this.subjects = book.subjects;
-            this.synopsis = book.synopsis;
-            this.publisher = book.publisher;
-            this.dimensions = book.dimensions;
-            this.titleLong = book.titleLong;
-            this.datePublished = book.datePublished;
-            this.copyCount = book.copyCount;
-            this.reviewCount = book.reviewCount;
-            this.averageRating = book.averageRating;
-            this.favoriteCount = book.favoriteCount;
-            this.borrowCount = book.borrowCount;
-            this.isActive = book.isActive;
-            this.isDeleted = book.isDeleted;
+            copyFrom(book);
         }
+    }
+
+    // 使用拷贝构造函数的辅助方法
+    private void copyFrom(Book book) {
+        this.isbn = book.isbn;
+        this.msrp = book.msrp;
+        this.image = book.image;
+        this.pages = book.pages;
+        this.title = book.title;
+        this.isbn13 = book.isbn13;
+        this.authors = book.authors;
+        this.binding = book.binding;
+        this.edition = book.edition;
+        this.related = book.related;
+        this.language = book.language;
+        this.subjects = book.subjects;
+        this.synopsis = book.synopsis;
+        this.publisher = book.publisher;
+        this.dimensions = book.dimensions;
+        this.titleLong = book.titleLong;
+        this.datePublished = book.datePublished;
+        this.copyCount = book.copyCount;
+        this.reviewCount = book.reviewCount;
+        this.averageRating = book.averageRating;
+        this.favoriteCount = book.favoriteCount;
+        this.borrowCount = book.borrowCount;
+        this.isActive = book.isActive;
+        this.isDeleted = book.isDeleted;
     }
 
     // 返回组合主键

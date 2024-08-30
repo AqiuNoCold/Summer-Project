@@ -1,5 +1,6 @@
 package vCampus.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,53 @@ public class TestBookDao {
                 }
             }
 
+            List<String> sortCriteria = new ArrayList<>();
+            while (true) {
+                System.out.println("请选择排序字段：");
+                System.out.println("1. copy_count");
+                System.out.println("2. review_count");
+                System.out.println("3. average_rating");
+                System.out.println("4. favorite_count");
+                System.out.println("5. borrow_count");
+                System.out.println("0. 完成排序条件构建");
+                int sortChoice = scanner.nextInt();
+                scanner.nextLine(); // 清除缓冲区
+
+                if (sortChoice == 0) {
+                    break;
+                }
+
+                String sortField = "";
+                switch (sortChoice) {
+                    case 1:
+                        sortField = "copy_count";
+                        break;
+                    case 2:
+                        sortField = "review_count";
+                        break;
+                    case 3:
+                        sortField = "average_rating";
+                        break;
+                    case 4:
+                        sortField = "favorite_count";
+                        break;
+                    case 5:
+                        sortField = "borrow_count";
+                        break;
+                    default:
+                        System.out.println("无效选择，请重新选择。");
+                        continue;
+                }
+
+                sortCriteria.add(sortField);
+
+                System.out.println("是否添加更多排序条件？(y/n)");
+                String moreSortCriteria = scanner.nextLine();
+                if (moreSortCriteria.equalsIgnoreCase("n")) {
+                    break;
+                }
+            }
+
             int totalBooks = bookDao.getTotalBooks(searchCriteria);
             System.out.println("符合条件的书籍总数：" + totalBooks);
 
@@ -96,7 +144,7 @@ public class TestBookDao {
 
                 int currentPage = 1;
                 while (true) {
-                    List<String> bookIds = bookDao.findBooksByPage(searchCriteria, currentPage, pageSize);
+                    List<String> bookIds = bookDao.findBooksByPage(searchCriteria, sortCriteria, currentPage, pageSize);
                     System.out.println("第 " + currentPage + " 页的书籍：");
                     for (String bookId : bookIds) {
                         Book book = bookDao.find(bookId);

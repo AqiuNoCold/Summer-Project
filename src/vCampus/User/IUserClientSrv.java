@@ -1,32 +1,29 @@
 package vCampus.User;
 
 import vCampus.Entity.User;
-import vCampus.Entity.UserInfo;
 import vCampus.Dao.UserDao;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
-public class IUserClientSrv{
+public class IUserClientSrv {
 
     // 以下inid为“输入的id”，inpwd为“输入的密码”
 
     // 登录功能
-    public static User login(String inid,String inpwd) {
+    public static User login(String inid, String inpwd) {
         User user = null;
         UserDao userDao = new UserDao();
         user = userDao.find(inid);
-        if(user != null){
-            if(Objects.equals(inpwd, user.getPwd())){
-                UserInfo userInfo = UserInfo.fromUser(user);
-                UserInfo.setCurrentUser(userInfo);
+        if (user != null) {
+            if (Objects.equals(inpwd, user.getPwd())) {
                 User.setCurrentUser(user);
                 return user;
-            }else{
+            } else {
                 System.out.println("密码错误");
             }
-        }else{
+        } else {
             System.out.println("用户不存在");
         }
         return null; // 登录失败，返回null
@@ -42,25 +39,26 @@ public class IUserClientSrv{
         User user = null;
         UserDao userDao = new UserDao();
         user = userDao.find(inid);
-        if(user != null){
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("请输入注册时的验证邮箱: ");
-            String inputEmail = scanner.nextLine();
-            // 验证邮箱
-            if (!inputEmail.equals(user.getEmail())) {
-                System.out.println("验证邮箱不符，请输入注册时的验证邮箱。");
-                return null;
+        if (user != null) {
+            try (Scanner scanner = new Scanner(System.in)) {
+                System.out.print("请输入注册时的验证邮箱: ");
+                String inputEmail = scanner.nextLine();
+                // 验证邮箱
+                if (!inputEmail.equals(user.getEmail())) {
+                    System.out.println("验证邮箱不符，请输入注册时的验证邮箱。");
+                    return null;
+                }
+
+                // 输入新密码
+                System.out.print("请输入新密码: ");
+                String newPwd = scanner.nextLine();
+
+                // 更新密码
+                user.setPwd(newPwd);
+                userDao.update(user);
+                System.out.println("密码修改成功。");
             }
-
-            // 输入新密码
-            System.out.print("请输入新密码: ");
-            String newPwd = scanner.nextLine();
-
-            // 更新密码
-            user.setPwd(newPwd);
-            userDao.update(user);
-            System.out.println("密码修改成功。");
-        }else{
+        } else {
             System.out.println("用户不存在");
         }
         return user;
@@ -80,11 +78,10 @@ public class IUserClientSrv{
         ArrayList<String> courses2 = new ArrayList<>();
         courses2.add("C++");
         courses2.add("JavaScript");
-        User User2 = new User("user2", "password456", 30, false, "TC", "user2@example.com", "987654321",  true);
+        User User2 = new User("user2", "password456", 30, false, "TC", "user2@example.com", "987654321", true);
         userDao.add(User2);
 
         Scanner scanner = new Scanner(System.in);
-        IUserClientSrv userClientSrv = new IUserClientSrv();
 
         while (true) {
             System.out.println("欢迎使用用户管理系统");
@@ -104,7 +101,7 @@ public class IUserClientSrv{
                     String loginId = scanner.nextLine();
                     System.out.print("请输入密码: ");
                     String loginPwd = scanner.nextLine();
-                    User loggedInUser = userClientSrv.login(loginId, loginPwd);
+                    User loggedInUser = IUserClientSrv.login(loginId, loginPwd);
                     if (loggedInUser != null) {
                         System.out.println("登录成功，欢迎 " + loggedInUser.getId());
                     }
@@ -114,7 +111,7 @@ public class IUserClientSrv{
                     // 登出功能
                     User currentUser = User.getCurrentUser(); // 获取当前用户
                     if (currentUser != null) {
-                        userClientSrv.logout(currentUser);
+                        IUserClientSrv.logout(currentUser);
                         System.out.println("登出成功。");
                     } else {
                         System.out.println("当前没有用户登录。");
@@ -125,7 +122,7 @@ public class IUserClientSrv{
                     // 找回密码功能
                     System.out.print("请输入用户ID: ");
                     String forgetId = scanner.nextLine();
-                    userClientSrv.forgetPassword(forgetId);
+                    IUserClientSrv.forgetPassword(forgetId);
                     break;
 
                 case 4:

@@ -106,10 +106,11 @@ public class BookDao implements BaseDao<Book> {
             String[] ids = id.split(",");
             String isbn = ids[0];
             String isbn13 = ids[1];
-            String sql = "DELETE FROM tblBooks WHERE isbn = ? AND isbn13 = ?";
+            String sql = "UPDATE tblBooks SET isDeleted = ? WHERE isbn = ? AND isbn13 = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, isbn);
-            pstmt.setString(2, isbn13);
+            pstmt.setBoolean(1, true);
+            pstmt.setString(2, isbn);
+            pstmt.setString(3, isbn13);
             int rowsAffected = pstmt.executeUpdate();
             isDeleted = rowsAffected > 0;
         } catch (Exception e) {
@@ -172,7 +173,7 @@ public class BookDao implements BaseDao<Book> {
         int totalBooks = 0;
         try {
             Connection conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBooks WHERE 1=1");
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
 
             for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
@@ -223,11 +224,15 @@ public class BookDao implements BaseDao<Book> {
         return totalBooks;
     }
 
-    public List<String> findBooksByPage(Map<String, String> searchCriteria, int page, int pageSize) {
+    public List<String> findBooksByPage(
+            Map<String, String> searchCriteria,
+            List<String> sortCriteria,
+            int page,
+            int pageSize) {
         List<String> bookIds = new ArrayList<>();
         try {
             Connection conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE 1=1");
+            StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
 
             for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
@@ -258,6 +263,27 @@ public class BookDao implements BaseDao<Book> {
                         break;
                     default:
                         break;
+                }
+            }
+
+            if (sortCriteria != null && !sortCriteria.isEmpty()) {
+                sql.append(" ORDER BY ");
+                for (int i = 0; i < sortCriteria.size(); i++) {
+                    String criterion = sortCriteria.get(i);
+                    switch (criterion) {
+                        case "copy_count":
+                        case "review_count":
+                        case "average_rating":
+                        case "favorite_count":
+                        case "borrow_count":
+                            sql.append(criterion);
+                            if (i < sortCriteria.size() - 1) {
+                                sql.append(", ");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 

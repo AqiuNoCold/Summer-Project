@@ -2,32 +2,40 @@ package vCampus.Entity.Books;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import vCampus.Entity.UserInfo;
+import vCampus.Entity.User;
+import vCampus.Dao.Books.BorrowRecordDao;
+import vCampus.Dao.Books.BookShelfDao;
 
-public class BookUser {
-    private UserInfo userInfo; // 用户信息
+public class BookUser extends User {
     private List<BorrowRecord> borrowRecords; // 借阅记录列表
     private BookShelf defaultBookShelf; // 默认书架
     private List<BookShelf> bookShelves; // 所有书架
+    private List<String> borrowRecordIds; // 借阅记录ID列表
+    private List<String> shelfIds; // 书架ID列表
 
-    public BookUser(UserInfo userInfo) {
-        this.userInfo = userInfo;
+    // 构造函数，只接受id
+    public BookUser(String id) {
+        super(id);
         this.borrowRecords = new ArrayList<>();
         this.bookShelves = new ArrayList<>();
+        this.borrowRecordIds = new ArrayList<>();
+        this.shelfIds = new ArrayList<>();
     }
 
-    // 新增的构造函数，只接受id
-    public BookUser(String id) {
-        this.userInfo = new UserInfo(id);
+    // 构造函数，接受id，borrowRecordIds，defaultBookShelf，和shelfIds
+    public BookUser(String id, List<String> borrowRecordIds, BookShelf defaultBookShelf, List<String> shelfIds) {
+        super(id);
         this.borrowRecords = new ArrayList<>();
         this.bookShelves = new ArrayList<>();
+        this.borrowRecordIds = borrowRecordIds;
+        this.defaultBookShelf = defaultBookShelf;
+        this.shelfIds = shelfIds;
     }
 
     // 添加借阅记录，返回布尔值表示是否成功
     public boolean addBorrowRecord(BorrowRecord borrowRecord) {
-        if (userInfo.isLost()) {
+        if (this.getLost()) {
             // 用户账户被冻结，无法添加借阅记录
             return false;
         } else {
@@ -43,16 +51,13 @@ public class BookUser {
 
     // 获取用户的所有借阅记录
     public List<BorrowRecord> getBorrowRecords() {
+        if (borrowRecords.isEmpty() && !borrowRecordIds.isEmpty()) {
+            BorrowRecordDao borrowRecordDao = new BorrowRecordDao();
+            for (String id : borrowRecordIds) {
+                borrowRecords.add(borrowRecordDao.find(id));
+            }
+        }
         return borrowRecords;
-    }
-
-    // 获取用户信息
-    public UserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    public String getCard() {
-        return userInfo.getCard();
     }
 
     // 获取默认书架
@@ -70,17 +75,14 @@ public class BookUser {
         this.bookShelves = bookShelves;
     }
 
-    // 设置所有书架的ID，从逗号分隔的字符串解析
-    public void setAllBookShelvesFromString(String shelvesString) {
-        String[] shelfIds = shelvesString.split(",");
-        this.bookShelves = new ArrayList<>();
-        for (String id : shelfIds) {
-            this.bookShelves.add(new BookShelf(Long.parseLong(id)));
-        }
-    }
-
     // 获取所有书架
     public List<BookShelf> getBookShelves() {
+        if (bookShelves.isEmpty() && !shelfIds.isEmpty()) {
+            BookShelfDao bookShelfDao = new BookShelfDao();
+            for (String id : shelfIds) {
+                bookShelves.add(bookShelfDao.find(id));
+            }
+        }
         return bookShelves;
     }
 
@@ -93,10 +95,7 @@ public class BookUser {
 
     // 移除书架
     public boolean removeBookShelf(BookShelf bookShelf) {
-        if (bookShelves.remove(bookShelf)) {
-            return true;
-        }
-        return false;
+        return bookShelves.remove(bookShelf);
     }
 
     // 获取用户借阅的图书总数
@@ -114,10 +113,18 @@ public class BookUser {
         return false;
     }
 
-    // 获取所有书架的ID并以逗号分隔的字符串形式返回
-    public String getAllBookShelvesAsString() {
-        return bookShelves.stream()
-                .map(shelf -> String.valueOf(shelf.getId()))
-                .collect(Collectors.joining(","));
+    // 获取借阅记录ID列表
+    public List<String> getBorrowRecordIds() {
+        return borrowRecordIds;
+    }
+
+    // 设置书架ID列表
+    public void setShelfIds(List<String> shelfIds) {
+        this.shelfIds = shelfIds;
+    }
+
+    // 获取书架ID列表
+    public List<String> getShelfIds() {
+        return shelfIds;
     }
 }
