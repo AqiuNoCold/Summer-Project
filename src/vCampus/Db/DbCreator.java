@@ -31,8 +31,7 @@ public class DbCreator {
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
                 + "remain FLOAT CHECK (remain >= 0), "
                 + "password INT, "
-                + "lost BOOLEAN DEFAULT FALSE, "
-                + "courses TEXT"
+                + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
         executeSQL(createTableSQL, "tblUser");
@@ -49,7 +48,7 @@ public class DbCreator {
                 + "grade VARCHAR(255), "
                 + "major VARCHAR(20), "
                 + "email VARCHAR(255) CHECK (email LIKE '%@%.com'), "
-                + "stage VARCHAR(3), "
+                + "stage VARCHAR(30), "
                 + "honor TEXT, "
                 + "punish TEXT, "
                 + "stu_code VARCHAR(19)"
