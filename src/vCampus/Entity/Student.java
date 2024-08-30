@@ -1,7 +1,7 @@
 package vCampus.Entity;
-
-import java.util.Date;
-
+import vCampus.Dao.StuDao;
+//import java.util.Date;
+import java.sql.Date; // 确保使用 java.sql.Date
 public class Student {
     private String id;
     private String cardId;  // 9 characters, primary key
