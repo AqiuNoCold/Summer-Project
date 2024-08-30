@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UserDao implements BaseDao<User> {//删除了courses属性
+public class UserDao implements BaseDao<User> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
@@ -20,7 +20,7 @@ public class UserDao implements BaseDao<User> {//删除了courses属性
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblUser (id, pwd, age, gender, role, email, card, remain, password, lost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";//, courses
+            String sql = "INSERT INTO tblUser (id, pwd, age, gender, role, email, card, lost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, user.getId());
             pstmt.setString(2, user.getPwd());
@@ -29,10 +29,10 @@ public class UserDao implements BaseDao<User> {//删除了courses属性
             pstmt.setString(5, user.getRole());
             pstmt.setString(6, user.getEmail());
             pstmt.setString(7, user.getCard());
-            pstmt.setFloat(8, user.getRemain());
-            pstmt.setInt(9, user.getPassword());
-            pstmt.setBoolean(10, user.getLost());
-//            pstmt.setString(11, String.join(",", user.getCourses()));
+//            pstmt.setFloat(8, user.getRemain());
+//            pstmt.setInt(9, user.getPassword());
+            pstmt.setBoolean(8, user.getLost());
+//            pstmt.setString(9, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -48,7 +48,7 @@ public class UserDao implements BaseDao<User> {//删除了courses属性
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblUser SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ?, remain = ?, password = ?, lost = ? WHERE id = ?";//, courses = ?
+            String sql = "UPDATE tblUser SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ?,  lost = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, user.getPwd());
             pstmt.setInt(2, user.getAge());
@@ -56,11 +56,11 @@ public class UserDao implements BaseDao<User> {//删除了courses属性
             pstmt.setString(4, user.getRole());
             pstmt.setString(5, user.getEmail());
             pstmt.setString(6, user.getCard());
-            pstmt.setFloat(7, user.getRemain());
-            pstmt.setInt(8, user.getPassword());
-            pstmt.setBoolean(9, user.getLost());
-            pstmt.setString(10, user.getId());
-//            pstmt.setString(11, String.join(",", user.getCourses()));
+//            pstmt.setFloat(7, user.getRemain());
+//            pstmt.setInt(8, user.getPassword());
+            pstmt.setBoolean(7, user.getLost());
+            pstmt.setString(8, user.getId());
+//            pstmt.setString(9, String.join(",", user.getCourses()));
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
@@ -109,10 +109,10 @@ public class UserDao implements BaseDao<User> {//删除了courses属性
                         rs.getString("role"),
                         rs.getString("email"),
                         rs.getString("card"),
-                        rs.getFloat("remain"),
-                        rs.getInt("password"),
+//                        rs.getFloat("remain"),
+//                        rs.getInt("password"),
                         rs.getBoolean("lost")
-                        //courses
+//                        courses
                 );
             }
         } catch (Exception e) {

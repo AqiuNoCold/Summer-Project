@@ -1,25 +1,27 @@
 package vCampus.Entity;
 
+
+import java.text.SimpleDateFormat;
 import java.util.*;
+import vCampus.Dao.*;
+import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.ECard.ECardDTO;
 
-public class ShopStudent extends User {
-    //private String card;
 
-    private List<Product> favorites = new ArrayList<>();
-    private List<Product> belongs = new ArrayList<>();
-    private List<Product> bill = new ArrayList<>();
+public class ShopStudent extends ECard {
 
-    //private float remain;
-    //private boolean lost;
-    //private String password;
+    private List<Product> favorites;
+    private List<Product> belongs;
+    private List<String> bill;
 
-    public ShopStudent(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost,ArrayList<String> courses){
-        super(id, pwd, age, gender, role, email, card, remain, password, lost, courses);
-        /*
-        this.remain = balance;
-        this.lost = false;
-        this.password = "123456";
-         */
+    public ShopStudent(User user, ECardDTO testDTO){
+        super(user,testDTO);
+        //初始化商店用户
+        ShopStudentDao dao = new ShopStudentDao();
+        ShopStudentDao.ShopStudentData data = dao.find(id);
+        turnFavorites(data.getFavorites());
+        turnBelongs(data.getBelongs());
+        turnBill(data.getBill());
     }
 
     public List<Product> getFavorites() {
@@ -28,7 +30,7 @@ public class ShopStudent extends User {
     public List<Product> getBelongs(){
         return belongs;
     }
-    public List<Product> getBill() {
+    public List<String> getBill() {
         return bill;
     }
 
@@ -52,128 +54,46 @@ public class ShopStudent extends User {
     }
 
     public String getBillId() {
-        List<String> billId = new ArrayList<>();
-        for (Product p : bill) {
-            billId.add(p.getId());
+        StringBuilder Bill= new StringBuilder();
+        for (String p : bill) {
+            Bill.append(p);
         }
-        return String.join(",", billId);
+        return String.join(";", Bill.toString());
     }
-    //public boolean getLost(){return lost;}
-    public boolean buyProduct(Product product,int nums) {
-        Scanner scanner = new Scanner(System.in);
 
-        if(product.getNumbers()< nums){
-            System.out.println("商品数量不足！");
-            return false;
-        }
-        if (product.countPrice()*nums > remain) {
-            System.out.println("余额不足！");
-            return false;
-        }
-        int times = 0;
-        while(true) {
-            System.out.print("请输入支付密码: ");
-            int input = scanner.nextInt();
-            if(input == password) {
-                remain -= product.getPrice()*nums;
-                System.out.println("购买成功！");
-                Date datetime = new Date();
-                String ID = String.valueOf(bill.size()+1);
-                float cost = product.countPrice();
-                Product hisProduct = new Product(ID, product.getName(), product.getPrice(),nums, product.getOwner());
-                bill.add(hisProduct);
-                return true;
-            }
-            times++;
-            if(times<3)
-                System.out.println("密码错误！剩余"+(3-times)+"次");
-            else {
-                System.out.println("多次错误，购买失败！");
-                return false;
-            }
+    public void turnFavorites(String favoritesId){
+        String[] productIds = favoritesId.split(",");
+        ProductDao dao = new ProductDao();
+        for(String id : productIds) {
+            Product product = dao.find(id);
+            favorites.add(product);
         }
     }
 
-    public Product addProduct(int size){
-        Scanner scanner = new Scanner(System.in);
-
-        //System.out.print("请输入商品ID: ");
-        String newId = String.valueOf(size+1);
-        System.out.print("请输入新的商品名称: ");
-        String newName = scanner.nextLine();
-        System.out.print("请输入新的商品数量: ");
-        int  newNums = scanner.nextInt();
-        System.out.print("请输入新的商品价格: ");
-        float newPrice = scanner.nextFloat();
-        float newDiscount;
-        while(true) {
-            System.out.print("请输入新的商品折扣(0~1): ");
-            newDiscount = scanner.nextFloat();
-            if((newDiscount>=0) && (newDiscount<=1))
-                break;
-        }
-        scanner.nextLine();
-        String owner = card;
-        Product newProduct = new Product(newId,newName,newPrice,newNums,owner);
-        newProduct.setDiscount(newDiscount);
-        belongs.add(newProduct);
-        System.out.println("新商品添加成功！");
-
-        return newProduct;
-    }
-
-    public void updateProduct(Product product, String name, int nums,float price,float discount) {
-        product.setName(name);
-        product.setNumbers(nums);
-        product.setPrice(price);
-        product.setDiscount(discount);
-        System.out.println("商品信息更新成功！");
-    }
-
-    public void deleteProduct(String id){
-        int Index = 0;
-        for (Product product : belongs) {
-            if (Objects.equals(product.getId(), id)) {
-                belongs.remove(Index);
-                break;
-            }
-            Index++;
-
+    public void turnBelongs(String belongsId){
+        String[] productIds = belongsId.split(",");
+        ProductDao dao = new ProductDao();
+        for(String id : productIds) {
+            Product product = dao.find(id);
+            belongs.add(product);
         }
     }
 
-    public void addFavorite(Product product) {
-        favorites.add(product);
-        System.out.println("已收藏商品: " + product.getName());
+    public void turnBill(String billId){
+        String[] billIds = billId.split(";");
+        bill.addAll(Arrays.asList(billIds));
     }
 
-    public void viewFavorite(){
-        System.out.println("收藏商品列表：");
-        for (Product product : favorites) {
-            System.out.println(product);
-        }
+    public void setFavorites(List<Product> favorites){
+        this.favorites = favorites;
     }
 
-    public void viewBelongs(){
-        System.out.println("所属商品列表：");
-        for (Product product : belongs) {
-            System.out.println(product);
-        }
+    public void setBelongss(List<Product> belongs){
+        this.belongs = belongs;
     }
 
-    public void viewBill(){
-        System.out.println("收藏商品列表：");
-        for (Product his : bill) {
-            System.out.println(his+", 折扣: "+his.getDiscount()+", 总花费:"+his.countPrice()* his.getNumbers());
-        }
-    }
-
-    public boolean isMine(String id){
-        for (Product product : belongs) {
-            if(Objects.equals(id, product.getId()))
-                return true;
-        }
-        return false;
+    public void setBill(List<String> bill){
+        this.bill = bill;
     }
 
     @Override
