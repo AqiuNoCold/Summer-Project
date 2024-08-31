@@ -73,7 +73,8 @@ public class BookReview {
     }
 
     // 新建评论用的构造方法
-    public BookReview(String userId, String bookId, String content, BigDecimal rating, LocalDateTime createTime) {
+    public BookReview(String userId, String bookId, Long shelfId, String content, BigDecimal rating,
+            LocalDateTime createTime, Boolean isPublic) {
         this.userId = userId;
         this.bookId = bookId;
         this.shelfId = shelfId;
