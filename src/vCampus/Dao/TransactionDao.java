@@ -83,7 +83,7 @@ public class TransactionDao{
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                transaction = rs.getString("transactionHistory");
+                transaction = rs.getString("transaction");
             }
         } catch (SQLException e) {
             e.printStackTrace();

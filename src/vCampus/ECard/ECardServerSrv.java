@@ -2,27 +2,25 @@ package vCampus.ECard;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.SimpleTimeZone;
+import java.util.Objects;
 
 import vCampus.Dao.ECardDao;
 import vCampus.Dao.TransactionDao;
 import vCampus.Entity.ECard.ECard;
 import vCampus.Dao.UserDao;
-import vCampus.Entity.ECard.ECard;
 import vCampus.Entity.ECard.ECardDTO;
 import vCampus.Entity.User;
 
 public class ECardServerSrv {
 
-    public static ECard cardIniServerSrv(User user) {
+    public static ECard cardIni(User user) {
+        TransactionDao tdao = new TransactionDao();
+        tdao.add(user.getCard());
         return new ECard(user);
         // 请求服务端进行初始化
     }
 
-    public static boolean isLostServerSrv(ECard testcard) {
+    public static boolean isLost(ECard testcard) {
         boolean result = !testcard.getLost();
         if (result) {
             testcard.setLost(true);
@@ -32,7 +30,7 @@ public class ECardServerSrv {
         return result;
     }
 
-    public static boolean notLostServerSrv(ECard testcard) {
+    public static boolean notLost(ECard testcard) {
         boolean result = testcard.getLost();
         if (result) {
             testcard.setLost(false);
@@ -53,22 +51,23 @@ public class ECardServerSrv {
          transactionDao.update(oldHistory+newHistory,card);
     }
 
-    public static float showStatusServerSrv(ECard testcard) {
-        return testcard.getRemain();
+    public static float showStatus(ECard testcard) {
+        ECardDao cardDao = new ECardDao();
+        return cardDao.find(testcard.getCard()).getRemain();
     }
 
-    public static String getTransactionHistoryServerSrv(ECard testcard) {
+    public static String getTransactionHistory(ECard testcard) {
         TransactionDao transactionDao = new TransactionDao();
         String transaction = transactionDao.find(testcard.getCard());
-        // 连接数据库获取流水后转化成ArrayList格式，传递给客户端
+        // 连接数据库获取流水，传递给客户端
         return transaction;
     }
 
-    public static boolean comparePasswordServerSrv(ECard testcard, Integer oldPassword) {
-        return testcard.getPassword() == oldPassword;
+    public static boolean comparePassword(ECard testcard, Integer passwordEntered) {
+        return Objects.equals(testcard.getPassword(), passwordEntered);
     }
 
-    public static boolean newPasswordServerSrv(ECard testcard, Integer newPassword) {
+    public static boolean newPassword(ECard testcard, Integer newPassword) {
         testcard.setPassword(newPassword);
         // 更新数据库tblUser
         ECardDao cardDao = new ECardDao();
@@ -76,19 +75,21 @@ public class ECardServerSrv {
         return true;
     }
 
-    public static boolean payServerSrv(String card, float amount, String reason, Integer passwordEntered) {
+    public static boolean pay(String card, float amount, String reason, Integer passwordEntered) {
 
         TransactionDao transactionDao = new TransactionDao();
         ECardDao cardDao = new ECardDao();
         ECardDTO cardInfo = cardDao.find(card);
 
-        if (passwordEntered != cardInfo.getPassword()) {
+        if (!Objects.equals(passwordEntered, cardInfo.getPassword())) {
+            System.out.println("Wrong password!");
             return false;
         }
         cardInfo.setRemain(cardInfo.getRemain() - amount);
         cardDao.update(cardInfo);
 
         addTransaction(cardInfo.getCard(), amount, reason);
+        System.out.println("Successfully payed!");
         return true;
     }
 }

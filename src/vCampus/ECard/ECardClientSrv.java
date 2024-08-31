@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ECardClientSrv {
-    public static void cardIniClientSrv() {
+    public static void cardIni() {
         // 请求服务端进行初始化
     }
 
-    public static void isLostClientSrv() {
+    public static void isLost() {
         // 请求服务端isLostSSrv并根据返回值输出提示语（关于是否挂失成功）,先假设存放返回值的变量名为result
 
         boolean ServerResult = true;
@@ -18,7 +18,7 @@ public class ECardClientSrv {
             System.out.println("Failed to report the loss!");
     }
 
-    public static void notLostClientSrv() {
+    public static void notLost() {
         // 请求服务端isLostSSrv并根据返回值输出提示语（关于是否挂失成功）,先假设存放返回值的变量名为result
         boolean ServerResult = true;
         if (ServerResult)
@@ -27,7 +27,7 @@ public class ECardClientSrv {
             System.out.println("Failed to cancel the loss!");
     }
 
-    public static void chargeClientSrv() {
+    public static void charge() {
         // 输入充值金额，先假设为amount
         float amount = 100.0F;
         // 传递给服务端后获取返回值，先假设为ServerResult
@@ -36,20 +36,20 @@ public class ECardClientSrv {
             System.out.println("Successfully charged!");
     }
 
-    public static void showStatusClientSrv() {
+    public static void showStatus() {
         // 请求服务端showStatusSSrv后展示服务端返回的数据,假设为currentBalance
         float currentBalance = 200f;
         System.out.println("Current Balance: " + currentBalance);
     }
 
-    public static void getTransactionHistoryClientSrv() {
+    public static void getTransactionHistory() {
         // 请求服务端getTransactionHistorySSrv后展示返回值.,假设为currentHistory
         ArrayList<String> currentHistory = new ArrayList<String>();
         currentHistory.add("1");
         System.out.println(currentHistory);
     }
 
-    public static void comparePasswordClientSrv() {
+    public static void comparePassword() {
         // Scanner scanner = new Scanner(System.in);
         // String input = "";
         // while (true) {
@@ -69,7 +69,7 @@ public class ECardClientSrv {
             System.out.println("Doesn't match the old password");
     }
 
-    public static void newPasswordClientSrv() {
+    public static void newPassword() {
         // Scanner scanner = new Scanner(System.in);
         // String input = "";
         // while (true) {
@@ -90,7 +90,7 @@ public class ECardClientSrv {
     }
 
     public static boolean payClientSrv() {
-        comparePasswordClientSrv();
+        comparePassword();
         return true;
     }
 }
