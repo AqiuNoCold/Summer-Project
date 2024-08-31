@@ -1,7 +1,5 @@
 package vCampus.Entity;
 
-import vCampus.Dao.UserDao;
-
 // import java.util.ArrayList;
 
 public class User {
@@ -34,19 +32,16 @@ public class User {
         // setCourses(courses);
     }
 
-    // 仅接受id的构造方法
-    public User(String id) {
-        User user = new UserDao().find(id);
-        if (user != null) {
-            this.id = user.getId();
-            this.pwd = user.getPwd();
-            this.age = user.getAge();
-            this.gender = user.getGender();
-            this.role = user.getRole();
-            this.email = user.getEmail();
-            this.card = user.getCard();
-            this.lost = user.getLost();
-        }
+    // 拷贝构造函数
+    public User(User other) {
+        this.id = other.id;
+        this.pwd = other.pwd;
+        this.age = other.age;
+        this.gender = other.gender;
+        this.role = other.role;
+        this.email = other.email;
+        this.card = other.card;
+        this.lost = other.lost;
     }
 
     // id的getter和setter

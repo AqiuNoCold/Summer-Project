@@ -9,15 +9,15 @@ import java.util.Map;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
-import vCampus.Entity.Books.Book;
+import vCampus.Service.Books.BookService;
 
-public class BookDao implements BaseDao<Book> {
+public class BookDao implements BaseDao<BookService> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
 
     @Override
-    public boolean add(Book book) {
+    public boolean add(BookService book) {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
@@ -58,7 +58,7 @@ public class BookDao implements BaseDao<Book> {
     }
 
     @Override
-    public boolean update(Book book) {
+    public boolean update(BookService book) {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
@@ -122,8 +122,8 @@ public class BookDao implements BaseDao<Book> {
     }
 
     @Override
-    public Book find(String id) {
-        Book book = null;
+    public BookService find(String id) {
+        BookService book = null;
         try {
             conn = DbConnection.getConnection();
             String[] ids = id.split(",");
@@ -135,7 +135,7 @@ public class BookDao implements BaseDao<Book> {
             pstmt.setString(2, isbn13);
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                book = new Book(
+                book = new BookService(
                         rs.getString("isbn"),
                         rs.getBigDecimal("msrp"),
                         rs.getString("image"),

@@ -6,18 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
-import vCampus.Entity.Books.BorrowRecord;
+import vCampus.Service.Books.BorrowRecordService;
 
-public class BorrowRecordDao implements BaseDao<BorrowRecord> {
+public class BorrowRecordDao implements BaseDao<BorrowRecordService> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
 
     @Override
-    public boolean add(BorrowRecord borrowRecord) {
+    public boolean add(BorrowRecordService borrowRecord) {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
@@ -40,7 +41,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
     }
 
     @Override
-    public boolean update(BorrowRecord borrowRecord) {
+    public boolean update(BorrowRecordService borrowRecord) {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
@@ -82,7 +83,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
     }
 
     @Override
-    public BorrowRecord find(String id) {
+    public BorrowRecordService find(String id) {
         String sql = "SELECT * FROM tblBorrowRecord WHERE id = ? AND is_deleted = false";
         try {
             conn = DbConnection.getConnection();
@@ -90,13 +91,13 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                BorrowRecord borrowRecord = new BorrowRecord(
+                BorrowRecordService borrowRecord = new BorrowRecordService(
                         rs.getLong("id"),
                         rs.getDate("borrow_date").toLocalDate(),
                         rs.getDate("return_date").toLocalDate(),
                         new BookDao().find(rs.getString("book_id")),
                         new BookUserDao().find(rs.getString("user_id")),
-                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")),
+                        BorrowRecordService.BorrowStatus.valueOf(rs.getString("status")),
                         rs.getBoolean("is_deleted"));
                 return borrowRecord;
             }
@@ -108,42 +109,94 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         return null;
     }
 
-    public int getTotalRecordsByUser(String userId) {
-        String sql = "SELECT COUNT(*) FROM tblBorrowRecord WHERE user_id = ? AND is_deleted = false";
+    public int getTotalRecords(Map<String, String> searchCriteria) {
+        int totalRecords = 0;
         try {
             conn = DbConnection.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userId);
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBorrowRecord WHERE is_deleted = false");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                switch (key) {
+                    case "user_id":
+                    case "status":
+                        sql.append(" AND ").append(key).append(" = ?");
+                        params.add(value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1);
+                totalRecords = rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return 0;
+        return totalRecords;
     }
 
-    public List<BorrowRecord> findAllByUser(String userId, int page, int pageSize) {
-        List<BorrowRecord> borrowRecords = new ArrayList<>();
-        String sql = "SELECT * FROM tblBorrowRecord WHERE user_id = ? AND is_deleted = false ORDER BY borrow_date DESC LIMIT ? OFFSET ?";
+    public List<BorrowRecordService> findAllByPage(Map<String, String> searchCriteria, List<String> sortCriteria,
+            int page,
+            int pageSize) {
+        List<BorrowRecordService> borrowRecords = new ArrayList<>();
         try {
             conn = DbConnection.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, userId);
-            pstmt.setInt(2, pageSize);
-            pstmt.setInt(3, (page - 1) * pageSize);
+            StringBuilder sql = new StringBuilder("SELECT * FROM tblBorrowRecord WHERE is_deleted = false");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                switch (key) {
+                    case "user_id":
+                    case "status":
+                        sql.append(" AND ").append(key).append(" = ?");
+                        params.add(value);
+                    default:
+                        break;
+                }
+            }
+
+            if (sortCriteria != null && !sortCriteria.isEmpty()) {
+                sql.append(" ORDER BY ");
+                for (int i = 0; i < sortCriteria.size(); i++) {
+                    String criterion = sortCriteria.get(i);
+                    sql.append(criterion);
+                    if (i < sortCriteria.size() - 1) {
+                        sql.append(", ");
+                    }
+                }
+            }
+
+            sql.append(" LIMIT ? OFFSET ?");
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+            pstmt.setInt(params.size() + 1, pageSize);
+            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
+
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                BorrowRecord borrowRecord = new BorrowRecord(
+                BorrowRecordService borrowRecord = new BorrowRecordService(
                         rs.getLong("id"),
                         rs.getDate("borrow_date").toLocalDate(),
                         rs.getDate("return_date").toLocalDate(),
                         new BookDao().find(rs.getString("book_id")),
                         new BookUserDao().find(rs.getString("user_id")),
-                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")),
+                        BorrowRecordService.BorrowStatus.valueOf(rs.getString("status")),
                         rs.getBoolean("is_deleted"));
                 borrowRecords.add(borrowRecord);
             }
@@ -156,7 +209,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
     }
 
     // 新的save方法，返回数据库自动分配的ID
-    public Long save(BorrowRecord borrowRecord) {
+    public Long save(BorrowRecordService borrowRecord) {
         Long generatedId = null;
         try {
             conn = DbConnection.getConnection();

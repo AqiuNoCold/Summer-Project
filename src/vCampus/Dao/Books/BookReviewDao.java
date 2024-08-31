@@ -8,15 +8,15 @@ import java.sql.Timestamp;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
-import vCampus.Entity.Books.BookReview;
+import vCampus.Service.Books.BookReviewService;
 
-public class BookReviewDao implements BaseDao<BookReview> {
+public class BookReviewDao implements BaseDao<BookReviewService> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
 
     @Override
-    public boolean add(BookReview bookReview) {
+    public boolean add(BookReviewService bookReview) {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
@@ -41,7 +41,7 @@ public class BookReviewDao implements BaseDao<BookReview> {
     }
 
     @Override
-    public boolean update(BookReview bookReview) {
+    public boolean update(BookReviewService bookReview) {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
@@ -82,8 +82,8 @@ public class BookReviewDao implements BaseDao<BookReview> {
     }
 
     @Override
-    public BookReview find(String id) {
-        BookReview bookReview = null;
+    public BookReviewService find(String id) {
+        BookReviewService bookReview = null;
         try {
             conn = DbConnection.getConnection();
             String sql = "SELECT * FROM tblBookReviews WHERE id = ?";
@@ -91,7 +91,7 @@ public class BookReviewDao implements BaseDao<BookReview> {
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                bookReview = new BookReview(
+                bookReview = new BookReviewService(
                         rs.getLong("id"),
                         rs.getString("userId"),
                         rs.getString("bookId"),
@@ -111,7 +111,7 @@ public class BookReviewDao implements BaseDao<BookReview> {
     }
 
     // save方法
-    public Long save(BookReview bookReview) {
+    public Long save(BookReviewService bookReview) {
         Long generatedId = null;
         try {
             conn = DbConnection.getConnection();

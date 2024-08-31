@@ -1,10 +1,11 @@
-package vCampus.Entity.Books;
+package vCampus.Service.Books;
 
 import java.math.BigDecimal;
 
-import vCampus.Service.Books.BookService;
+import vCampus.Dao.Books.BookDao;
+import vCampus.Entity.Books.Book;
 
-public class Book {
+public class BookService {
     private String isbn; // ISBN
     private BigDecimal msrp; // 建议零售价
     private String image; // 图片
@@ -30,7 +31,8 @@ public class Book {
     private boolean isActive; // 是否激活
     private boolean isDeleted; // 是否删除
 
-    public Book(String isbn, BigDecimal msrp, String image, int pages, String title, String isbn13, String authors,
+    public BookService(String isbn, BigDecimal msrp, String image, int pages, String title, String isbn13,
+            String authors,
             String binding, String edition, String related, String language, String subjects, String synopsis,
             String publisher, String dimensions, String titleLong, String datePublished, int copyCount,
             int reviewCount, BigDecimal averageRating, int favoriteCount, int borrowCount, boolean isActive,
@@ -62,35 +64,20 @@ public class Book {
     }
 
     // 拷贝构造函数
-    public Book(BookService bookService) {
-        this.isbn = bookService.getIsbn();
-        this.msrp = bookService.getMsrp();
-        this.image = bookService.getImage();
-        this.pages = bookService.getPages();
-        this.title = bookService.getTitle();
-        this.isbn13 = bookService.getIsbn13();
-        this.authors = bookService.getAuthors();
-        this.binding = bookService.getBinding();
-        this.edition = bookService.getEdition();
-        this.related = bookService.getRelated();
-        this.language = bookService.getLanguage();
-        this.subjects = bookService.getSubjects();
-        this.synopsis = bookService.getSynopsis();
-        this.publisher = bookService.getPublisher();
-        this.dimensions = bookService.getDimensions();
-        this.titleLong = bookService.getTitleLong();
-        this.datePublished = bookService.getDatePublished();
-        this.copyCount = bookService.getCopyCount();
-        this.reviewCount = bookService.getReviewCount();
-        this.averageRating = bookService.getAverageRating();
-        this.favoriteCount = bookService.getFavoriteCount();
-        this.borrowCount = bookService.getBorrowCount();
-        this.isActive = bookService.isActive();
-        this.isDeleted = bookService.isDeleted();
+    public BookService(BookService book) {
+        copyFrom(book);
+    }
+
+    // 仅接受id的构造函数
+    public BookService(String id) {
+        BookService book = new BookDao().find(id);
+        if (book != null) {
+            copyFrom(book);
+        }
     }
 
     // 拷贝构造函数
-    public Book(Book book) {
+    public BookService(Book book) {
         this.isbn = book.getIsbn();
         this.msrp = book.getMsrp();
         this.image = book.getImage();
@@ -115,6 +102,34 @@ public class Book {
         this.borrowCount = book.getBorrowCount();
         this.isActive = book.isActive();
         this.isDeleted = book.isDeleted();
+    }
+
+    // 使用拷贝构造函数的辅助方法
+    private void copyFrom(BookService book) {
+        this.isbn = book.isbn;
+        this.msrp = book.msrp;
+        this.image = book.image;
+        this.pages = book.pages;
+        this.title = book.title;
+        this.isbn13 = book.isbn13;
+        this.authors = book.authors;
+        this.binding = book.binding;
+        this.edition = book.edition;
+        this.related = book.related;
+        this.language = book.language;
+        this.subjects = book.subjects;
+        this.synopsis = book.synopsis;
+        this.publisher = book.publisher;
+        this.dimensions = book.dimensions;
+        this.titleLong = book.titleLong;
+        this.datePublished = book.datePublished;
+        this.copyCount = book.copyCount;
+        this.reviewCount = book.reviewCount;
+        this.averageRating = book.averageRating;
+        this.favoriteCount = book.favoriteCount;
+        this.borrowCount = book.borrowCount;
+        this.isActive = book.isActive;
+        this.isDeleted = book.isDeleted;
     }
 
     // 返回组合主键
@@ -312,6 +327,20 @@ public class Book {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public boolean borrowBook() {
+        if (copyCount <= 0) {
+            return false;
+        }
+        copyCount--;
+        borrowCount++;
+        return new BookDao().update(this);
+    }
+
+    public boolean returnBook() {
+        copyCount++;
+        return new BookDao().update(this);
     }
 
     @Override

@@ -74,12 +74,11 @@
 
 ## tblBookUser
 
-| 字段名            | 数据类型 | 说明                             |
-| ----------------- | -------- | -------------------------------- |
-| id                | CHAR(9)  | 用户ID，主键，不自增             |
-| borrow_record_ids | TEXT     | 关联借阅记录ID的列表（JSON格式） |
-| default_shelf_id  | BIGINT   | 默认书架ID                       |
-| shelf_ids         | TEXT     | 所有书架ID的列表（JSON格式）     |
+| 字段名           | 数据类型 | 说明                         |
+| ---------------- | -------- | ---------------------------- |
+| id               | CHAR(9)  | 用户ID，主键，不自增         |
+| default_shelf_id | BIGINT   | 默认书架ID                   |
+| shelf_ids        | TEXT     | 所有书架ID的列表（JSON格式） |
 
 ## tblBorrowRecord
 

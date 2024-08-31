@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import vCampus.Dao.Books.BookDao;
-import vCampus.Entity.Books.Book;
+import vCampus.Service.Books.BookService;
 
 public class TestBookDao {
     public static void main(String[] args) {
@@ -147,7 +147,7 @@ public class TestBookDao {
                     List<String> bookIds = bookDao.findBooksByPage(searchCriteria, sortCriteria, currentPage, pageSize);
                     System.out.println("第 " + currentPage + " 页的书籍：");
                     for (String bookId : bookIds) {
-                        Book book = bookDao.find(bookId);
+                        BookService book = bookDao.find(bookId);
                         System.out.println(book);
                     }
                     System.out.println("请选择操作：");

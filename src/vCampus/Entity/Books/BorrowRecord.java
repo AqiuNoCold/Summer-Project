@@ -1,8 +1,10 @@
 package vCampus.Entity.Books;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import vCampus.Dao.Books.BorrowRecordDao;
+import vCampus.Service.Books.BorrowRecordService;
+import vCampus.Service.Books.BorrowRecordService.BorrowStatus;
 
 public class BorrowRecord {
     private Long id; // 借阅记录ID
@@ -11,46 +13,40 @@ public class BorrowRecord {
     private Book book; // 借阅的图书
     private BookUser bookUser; // 借阅的用户
     private boolean isDeleted; // 是否删除
+    private BorrowStatus status; // 借阅状态
+    private Boolean isOverdue; // 是否逾期
+    private int overdueDays; // 逾期天数
+    private BigDecimal fine; // 罚款金额
 
-    public enum BorrowStatus {
-        BORROWING, RETURNED, LOST
+    // 拷贝构造函数
+    public BorrowRecord(BorrowRecord other) {
+        this.id = other.id;
+        this.borrowDate = other.borrowDate;
+        this.returnDate = other.returnDate;
+        this.book = other.book;
+        this.bookUser = other.bookUser;
+        this.isDeleted = other.isDeleted;
+        this.status = other.status;
+        this.isOverdue = other.isOverdue;
+        this.overdueDays = other.overdueDays;
+        this.fine = other.fine;
     }
 
-    private BorrowStatus status;
-
-    // 新增的isOverdue方法
-    public boolean isOverdue() {
-        if (status == BorrowStatus.BORROWING && returnDate != null) {
-            return returnDate.isBefore(LocalDate.now());
-        }
-        return false;
+    // 通过BorrowRecordService对象的get方法建立的构造函数
+    public BorrowRecord(BorrowRecordService service) {
+        this.id = service.getId();
+        this.borrowDate = service.getBorrowDate();
+        this.returnDate = service.getReturnDate();
+        this.book = new Book(service.getBook());
+        this.bookUser = new BookUser(service.getBookUser());
+        this.isDeleted = service.getIsDeleted();
+        this.status = service.getStatus();
+        this.isOverdue = service.isOverdue();
+        this.overdueDays = service.getOverdueDays();
+        this.fine = service.getFine(service);
     }
 
-    // 构造方法
-    public BorrowRecord(Long id,
-            LocalDate borrowDate,
-            LocalDate returnDate, Book book, BookUser bookUser, BorrowStatus status, boolean isDeleted) {
-        this.id = id;
-        this.borrowDate = borrowDate;
-        this.returnDate = returnDate;
-        this.book = book;
-        this.bookUser = bookUser;
-        this.status = status;
-        this.isDeleted = isDeleted;
-    }
-
-    // 新的构造方法，只接受初始借书时间
-    public BorrowRecord(LocalDate borrowDate, Book book, BookUser bookUser) {
-        this.borrowDate = borrowDate;
-        this.returnDate = borrowDate.plusMonths(1); // 默认还书时间为1个月后
-        this.book = book;
-        this.bookUser = bookUser;
-        this.status = BorrowStatus.BORROWING;
-        this.isDeleted = false;
-        this.id = new BorrowRecordDao().save(this);
-    }
-
-    // Getter 和 Setter 方法
+    // Getter和Setter方法
     public Long getId() {
         return id;
     }
@@ -91,14 +87,6 @@ public class BorrowRecord {
         this.bookUser = bookUser;
     }
 
-    public BorrowStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BorrowStatus status) {
-        this.status = status;
-    }
-
     public boolean getIsDeleted() {
         return isDeleted;
     }
@@ -107,24 +95,35 @@ public class BorrowRecord {
         this.isDeleted = isDeleted;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "BorrowRecord {\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "}",
-                "ID", id,
-                "Borrow Date", borrowDate,
-                "Return Date", returnDate,
-                "Book", book,
-                "Book User", bookUser,
-                "Status", status,
-                "Is Deleted", isDeleted);
+    public BorrowStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BorrowStatus status) {
+        this.status = status;
+    }
+
+    public Boolean getIsOverdue() {
+        return isOverdue;
+    }
+
+    public void setIsOverdue(Boolean isOverdue) {
+        this.isOverdue = isOverdue;
+    }
+
+    public int getOverdueDays() {
+        return overdueDays;
+    }
+
+    public void setOverdueDays(int overdueDays) {
+        this.overdueDays = overdueDays;
+    }
+
+    public BigDecimal getFine() {
+        return fine;
+    }
+
+    public void setFine(BigDecimal fine) {
+        this.fine = fine;
     }
 }

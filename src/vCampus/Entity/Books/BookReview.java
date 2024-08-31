@@ -3,14 +3,12 @@ package vCampus.Entity.Books;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
-import vCampus.Dao.Books.BookReviewDao;
+import vCampus.Service.Books.BookReviewService;
 
 public class BookReview {
     private Long id;
     private BookUser user;
-    private String userId;
     private Book book;
-    private String bookId;
     private Long shelfId;
     private String content;
     private BigDecimal rating;
@@ -18,72 +16,30 @@ public class BookReview {
     private LocalDateTime updateTime;
     private Boolean isPublic;
 
-    // 构造方法
-    public BookReview(Long id,
-            String userId,
-            String bookId,
-            Long shelfId,
-            String content,
-            BigDecimal rating,
-            LocalDateTime createTime,
-            LocalDateTime updateTime,
-            Boolean isPublic) {
-        this.id = id;
-        this.userId = userId;
-        this.bookId = bookId;
-        this.shelfId = shelfId;
-        this.content = content;
-        this.rating = rating;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.isPublic = isPublic;
+    // 拷贝构造函数
+    public BookReview(BookReview other) {
+        this.id = other.id;
+        this.user = other.user;
+        this.book = other.book;
+        this.shelfId = other.shelfId;
+        this.content = other.content;
+        this.rating = other.rating;
+        this.createTime = other.createTime;
+        this.updateTime = other.updateTime;
+        this.isPublic = other.isPublic;
     }
 
-    // 只用id的构造方法
-    public BookReview(Long id) {
-        this.id = id;
-        BookReviewDao dao = new BookReviewDao();
-        BookReview review = dao.find(id.toString());
-        if (review != null) {
-            this.userId = review.getUserId();
-            this.bookId = review.getBookId();
-            this.shelfId = review.getShelfId();
-            this.content = review.getContent();
-            this.rating = review.getRating();
-            this.createTime = review.getCreateTime();
-            this.updateTime = review.getUpdateTime();
-            this.isPublic = review.getIsPublic();
-        }
-    }
-
-    // 只用id的构造方法
-    public BookReview(String id) {
-        this.id = Long.parseLong(id); // 类型转换
-        BookReview review = new BookReviewDao().find(id);
-        if (review != null) {
-            this.userId = review.getUserId();
-            this.bookId = review.getBookId();
-            this.shelfId = review.getShelfId();
-            this.content = review.getContent();
-            this.rating = review.getRating();
-            this.createTime = review.getCreateTime();
-            this.updateTime = review.getUpdateTime();
-            this.isPublic = review.getIsPublic();
-        }
-    }
-
-    // 新建评论用的构造方法
-    public BookReview(String userId, String bookId, Long shelfId, String content, BigDecimal rating,
-            LocalDateTime createTime, Boolean isPublic) {
-        this.userId = userId;
-        this.bookId = bookId;
-        this.shelfId = shelfId;
-        this.content = content;
-        this.rating = rating;
-        this.createTime = createTime;
-        this.updateTime = createTime;
-        this.isPublic = isPublic;
-        this.id = new BookReviewDao().save(this);
+    // 通过BookReviewService对象的get方法建立的构造函数
+    public BookReview(BookReviewService service) {
+        this.id = service.getId();
+        this.user = new BookUser(service.getUser());
+        this.book = new Book(service.getBook());
+        this.shelfId = service.getShelfId();
+        this.content = service.getContent();
+        this.rating = service.getRating();
+        this.createTime = service.getCreateTime();
+        this.updateTime = service.getUpdateTime();
+        this.isPublic = service.getIsPublic();
     }
 
     // Getter和Setter方法
@@ -95,38 +51,16 @@ public class BookReview {
         this.id = id;
     }
 
-    // 懒加载，避免在未初始化的情况下使用。
     public BookUser getUser() {
-        if (user == null && userId != null) {
-            user = new BookUser(userId);
-        }
         return user;
-    }
-
-    public String getUserId() {
-        if (userId == null && user != null) {
-            userId = user.getId();
-        }
-        return userId;
     }
 
     public void setUser(BookUser user) {
         this.user = user;
     }
 
-    // 懒加载，避免在未初始化的情况下使用。
     public Book getBook() {
-        if (book == null && bookId != null) {
-            book = new Book(bookId);
-        }
         return book;
-    }
-
-    public String getBookId() {
-        if (bookId == null && book != null) {
-            bookId = book.getId();
-        }
-        return bookId;
     }
 
     public void setBook(Book book) {
@@ -165,11 +99,11 @@ public class BookReview {
         this.createTime = createTime;
     }
 
-    public LocalDateTime getUpdateTime() { // 新增的getter方法
+    public LocalDateTime getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(LocalDateTime updateTime) { // 新增的setter方法
+    public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 

@@ -8,18 +8,19 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
-import vCampus.Entity.Books.BookShelf;
+import vCampus.Service.Books.BookShelfService;
 
-public class BookShelfDao implements BaseDao<BookShelf> {
+public class BookShelfDao implements BaseDao<BookShelfService> {
     private Connection conn = null;
     private PreparedStatement pstmt = null;
     private ResultSet rs = null;
 
     @Override
-    public boolean add(BookShelf bookShelf) {
+    public boolean add(BookShelfService bookShelf) {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
@@ -45,7 +46,7 @@ public class BookShelfDao implements BaseDao<BookShelf> {
     }
 
     @Override
-    public boolean update(BookShelf bookShelf) {
+    public boolean update(BookShelfService bookShelf) {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
@@ -53,7 +54,7 @@ public class BookShelfDao implements BaseDao<BookShelf> {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, bookShelf.getName());
             pstmt.setTimestamp(2, Timestamp.valueOf(bookShelf.getCreateTime()));
-            pstmt.setTimestamp(3, Timestamp.valueOf(bookShelf.getUpdateTime()));
+            pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             pstmt.setString(4, bookShelf.getUserId());
             pstmt.setString(5, String.join(",", bookShelf.getBookIds()));
             pstmt.setString(6, String.join(",", bookShelf.getReviewIds()));
@@ -90,8 +91,8 @@ public class BookShelfDao implements BaseDao<BookShelf> {
     }
 
     @Override
-    public BookShelf find(String id) {
-        BookShelf bookShelf = null;
+    public BookShelfService find(String id) {
+        BookShelfService bookShelf = null;
         try {
             conn = DbConnection.getConnection();
             String sql = "SELECT * FROM tblBookShelf WHERE id = ? AND is_deleted = false";
@@ -99,7 +100,7 @@ public class BookShelfDao implements BaseDao<BookShelf> {
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                bookShelf = new BookShelf(
+                bookShelf = new BookShelfService(
                         rs.getLong("id"),
                         rs.getString("name"),
                         rs.getString("user_id"),
@@ -119,7 +120,7 @@ public class BookShelfDao implements BaseDao<BookShelf> {
         return bookShelf;
     }
 
-    public long save(BookShelf bookShelf) {
+    public long save(BookShelfService bookShelf) {
         long generatedId = -1;
         try {
             conn = DbConnection.getConnection();
@@ -149,12 +150,12 @@ public class BookShelfDao implements BaseDao<BookShelf> {
         return generatedId;
     }
 
-    public List<BookShelf> findBookShelvesByPage(
+    public List<BookShelfService> findBookShelvesByPage(
             Map<String, String> searchCriteria,
             List<String> sortCriteria,
             int page,
             int pageSize) {
-        List<BookShelf> bookShelves = new ArrayList<>();
+        List<BookShelfService> bookShelves = new ArrayList<>();
         try {
             conn = DbConnection.getConnection();
             StringBuilder sql = new StringBuilder(
@@ -206,7 +207,7 @@ public class BookShelfDao implements BaseDao<BookShelf> {
 
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                BookShelf bookShelf = new BookShelf(
+                BookShelfService bookShelf = new BookShelfService(
                         rs.getLong("id"),
                         rs.getString("name"),
                         rs.getString("user_id"),

@@ -194,7 +194,6 @@ public class DbCreator {
     private static void createBookUserTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookUser ("
                 + "id CHAR(9) PRIMARY KEY, "
-                + "borrow_record_ids TEXT, "
                 + "default_shelf_id BIGINT, "
                 + "shelf_ids TEXT "
                 + ")";
