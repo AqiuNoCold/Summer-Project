@@ -8,6 +8,7 @@ public class BorrowRecord {
     private LocalDate returnDate; // 归还日期
     private Book book; // 借阅的图书
     private BookUser bookUser; // 借阅的用户
+    private boolean isDeleted; // 是否删除
 
     public enum BorrowStatus {
         BORROWING, RETURNED, LOST
@@ -26,13 +27,14 @@ public class BorrowRecord {
     // 构造方法
     public BorrowRecord(Long id,
             LocalDate borrowDate,
-            LocalDate returnDate, Book book, BookUser bookUser, BorrowStatus status) {
+            LocalDate returnDate, Book book, BookUser bookUser, BorrowStatus status, boolean isDeleted) {
         this.id = id;
         this.borrowDate = borrowDate;
         this.returnDate = returnDate;
         this.book = book;
         this.bookUser = bookUser;
         this.status = status;
+        this.isDeleted = isDeleted;
     }
 
     // Getter 和 Setter 方法
@@ -84,10 +86,19 @@ public class BorrowRecord {
         this.status = status;
     }
 
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
         return String.format(
                 "BorrowRecord {\n" +
+                        "  %-15s: %s\n" +
                         "  %-15s: %s\n" +
                         "  %-15s: %s\n" +
                         "  %-15s: %s\n" +
@@ -100,6 +111,7 @@ public class BorrowRecord {
                 "Return Date", returnDate,
                 "Book", book,
                 "Book User", bookUser,
-                "Status", status);
+                "Status", status,
+                "Is Deleted", isDeleted);
     }
 }

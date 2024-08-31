@@ -32,7 +32,7 @@ public class DbCreator {
                 "tblUser",
                 "tblStu",
                 "tblGrade",
-                // "tblBooks", 谁敢删我表！
+                "tblBooks",
                 "tblBookShelf",
                 "tblBorrowRecord",
                 "tblShopStudent",
@@ -59,7 +59,7 @@ public class DbCreator {
         }
     }
 
-    private static void createUserTable() {// 删除了courses属性
+    private static void createUserTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblUser ("
                 + "id VARCHAR(255) PRIMARY KEY, "
                 + "pwd VARCHAR(16) CHECK (LENGTH(pwd) BETWEEN 6 AND 16), "
@@ -119,7 +119,7 @@ public class DbCreator {
                 + "image TEXT, "
                 + "pages INT, "
                 + "title VARCHAR(255), "
-                + "isbn13 CHAR(13)"
+                + "isbn13 CHAR(13), "
                 + "authors TEXT, "
                 + "binding VARCHAR(50), "
                 + "edition VARCHAR(50), "
@@ -150,9 +150,12 @@ public class DbCreator {
                 + "name VARCHAR(255) NOT NULL, "
                 + "create_time TIMESTAMP NOT NULL, "
                 + "update_time TIMESTAMP NOT NULL, "
-                + "user_id BIGINT NOT NULL, "
+                + "user_id CHAR(9) NOT NULL, "
                 + "book_ids TEXT, "
-                + "review_ids TEXT "
+                + "review_ids TEXT, "
+                + "is_public BOOLEAN, "
+                + "subscribe_count INT, "
+                + "favorite_count INT "
                 + ")";
 
         executeSQL(createTableSQL, "tblBookShelf");
@@ -163,8 +166,8 @@ public class DbCreator {
                 + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
                 + "borrow_date DATE, "
                 + "return_date DATE, "
-                + "book_id BIGINT, "
-                + "user_id BIGINT, "
+                + "book_id CHAR(24), "
+                + "user_id CHAR(9), "
                 + "status VARCHAR(10), "
                 + "is_deleted BOOLEAN "
                 + ")";
@@ -175,12 +178,14 @@ public class DbCreator {
     private static void createBookReviewTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookReview ("
                 + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
-                + "user_id BIGINT, "
-                + "book_id BIGINT, "
+                + "user_id CHAR(9), "
+                + "book_id CHAR(24), "
+                + "shelf_id BIGINT, "
                 + "content TEXT, "
                 + "rating DECIMAL(3, 2), "
                 + "create_time TIMESTAMP, "
-                + "update_time TIMESTAMP "
+                + "update_time TIMESTAMP, "
+                + "is_public BOOLEAN "
                 + ")";
 
         executeSQL(createTableSQL, "tblBookReview");

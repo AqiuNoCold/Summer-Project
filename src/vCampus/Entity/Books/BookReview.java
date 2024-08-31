@@ -1,10 +1,9 @@
 package vCampus.Entity.Books;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import vCampus.Dao.Books.BookReviewDao;
-
-import java.math.BigDecimal;
 
 public class BookReview {
     private Long id;
@@ -12,29 +11,35 @@ public class BookReview {
     private String userId;
     private Book book;
     private String bookId;
+    private Long shelfId;
     private String content;
     private BigDecimal rating;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private Boolean isPublic;
 
     // 构造方法
     public BookReview(Long id,
             String userId,
             String bookId,
+            Long shelfId,
             String content,
             BigDecimal rating,
             LocalDateTime createTime,
-            LocalDateTime updateTime) {
+            LocalDateTime updateTime,
+            Boolean isPublic) {
         this.id = id;
         this.userId = userId;
         this.bookId = bookId;
+        this.shelfId = shelfId;
         this.content = content;
         this.rating = rating;
         this.createTime = createTime;
         this.updateTime = updateTime;
+        this.isPublic = isPublic;
     }
 
-    // 新的只用id的构造方法
+    // 只用id的构造方法
     public BookReview(Long id) {
         this.id = id;
         BookReviewDao dao = new BookReviewDao();
@@ -42,11 +47,42 @@ public class BookReview {
         if (review != null) {
             this.userId = review.getUserId();
             this.bookId = review.getBookId();
+            this.shelfId = review.getShelfId();
             this.content = review.getContent();
             this.rating = review.getRating();
             this.createTime = review.getCreateTime();
             this.updateTime = review.getUpdateTime();
+            this.isPublic = review.getIsPublic();
         }
+    }
+
+    // 只用id的构造方法
+    public BookReview(String id) {
+        this.id = Long.parseLong(id); // 类型转换
+        BookReview review = new BookReviewDao().find(id);
+        if (review != null) {
+            this.userId = review.getUserId();
+            this.bookId = review.getBookId();
+            this.shelfId = review.getShelfId();
+            this.content = review.getContent();
+            this.rating = review.getRating();
+            this.createTime = review.getCreateTime();
+            this.updateTime = review.getUpdateTime();
+            this.isPublic = review.getIsPublic();
+        }
+    }
+
+    // 新建评论用的构造方法
+    public BookReview(String userId, String bookId, String content, BigDecimal rating, LocalDateTime createTime) {
+        this.userId = userId;
+        this.bookId = bookId;
+        this.shelfId = shelfId;
+        this.content = content;
+        this.rating = rating;
+        this.createTime = createTime;
+        this.updateTime = createTime;
+        this.isPublic = isPublic;
+        this.id = new BookReviewDao().save(this);
     }
 
     // Getter和Setter方法
@@ -96,6 +132,14 @@ public class BookReview {
         this.book = book;
     }
 
+    public Long getShelfId() {
+        return shelfId;
+    }
+
+    public void setShelfId(Long shelfId) {
+        this.shelfId = shelfId;
+    }
+
     public String getContent() {
         return content;
     }
@@ -126,5 +170,13 @@ public class BookReview {
 
     public void setUpdateTime(LocalDateTime updateTime) { // 新增的setter方法
         this.updateTime = updateTime;
+    }
+
+    public Boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }

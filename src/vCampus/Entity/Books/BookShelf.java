@@ -13,16 +13,19 @@ public class BookShelf {
     private String name; // 书架名称
     private LocalDateTime createTime; // 创建时间
     private LocalDateTime updateTime; // 更新时间
-    private Long userId; // 用户ID
+    private String userId; // 用户ID
     private List<Book> books; // 书架上的图书
     private List<BookReview> reviews; // 书架上的书评
     private List<String> bookIds; // 图书ID列表
     private List<String> reviewIds; // 书评ID列表
-    private boolean isDirty = false; // 脏数据标志
+    private Boolean isPublic; // 书架是否公开
+    private Integer subscribeCount; // 订阅数
+    private Integer favoriteCount; // 收藏数
 
     // 原有的构造方法，用于从数据库中直接获取数据
-    public BookShelf(Long id, String name, Long userId, LocalDateTime createTime, LocalDateTime updateTime,
-            List<String> bookIds, List<String> reviewIds) {
+    public BookShelf(Long id, String name, String userId, LocalDateTime createTime, LocalDateTime updateTime,
+            List<String> bookIds, List<String> reviewIds, Boolean isPublic, Integer subscribeCount,
+            Integer favoriteCount) {
         this.id = id;
         this.name = name;
         this.userId = userId;
@@ -32,6 +35,9 @@ public class BookShelf {
         this.reviews = new ArrayList<>();
         this.bookIds = bookIds != null ? new ArrayList<>(bookIds) : new ArrayList<>();
         this.reviewIds = reviewIds != null ? new ArrayList<>(reviewIds) : new ArrayList<>();
+        this.isPublic = isPublic;
+        this.subscribeCount = subscribeCount;
+        this.favoriteCount = favoriteCount;
     }
 
     // 拷贝构造函数，用于用户尝试收藏别人的书架
@@ -45,10 +51,13 @@ public class BookShelf {
         this.reviews = new ArrayList<>(other.reviews);
         this.bookIds = new ArrayList<>(other.bookIds);
         this.reviewIds = new ArrayList<>(other.reviewIds);
+        this.isPublic = other.isPublic;
+        this.subscribeCount = other.subscribeCount;
+        this.favoriteCount = other.favoriteCount;
     }
 
     // 克隆构造函数，用于用户尝试克隆别人的书架
-    public BookShelf(BookShelf other, Long newUserId) {
+    public BookShelf(BookShelf other, String newUserId) {
         this.name = other.name;
         this.userId = newUserId; // 使用提供的userId
         this.createTime = LocalDateTime.now();
@@ -57,6 +66,9 @@ public class BookShelf {
         this.reviews = new ArrayList<>(other.reviews);
         this.bookIds = new ArrayList<>(other.bookIds);
         this.reviewIds = new ArrayList<>(other.reviewIds);
+        this.isPublic = other.isPublic;
+        this.subscribeCount = 0;
+        this.favoriteCount = 0;
 
         // 保存到数据库并获取自动分配的ID
         BookShelfDao bookShelfDao = new BookShelfDao();
@@ -77,6 +89,9 @@ public class BookShelf {
             this.reviews = bookShelf.getReviews();
             this.bookIds = bookShelf.getBookIds();
             this.reviewIds = bookShelf.getReviewIds();
+            this.isPublic = bookShelf.getIsPublic();
+            this.subscribeCount = bookShelf.getSubscribeCount();
+            this.favoriteCount = bookShelf.getFavoriteCount();
         } else {
             throw new IllegalArgumentException("BookShelf with id " + id + " not found.");
         }
@@ -89,7 +104,6 @@ public class BookShelf {
 
     public void setId(Long id) {
         this.id = id;
-        this.isDirty = true;
     }
 
     public String getName() {
@@ -98,7 +112,6 @@ public class BookShelf {
 
     public void setName(String name) {
         this.name = name;
-        this.isDirty = true;
     }
 
     public LocalDateTime getCreateTime() {
@@ -107,7 +120,6 @@ public class BookShelf {
 
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
-        this.isDirty = true;
     }
 
     public LocalDateTime getUpdateTime() {
@@ -116,16 +128,14 @@ public class BookShelf {
 
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
-        this.isDirty = true;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
-        this.isDirty = true;
     }
 
     public List<String> getBookIds() {
@@ -141,7 +151,6 @@ public class BookShelf {
     public void setBookIds(List<String> bookIds) {
         this.bookIds = bookIds;
         this.books.clear();
-        this.isDirty = true;
     }
 
     // 获取图书列表
@@ -160,7 +169,6 @@ public class BookShelf {
 
     public void setBooks(List<Book> books) {
         this.books = books;
-        this.isDirty = true;
     }
 
     public List<String> getReviewIds() {
@@ -176,7 +184,6 @@ public class BookShelf {
     public void setReviewIds(List<String> reviewIds) {
         this.reviewIds = reviewIds;
         this.reviews.clear();
-        this.isDirty = true;
     }
 
     // 获取书评列表
@@ -195,22 +202,36 @@ public class BookShelf {
 
     public void setReviews(List<BookReview> reviews) {
         this.reviews = reviews;
-        this.isDirty = true;
     }
 
-    public boolean isDirty() {
-        return isDirty;
+    public Boolean getIsPublic() {
+        return isPublic;
     }
 
-    public void setDirty(boolean isDirty) {
-        this.isDirty = isDirty;
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public Integer getSubscribeCount() {
+        return subscribeCount;
+    }
+
+    public void setSubscribeCount(Integer subscribeCount) {
+        this.subscribeCount = subscribeCount;
+    }
+
+    public Integer getFavoriteCount() {
+        return favoriteCount;
+    }
+
+    public void setFavoriteCount(Integer favoriteCount) {
+        this.favoriteCount = favoriteCount;
     }
 
     // 添加图书
     public boolean addBook(Book book) {
         if (!books.contains(book)) {
             books.add(book);
-            this.isDirty = true;
             return true;
         }
         return false;
@@ -219,7 +240,6 @@ public class BookShelf {
     // 移除图书
     public boolean removeBook(Book book) {
         if (books.remove(book)) {
-            this.isDirty = true;
             return true;
         }
         return false;
@@ -229,7 +249,6 @@ public class BookShelf {
     public void addReview(BookReview review) {
         if (!reviews.contains(review)) {
             reviews.add(review);
-            this.isDirty = true;
         }
     }
 }

@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
@@ -22,14 +20,16 @@ public class BookReviewDao implements BaseDao<BookReview> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblBookReviews (userId, bookId, content, rating, createTime, updateTime) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblBookReviews (userId, bookId, shelfId, content, rating, createTime, updateTime, isPublic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, bookReview.getUser().getCard());
+            pstmt.setString(1, bookReview.getUser().getId());
             pstmt.setString(2, bookReview.getBook().getId());
-            pstmt.setString(3, bookReview.getContent());
-            pstmt.setBigDecimal(4, bookReview.getRating());
-            pstmt.setTimestamp(5, Timestamp.valueOf(bookReview.getCreateTime()));
-            pstmt.setTimestamp(6, Timestamp.valueOf(bookReview.getUpdateTime()));
+            pstmt.setLong(3, bookReview.getShelfId());
+            pstmt.setString(4, bookReview.getContent());
+            pstmt.setBigDecimal(5, bookReview.getRating());
+            pstmt.setTimestamp(6, Timestamp.valueOf(bookReview.getCreateTime()));
+            pstmt.setTimestamp(7, Timestamp.valueOf(bookReview.getUpdateTime()));
+            pstmt.setBoolean(8, bookReview.getIsPublic());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -45,12 +45,14 @@ public class BookReviewDao implements BaseDao<BookReview> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblBookReviews SET content = ?, rating = ?, updateTime = ? WHERE id = ?";
+            String sql = "UPDATE tblBookReviews SET content = ?, rating = ?, updateTime = ?, isPublic = ?, shelfId = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, bookReview.getContent());
             pstmt.setBigDecimal(2, bookReview.getRating());
             pstmt.setTimestamp(3, Timestamp.valueOf(bookReview.getUpdateTime()));
-            pstmt.setLong(4, bookReview.getId());
+            pstmt.setBoolean(4, bookReview.getIsPublic());
+            pstmt.setLong(5, bookReview.getShelfId());
+            pstmt.setLong(6, bookReview.getId());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {
@@ -93,10 +95,12 @@ public class BookReviewDao implements BaseDao<BookReview> {
                         rs.getLong("id"),
                         rs.getString("userId"),
                         rs.getString("bookId"),
+                        rs.getLong("shelfId"),
                         rs.getString("content"),
                         rs.getBigDecimal("rating"),
                         rs.getTimestamp("createTime").toLocalDateTime(),
-                        rs.getTimestamp("updateTime").toLocalDateTime());
+                        rs.getTimestamp("updateTime").toLocalDateTime(),
+                        rs.getBoolean("isPublic"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -106,29 +110,33 @@ public class BookReviewDao implements BaseDao<BookReview> {
         return bookReview;
     }
 
-    public List<BookReview> findAll() {
-        List<BookReview> bookReviews = new ArrayList<>();
+    // save方法
+    public Long save(BookReview bookReview) {
+        Long generatedId = null;
         try {
             conn = DbConnection.getConnection();
-            String sql = "SELECT * FROM tblBookReviews";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                BookReview bookReview = new BookReview(
-                        rs.getLong("id"),
-                        rs.getString("userId"),
-                        rs.getString("bookId"),
-                        rs.getString("content"),
-                        rs.getBigDecimal("rating"),
-                        rs.getTimestamp("createTime").toLocalDateTime(),
-                        rs.getTimestamp("updateTime").toLocalDateTime());
-                bookReviews.add(bookReview);
+            String sql = "INSERT INTO tblBookReviews (userId, bookId, shelfId, content, rating, createTime, updateTime, isPublic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, bookReview.getUserId());
+            pstmt.setString(2, bookReview.getBookId());
+            pstmt.setLong(3, bookReview.getShelfId());
+            pstmt.setString(4, bookReview.getContent());
+            pstmt.setBigDecimal(5, bookReview.getRating());
+            pstmt.setTimestamp(6, Timestamp.valueOf(bookReview.getCreateTime()));
+            pstmt.setTimestamp(7, Timestamp.valueOf(bookReview.getUpdateTime()));
+            pstmt.setBoolean(8, bookReview.getIsPublic());
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedId = rs.getLong(1);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return bookReviews;
+        return generatedId;
     }
 }

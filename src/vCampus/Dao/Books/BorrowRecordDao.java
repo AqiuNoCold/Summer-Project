@@ -21,13 +21,14 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblBorrowRecord (borrowDate, returnDate, bookId, bookUserId, status) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblBorrowRecord (borrow_date, return_date, book_id, user_id, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setDate(1, java.sql.Date.valueOf(borrowRecord.getBorrowDate()));
             pstmt.setDate(2, java.sql.Date.valueOf(borrowRecord.getReturnDate()));
-            pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
-            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
+            pstmt.setString(3, borrowRecord.getBook().getId());
+            pstmt.setString(4, borrowRecord.getBookUser().getId());
             pstmt.setString(5, borrowRecord.getStatus().name());
+            pstmt.setBoolean(6, borrowRecord.getIsDeleted());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (Exception e) {
@@ -43,14 +44,15 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblBorrowRecord SET borrowDate = ?, returnDate = ?, bookId = ?, bookUserId = ?, status = ? WHERE id = ?";
+            String sql = "UPDATE tblBorrowRecord SET borrow_date = ?, return_date = ?, book_id = ?, user_id = ?, status = ?, is_deleted = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setDate(1, java.sql.Date.valueOf(borrowRecord.getBorrowDate()));
             pstmt.setDate(2, java.sql.Date.valueOf(borrowRecord.getReturnDate()));
-            pstmt.setString(3, String.valueOf(borrowRecord.getBook().getId()));
-            pstmt.setString(4, String.valueOf(borrowRecord.getBookUser().getCard()));
+            pstmt.setString(3, borrowRecord.getBook().getId());
+            pstmt.setString(4, borrowRecord.getBookUser().getId());
             pstmt.setString(5, borrowRecord.getStatus().name());
-            pstmt.setLong(6, borrowRecord.getId());
+            pstmt.setBoolean(6, borrowRecord.getIsDeleted());
+            pstmt.setLong(7, borrowRecord.getId());
             int rows = pstmt.executeUpdate();
             isUpdated = rows > 0;
         } catch (SQLException e) {
@@ -66,7 +68,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         boolean isDeleted = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "DELETE FROM tblBorrowRecord WHERE id = ?";
+            String sql = "UPDATE tblBorrowRecord SET is_deleted = true WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, Long.parseLong(id));
             int rows = pstmt.executeUpdate();
@@ -81,21 +83,22 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
 
     @Override
     public BorrowRecord find(String id) {
-        String sql = "SELECT * FROM tblBorrowRecord WHERE id = ?";
+        String sql = "SELECT * FROM tblBorrowRecord WHERE id = ? AND is_deleted = false";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                // BorrowRecord borrowRecord = new BorrowRecord(
-                // rs.getLong("id"),
-                // rs.getDate("borrowDate"),
-                // rs.getDate("returnDate"),
-                // new BookDao().find(String.valueOf(rs.getLong("bookId"))),
-                // new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
-                // BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
-                // return borrowRecord;
+                BorrowRecord borrowRecord = new BorrowRecord(
+                        rs.getLong("id"),
+                        rs.getDate("borrow_date").toLocalDate(),
+                        rs.getDate("return_date").toLocalDate(),
+                        new BookDao().find(rs.getString("book_id")),
+                        new BookUserDao().find(rs.getString("user_id")),
+                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")),
+                        rs.getBoolean("is_deleted"));
+                return borrowRecord;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -106,7 +109,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
     }
 
     public int getTotalRecords() {
-        String sql = "SELECT COUNT(*) FROM tblBorrowRecord";
+        String sql = "SELECT COUNT(*) FROM tblBorrowRecord WHERE is_deleted = false";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -124,7 +127,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
 
     public List<BorrowRecord> findAll(int page, int pageSize) {
         List<BorrowRecord> borrowRecords = new ArrayList<>();
-        String sql = "SELECT * FROM tblBorrowRecord LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM tblBorrowRecord WHERE is_deleted = false LIMIT ? OFFSET ?";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -132,14 +135,15 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             pstmt.setInt(2, (page - 1) * pageSize);
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                // BorrowRecord borrowRecord = new BorrowRecord(
-                // rs.getLong("id"),
-                // rs.getDate("borrowDate"),
-                // rs.getDate("returnDate"),
-                // new BookDao().find(String.valueOf(rs.getLong("bookId"))),
-                // new BookUserDao().find(String.valueOf(rs.getLong("bookUserId"))),
-                // BorrowRecord.BorrowStatus.valueOf(rs.getString("status")));
-                // borrowRecords.add(borrowRecord);
+                BorrowRecord borrowRecord = new BorrowRecord(
+                        rs.getLong("id"),
+                        rs.getDate("borrow_date").toLocalDate(),
+                        rs.getDate("return_date").toLocalDate(),
+                        new BookDao().find(rs.getString("book_id")),
+                        new BookUserDao().find(rs.getString("user_id")),
+                        BorrowRecord.BorrowStatus.valueOf(rs.getString("status")),
+                        rs.getBoolean("is_deleted"));
+                borrowRecords.add(borrowRecord);
             }
         } catch (SQLException e) {
             e.printStackTrace();

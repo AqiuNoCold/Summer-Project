@@ -1,5 +1,6 @@
 package vCampus.Service;
 
+import vCampus.Dao.Books.BookReviewDao;
 import vCampus.Dao.Books.BookShelfDao;
 import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookReview;
@@ -46,20 +47,15 @@ public class BookShelfService {
     public void updateBookShelf(BookShelf bookShelf) {
         bookShelf.setUpdateTime(LocalDateTime.now());
         bookShelfDao.update(bookShelf);
-    }
 
-    // 删除书架
-    public void deleteBookShelf(Long id) {
-        bookShelfDao.delete(String.valueOf(id));
-    }
-
-    // 根据ID查找书架
-    public BookShelf findBookShelfById(Long id) {
-        return bookShelfDao.find(String.valueOf(id));
-    }
-
-    // 分页获取书架
-    public List<BookShelf> getBookShelvesByPage(int page, int pageSize) {
-        return bookShelfDao.findByPage(page, pageSize);
+        // 更新书架中对应的每一个书评
+        BookReviewDao bookReviewDao = new BookReviewDao();
+        for (BookReview review : bookShelf.getReviews()) {
+            BookReview existingReview = bookReviewDao.find(String.valueOf(review.getId()));
+            if (existingReview != null && !existingReview.equals(review)) {
+                review.setUpdateTime(LocalDateTime.now());
+                bookReviewDao.update(review);
+            }
+        }
     }
 }

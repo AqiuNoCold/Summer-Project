@@ -14,7 +14,7 @@
 
 | 字段名         | 数据类型      | 说明                 |
 | -------------- | ------------- | -------------------- |
-| isbn           | CHAR(13)      | 书籍ISBN，主键       |
+| isbn           | CHAR(10)      | 书籍ISBN，主键       |
 | msrp           | DECIMAL(10,2) | 建议零售价           |
 | image          | TEXT          | 图片路径             |
 | pages          | INT           | 页数                 |
@@ -43,29 +43,34 @@
 
 ## tblBookShelf
 
-| 字段名      | 数据类型     | 说明                   |
-| ----------- | ------------ | ---------------------- |
-| id          | BIGINT       | 书架ID，主键，自增     |
-| name        | VARCHAR(255) | 书架名称               |
-| create_time | TIMESTAMP    | 创建时间               |
-| update_time | TIMESTAMP    | 更新时间               |
-| user_id     | BIGINT       | 用户ID，外键           |
-| book_ids    | TEXT         | 图书ID列表（逗号分隔） |
-| review_ids  | TEXT         | 书评ID列表（逗号分隔） |
+| 字段名          | 数据类型     | 说明                   |
+| --------------- | ------------ | ---------------------- |
+| id              | BIGINT       | 书架ID，主键，自增     |
+| name            | VARCHAR(255) | 书架名称               |
+| create_time     | TIMESTAMP    | 创建时间               |
+| update_time     | TIMESTAMP    | 更新时间               |
+| user_id         | CHAR(9)      | 用户ID，外键           |
+| book_ids        | TEXT         | 图书ID列表（逗号分隔） |
+| review_ids      | TEXT         | 书评ID列表（逗号分隔） |
+| is_public       | BOOLEAN      | 书架是否公开           |
+| subscribe_count | INT          | 订阅数                 |
+| favorite_count  | INT          | 收藏数                 |
 
 删除时，若书评数不为零，询问用户是否一并删除所有书评
 
 ## tblBookReview
 
-| 字段名      | 数据类型      | 说明                   |
-| ----------- | ------------- | ---------------------- |
-| id          | BIGINT        | 主键，自增             |
-| user_id     | BIGINT        | 用户ID，外键           |
-| book_id     | BIGINT        | 外键，关联到 Book 表   |
-| content     | TEXT          | 评论内容               |
-| rating      | DECIMAL(3, 2) | 评分，范围 0.00 - 5.00 |
-| create_time | TIMESTAMP     | 创建时间               |
-| update_time | TIMESTAMP     | 更新时间               |
+| 字段名      | 数据类型      | 说明                      |
+| ----------- | ------------- | ------------------------- |
+| id          | BIGINT        | 主键，自增                |
+| user_id     | CHAR(9)       | 用户ID，外键              |
+| book_id     | CHAR(24)      | 外键，关联到 Book 表      |
+| shelf_id    | BIGINT        | 外键，关联到 BookShelf 表 |
+| content     | TEXT          | 评论内容                  |
+| rating      | DECIMAL(3, 2) | 评分，范围 0.00 - 5.00    |
+| create_time | TIMESTAMP     | 创建时间                  |
+| update_time | TIMESTAMP     | 更新时间                  |
+| is_public   | BOOLEAN       | 评论是否公开              |
 
 ## tblBookUser
 
@@ -83,7 +88,7 @@
 | id          | BIGINT      | 借阅记录ID，主键，自增                |
 | borrow_date | DATE        | 借阅日期                              |
 | return_date | DATE        | 归还日期                              |
-| book_id     | BIGINT      | 外键，关联到 Book 表                  |
-| user_id     | BIGINT      | 用户ID，外键                          |
+| book_id     | CHAR(24)    | 外键，关联到 Book 表                  |
+| user_id     | CHAR(9)     | 用户ID，外键                          |
 | status      | VARCHAR(10) | 借阅状态（BORROWING, RETURNED, LOST） |
 | is_deleted  | BOOLEAN     | 是否删除                              |

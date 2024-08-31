@@ -23,7 +23,7 @@ public class BookUserDao implements BaseDao<BookUser> {
             conn = DbConnection.getConnection();
             String sql = "INSERT INTO tblBookUser (id, borrow_record_ids, default_shelf_id, shelf_ids) VALUES (?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, bookUser.getCard());
+            pstmt.setString(1, bookUser.getId());
             pstmt.setString(2, String.join(",", bookUser.getBorrowRecordIds()));
             pstmt.setLong(3, bookUser.getDefaultBookShelf().getId());
             pstmt.setString(4, String.join(",", bookUser.getShelfIds()));
@@ -47,7 +47,7 @@ public class BookUserDao implements BaseDao<BookUser> {
             pstmt.setString(1, String.join(",", bookUser.getBorrowRecordIds()));
             pstmt.setLong(2, bookUser.getDefaultBookShelf().getId());
             pstmt.setString(3, String.join(",", bookUser.getShelfIds()));
-            pstmt.setString(4, bookUser.getCard());
+            pstmt.setString(4, bookUser.getId());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (Exception e) {
