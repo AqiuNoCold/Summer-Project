@@ -23,7 +23,7 @@ public final class DbConnection {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            logger.info("数据库成功连接。");
+//            logger.info("数据库成功连接。");
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "连接数据库失败", e);
             throw new RuntimeException("连接数据库失败", e);
@@ -38,7 +38,7 @@ public final class DbConnection {
         if (conn != null) {
             try {
                 conn.close();
-                logger.info("数据库连接已关闭。");
+//                logger.info("数据库连接已关闭。");
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "关闭数据库连接失败", e);
                 throw new RuntimeException("关闭数据库连接失败", e);
