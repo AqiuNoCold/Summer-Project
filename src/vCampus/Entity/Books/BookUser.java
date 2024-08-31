@@ -14,6 +14,8 @@ public class BookUser extends User {
     private List<String> borrowRecordIds; // 借阅记录ID列表
     private List<String> shelfIds; // 书架ID列表
 
+    private static BookUser currentUser; // 当前用户
+
     // 构造函数，只接受id
     public BookUser(String id) {
         super(id);
@@ -126,5 +128,15 @@ public class BookUser extends User {
     // 获取书架ID列表
     public List<String> getShelfIds() {
         return shelfIds;
+    }
+
+    // 设置当前用户
+    public static void setCurrentUser(BookUser user) {
+        currentUser = user;
+    }
+
+    // 获取当前用户
+    public static BookUser getCurrentUser() {
+        return currentUser;
     }
 }

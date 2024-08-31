@@ -2,6 +2,8 @@ package vCampus.Entity.Books;
 
 import java.time.LocalDate;
 
+import vCampus.Dao.Books.BorrowRecordDao;
+
 public class BorrowRecord {
     private Long id; // 借阅记录ID
     private LocalDate borrowDate; // 借阅日期
@@ -35,6 +37,17 @@ public class BorrowRecord {
         this.bookUser = bookUser;
         this.status = status;
         this.isDeleted = isDeleted;
+    }
+
+    // 新的构造方法，只接受初始借书时间
+    public BorrowRecord(LocalDate borrowDate, Book book, BookUser bookUser) {
+        this.borrowDate = borrowDate;
+        this.returnDate = borrowDate.plusMonths(1); // 默认还书时间为1个月后
+        this.book = book;
+        this.bookUser = bookUser;
+        this.status = BorrowStatus.BORROWING;
+        this.isDeleted = false;
+        this.id = new BorrowRecordDao().save(this);
     }
 
     // Getter 和 Setter 方法

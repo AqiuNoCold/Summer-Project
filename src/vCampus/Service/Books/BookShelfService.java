@@ -1,4 +1,4 @@
-package vCampus.Service;
+package vCampus.Service.Books;
 
 import vCampus.Dao.Books.BookReviewDao;
 import vCampus.Dao.Books.BookShelfDao;

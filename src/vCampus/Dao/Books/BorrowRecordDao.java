@@ -108,11 +108,12 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         return null;
     }
 
-    public int getTotalRecords() {
-        String sql = "SELECT COUNT(*) FROM tblBorrowRecord WHERE is_deleted = false";
+    public int getTotalRecordsByUser(String userId) {
+        String sql = "SELECT COUNT(*) FROM tblBorrowRecord WHERE user_id = ? AND is_deleted = false";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -125,14 +126,15 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
         return 0;
     }
 
-    public List<BorrowRecord> findAll(int page, int pageSize) {
+    public List<BorrowRecord> findAllByUser(String userId, int page, int pageSize) {
         List<BorrowRecord> borrowRecords = new ArrayList<>();
-        String sql = "SELECT * FROM tblBorrowRecord WHERE is_deleted = false LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM tblBorrowRecord WHERE user_id = ? AND is_deleted = false ORDER BY borrow_date DESC LIMIT ? OFFSET ?";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, pageSize);
-            pstmt.setInt(2, (page - 1) * pageSize);
+            pstmt.setString(1, userId);
+            pstmt.setInt(2, pageSize);
+            pstmt.setInt(3, (page - 1) * pageSize);
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 BorrowRecord borrowRecord = new BorrowRecord(
@@ -151,5 +153,33 @@ public class BorrowRecordDao implements BaseDao<BorrowRecord> {
             DbConnection.closeConnection(conn);
         }
         return borrowRecords;
+    }
+
+    // 新的save方法，返回数据库自动分配的ID
+    public Long save(BorrowRecord borrowRecord) {
+        Long generatedId = null;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "INSERT INTO tblBorrowRecord (borrow_date, return_date, book_id, user_id, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            pstmt.setDate(1, java.sql.Date.valueOf(borrowRecord.getBorrowDate()));
+            pstmt.setDate(2, java.sql.Date.valueOf(borrowRecord.getReturnDate()));
+            pstmt.setString(3, borrowRecord.getBook().getId());
+            pstmt.setString(4, borrowRecord.getBookUser().getId());
+            pstmt.setString(5, borrowRecord.getStatus().name());
+            pstmt.setBoolean(6, borrowRecord.getIsDeleted());
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedId = rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return generatedId;
     }
 }

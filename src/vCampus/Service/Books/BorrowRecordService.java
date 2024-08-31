@@ -1,5 +1,6 @@
-package vCampus.Service;
+package vCampus.Service.Books;
 
+import vCampus.Dao.Books.BorrowRecordDao;
 import vCampus.Entity.Books.BorrowRecord;
 
 import java.math.BigDecimal;
@@ -31,20 +32,13 @@ public class BorrowRecordService {
     // 计算罚款金额
     public BigDecimal calculateFine(BorrowRecord record) {
         int overdueDays = calculateOverdueDays(record);
-        return DAILY_FINE_RATE.multiply(new BigDecimal(overdueDays));
-    }
-
-    // 处理罚款达到建议零售价
-    public boolean handleOverdueAndLost(BorrowRecord record) {
-        if (isOverdue(record)) {
-            BigDecimal fine = calculateFine(record);
-            BigDecimal suggestedRetailPrice = record.getBook().getMsrp();
-
-            if (fine.compareTo(suggestedRetailPrice) >= 0) {
-                record.setStatus(BorrowRecord.BorrowStatus.LOST);
-                return false;
-            }
+        BigDecimal suggestedRetailPrice = record.getBook().getMsrp();
+        BigDecimal fine = DAILY_FINE_RATE.multiply(new BigDecimal(overdueDays));
+        if (fine.compareTo(suggestedRetailPrice) >= 0) {
+            record.setStatus(BorrowRecord.BorrowStatus.LOST);
+            new BorrowRecordDao().update(record);
+            fine = suggestedRetailPrice;
         }
-        return true;
+        return fine;
     }
 }

@@ -40,6 +40,25 @@ public class BookShelf {
         this.favoriteCount = favoriteCount;
     }
 
+    // 用于首次登录时创建默认书架
+    public BookShelf(String userId) {
+        this.name = "我的书架";
+        this.userId = userId;
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
+        this.books = new ArrayList<>();
+        this.reviews = new ArrayList<>();
+        this.bookIds = new ArrayList<>();
+        this.reviewIds = new ArrayList<>();
+        this.isPublic = false;
+        this.subscribeCount = 0;
+        this.favoriteCount = 0;
+
+        // 保存到数据库并获取自动分配的ID
+        BookShelfDao bookShelfDao = new BookShelfDao();
+        this.id = bookShelfDao.save(this);
+    }
+
     // 拷贝构造函数，用于用户尝试收藏别人的书架
     public BookShelf(BookShelf other) {
         this.id = other.id;
@@ -123,6 +142,9 @@ public class BookShelf {
     }
 
     public LocalDateTime getUpdateTime() {
+        if (updateTime == null) {
+            updateTime = createTime;
+        }
         return updateTime;
     }
 
