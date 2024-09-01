@@ -1,5 +1,6 @@
 package vCampus.Entity.Books;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import vCampus.Service.Books.BookShelfService;
 import vCampus.Service.Books.BookService;
 import vCampus.Service.Books.BookReviewService;
 
-public class BookShelf {
+public class BookShelf implements Serializable {
     private Long id; // 书架ID
     private String name; // 书架名称
     private LocalDateTime createTime; // 创建时间

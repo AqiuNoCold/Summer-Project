@@ -1,10 +1,11 @@
 package vCampus.Entity.Books;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import vCampus.Service.Books.BookService;
 
-public class Book {
+public class Book implements Serializable {
     private String isbn; // ISBN
     private BigDecimal msrp; // 建议零售价
     private String image; // 图片

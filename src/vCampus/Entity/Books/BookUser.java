@@ -1,5 +1,6 @@
 package vCampus.Entity.Books;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import vCampus.Entity.User;
 import vCampus.Service.Books.BookUserService;
 import vCampus.Service.Books.BookShelfService;
 
-public class BookUser extends User {
+public class BookUser extends User implements Serializable {
     private BookShelf defaultBookShelf; // 默认书架
     private BookShelf currentBookShelf; // 当前书架
     private List<BookShelf> bookShelves; // 所有书架

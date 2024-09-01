@@ -1,11 +1,12 @@
 package vCampus.Entity.Books;
 
 import java.time.LocalDateTime;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import vCampus.Service.Books.BookReviewService;
 
-public class BookReview {
+public class BookReview implements Serializable {
     private Long id;
     private BookUser user;
     private Book book;

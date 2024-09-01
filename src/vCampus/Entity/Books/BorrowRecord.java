@@ -1,12 +1,13 @@
 package vCampus.Entity.Books;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import vCampus.Service.Books.BorrowRecordService;
 import vCampus.Service.Books.BorrowRecordService.BorrowStatus;
 
-public class BorrowRecord {
+public class BorrowRecord implements Serializable {
     private Long id; // 借阅记录ID
     private LocalDate borrowDate; // 借阅日期
     private LocalDate returnDate; // 归还日期
