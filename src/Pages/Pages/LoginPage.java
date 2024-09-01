@@ -13,8 +13,9 @@ public class LoginPage extends JFrame {
 
     public LoginPage() {
         setTitle("登录页面");
-        setSize(300, 200);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null); // 居中显示窗口
         setLayout(new GridLayout(4, 2));
 
         JLabel usernameLabel = new JLabel("用户名:");
@@ -43,10 +44,6 @@ public class LoginPage extends JFrame {
                 }
             }
         });
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginPage().setVisible(true));
     }
 }
 

@@ -8,8 +8,9 @@ import java.awt.event.ActionListener;
 public class ECardPage extends JFrame {
     public ECardPage() {
         setTitle("一卡通页面");
-        setSize(300, 200);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null); // 居中显示窗口
         setLayout(new BorderLayout());
 
         JLabel label = new JLabel("一卡通页面内容", SwingConstants.CENTER);

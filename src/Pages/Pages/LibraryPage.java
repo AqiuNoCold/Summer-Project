@@ -7,8 +7,9 @@ import java.awt.event.ActionListener;
 public class LibraryPage extends JFrame {
     public LibraryPage() {
         setTitle("图书馆页面");
-        setSize(300, 200);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null); // 居中显示窗口
         setLayout(new BorderLayout());
 
         JLabel label = new JLabel("图书馆页面内容", SwingConstants.CENTER);
