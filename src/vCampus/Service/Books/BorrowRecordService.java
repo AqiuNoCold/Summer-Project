@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import vCampus.Dao.Books.BorrowRecordDao;
+import vCampus.Entity.Books.BorrowRecord;
 
 public class BorrowRecordService {
     private Long id; // 借阅记录ID
@@ -44,6 +45,17 @@ public class BorrowRecordService {
         this.status = BorrowStatus.BORROWING;
         this.isDeleted = false;
         this.id = new BorrowRecordDao().save(this);
+    }
+
+    // 从 BorrowRecord 对象创建 BorrowRecordService 对象的构造方法
+    public BorrowRecordService(BorrowRecord record) {
+        this.id = record.getId();
+        this.borrowDate = record.getBorrowDate();
+        this.returnDate = record.getReturnDate();
+        this.book = new BookService(record.getBook());
+        this.bookUser = new BookUserService(record.getBookUser());
+        this.isDeleted = record.getIsDeleted();
+        this.status = record.getStatus();
     }
 
     // Getter 和 Setter 方法
@@ -137,15 +149,18 @@ public class BorrowRecordService {
     @Override
     public String toString() {
         return String.format(
-                "BorrowRecord {\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "  %-15s: %s\n" +
-                        "}",
+                "+-----------------+-------------------------+\n" +
+                        "| %-15s | %-23s |\n" +
+                        "+-----------------+-------------------------+\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "| %-15s | %-23s |\n" +
+                        "+-----------------+-------------------------+\n",
+                "Field", "Value",
                 "ID", id,
                 "Borrow Date", borrowDate,
                 "Return Date", returnDate,

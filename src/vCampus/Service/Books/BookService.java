@@ -76,7 +76,7 @@ public class BookService {
         }
     }
 
-    // 拷贝构造函数
+    // 根据Book实体类建立服务类的构造方法
     public BookService(Book book) {
         this.isbn = book.getIsbn();
         this.msrp = book.getMsrp();

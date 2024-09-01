@@ -11,7 +11,7 @@ public class BookUser extends User {
     private BookShelf defaultBookShelf; // 默认书架
     private BookShelf currentBookShelf; // 当前书架
     private List<BookShelf> bookShelves; // 所有书架
-
+    private Boolean firstLogin = false; // 首次登录标志
     private static BookUser currentUser; // 当前用户
 
     // 拷贝构造函数
@@ -20,6 +20,7 @@ public class BookUser extends User {
         this.defaultBookShelf = other.defaultBookShelf;
         this.currentBookShelf = other.currentBookShelf;
         this.bookShelves = new ArrayList<>(other.bookShelves);
+        this.firstLogin = other.firstLogin;
     }
 
     // 通过BookUserService对象的get方法建立的构造函数
@@ -31,6 +32,7 @@ public class BookUser extends User {
         for (BookShelfService shelfService : service.getBookShelves()) {
             this.bookShelves.add(new BookShelf(shelfService));
         }
+        this.firstLogin = service.isFirstLogin();
     }
 
     // Getter和Setter方法
@@ -56,6 +58,11 @@ public class BookUser extends User {
 
     public void setBookShelves(List<BookShelf> bookShelves) {
         this.bookShelves = bookShelves;
+    }
+
+    // 获取首次登录标志
+    public Boolean isFirstLogin() {
+        return firstLogin;
     }
 
     // 设置当前用户

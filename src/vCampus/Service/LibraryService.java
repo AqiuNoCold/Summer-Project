@@ -1,43 +1,30 @@
 package vCampus.Service;
 
-import vCampus.Dao.Books.BookDao;
 import vCampus.Dao.Books.BorrowRecordDao;
+import vCampus.Entity.Books.BookUser;
+import vCampus.Entity.Books.BorrowRecord;
 import vCampus.Service.Books.BookService;
 import vCampus.Service.Books.BookUserService;
 import vCampus.Service.Books.BorrowRecordService;
-import vCampus.Dao.Books.BookUserDao;
-
 import java.time.LocalDate;
 
 public class LibraryService {
-    private BookUserDao bookUserDao;
-    private BookDao bookDao;
     private BorrowRecordDao borrowRecordDao;
 
     public LibraryService() {
-        this.bookUserDao = new BookUserDao();
-        this.bookDao = new BookDao();
         this.borrowRecordDao = new BorrowRecordDao();
     }
 
-    // 首次登录返回true，否则返回false
-    public Boolean login(String id) {
-        BookUserService bookUser = bookUserDao.find(id);
-        boolean firstLogin = false;
-        if (bookUser == null) {
-            // 创建一个新的 BookUser 对象
-            bookUser = new BookUserService(id);
-            BookUserService.setCurrentUser(bookUser);
-            firstLogin = true;
-        }
-        BookUserService.setCurrentUser(bookUser);
-        return firstLogin;
+    // 登录
+    public BookUser login(String id) {
+        BookUserService bookUser = new BookUserService(id);
+        return new BookUser(bookUser);
     }
 
     // 借书方法
-    public boolean borrowBook(String userId, String bookId) {
+    public BorrowRecord borrowBook(BookUser bookUser, String bookId) {
         // 获取当前用户
-        BookUserService currentUser = new BookUserService(userId);
+        BookUserService currentUser = new BookUserService(bookUser);
 
         // 查找要借阅的书籍
         BookService book = new BookService(bookId);
@@ -56,48 +43,47 @@ public class LibraryService {
         // 将借阅记录添加到数据库
         if (borrowRecordDao.add(borrowRecord)) {
             // 更新图书的借阅数量和副本数量
-            book.setBorrowCount(book.getBorrowCount() + 1);
-            book.setCopyCount(book.getCopyCount() - 1);
-            bookDao.update(book);
-            return true;
+            book.borrowBook();
+            borrowRecord.setBook(book);
+            return new BorrowRecord(borrowRecord);
         } else {
-            return false;
+            return null;
         }
     }
 
     // 还书方法
-    public boolean returnBook(BorrowRecordService borrowRecord) {
+    public BorrowRecord returnBook(BorrowRecord borrowRecord) {
+        BorrowRecordService borrowRecordService = new BorrowRecordService(borrowRecord);
         // 获取当前用户
-        BookUserService currentUser = BookUserService.getCurrentUser();
+        BookUserService currentUser = borrowRecordService.getBookUser();
         if (currentUser == null) {
             throw new IllegalStateException("当前没有登录的用户");
         }
 
         // 查找要归还的书籍
-        BookService book = borrowRecord.getBook();
+        BookService book = borrowRecordService.getBook();
         if (book == null) {
             throw new IllegalArgumentException("找不到借阅记录中的书籍");
         }
 
         // 检查是否逾期
-        if (borrowRecord.isOverdue()) {
+        if (borrowRecordService.isOverdue()) {
             // 调用付款函数（目前用打印语句占位）
             System.out.println("借阅记录逾期，请支付罚款！");
             // 这里可以调用实际的付款函数，并检查付款是否成功
             boolean paymentSuccess = false; // 假设付款失败
             if (!paymentSuccess) {
-                return false;
+                throw new IllegalStateException("逾期未付款，无法归还书籍");
             }
         }
 
         // 更新图书的副本数量
-        book.setCopyCount(book.getCopyCount() + 1);
-        bookDao.update(book);
+        book.returnBook();
+        borrowRecordService.setBook(book);
 
         // 更新借阅记录的状态
-        borrowRecord.setStatus(BorrowRecordService.BorrowStatus.RETURNED);
-        borrowRecordDao.update(borrowRecord);
+        borrowRecordService.setStatus(BorrowRecordService.BorrowStatus.RETURNED);
 
-        return true;
+        return new BorrowRecord(borrowRecordService);
     }
 }

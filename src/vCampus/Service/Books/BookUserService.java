@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import vCampus.Entity.User;
+import vCampus.Entity.Books.BookShelf;
+import vCampus.Entity.Books.BookUser;
 import vCampus.Dao.Books.BookUserDao;
 import vCampus.Dao.UserDao;
 
@@ -11,8 +13,7 @@ public class BookUserService extends User {
     private BookShelfService defaultBookShelf; // 默认书架
     private BookShelfService currentBookShelf; // 当前书架
     private List<BookShelfService> bookShelves; // 所有书架
-
-    private static BookUserService currentUser; // 当前用户
+    private Boolean firstLogin = false; // 首次登录标志
 
     // 构造函数，只接受id
     public BookUserService(String id) {
@@ -24,6 +25,7 @@ public class BookUserService extends User {
             this.bookShelves = new ArrayList<>();
             // 将新用户添加到数据库
             bookUserDao.add(bookUser);
+            this.firstLogin = true;
         }
     }
 
@@ -33,6 +35,18 @@ public class BookUserService extends User {
         this.bookShelves = new ArrayList<>();
         this.defaultBookShelf = defaultBookShelf;
         this.bookShelves = bookShelves;
+    }
+
+    // 根据 BookUser 实体类创建 BookUserService 服务类的构造方法
+    public BookUserService(BookUser bookUser) {
+        super(bookUser);
+        this.defaultBookShelf = new BookShelfService(bookUser.getDefaultBookShelf());
+        this.currentBookShelf = new BookShelfService(bookUser.getCurrentBookShelf());
+        this.bookShelves = new ArrayList<>();
+        for (BookShelf shelf : bookUser.getBookShelves()) {
+            this.bookShelves.add(new BookShelfService(shelf));
+        }
+        this.firstLogin = false; // 默认设置为 false
     }
 
     // 获取默认书架
@@ -86,13 +100,8 @@ public class BookUserService extends User {
         return shelfIds;
     }
 
-    // 设置当前用户
-    public static void setCurrentUser(BookUserService user) {
-        currentUser = user;
-    }
-
-    // 获取当前用户
-    public static BookUserService getCurrentUser() {
-        return currentUser;
+    // 获取首次登录标志
+    public Boolean isFirstLogin() {
+        return firstLogin;
     }
 }

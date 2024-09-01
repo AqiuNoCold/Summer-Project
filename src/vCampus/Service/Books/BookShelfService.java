@@ -9,6 +9,9 @@ import java.util.Map;
 import vCampus.Dao.Books.BookDao;
 import vCampus.Dao.Books.BookReviewDao;
 import vCampus.Dao.Books.BookShelfDao;
+import vCampus.Entity.Books.Book;
+import vCampus.Entity.Books.BookReview;
+import vCampus.Entity.Books.BookShelf;
 
 public class BookShelfService {
     private Long id; // 书架ID
@@ -116,6 +119,34 @@ public class BookShelfService {
             this.favoriteCount = bookShelf.getFavoriteCount();
         } else {
             throw new IllegalArgumentException("BookShelf with id " + id + " not found.");
+        }
+    }
+
+    // 根据BookShelf实体类建立服务类的构造方法
+    public BookShelfService(BookShelf bookShelf) {
+        this.id = bookShelf.getId();
+        this.name = bookShelf.getName();
+        this.createTime = bookShelf.getCreateTime();
+        this.updateTime = bookShelf.getUpdateTime();
+        this.userId = bookShelf.getUserId();
+        this.books = new ArrayList<>();
+        for (Book book : bookShelf.getBooks()) {
+            this.books.add(new BookService(book));
+        }
+        this.reviews = new ArrayList<>();
+        for (BookReview review : bookShelf.getReviews()) {
+            this.reviews.add(new BookReviewService(review));
+        }
+        this.isPublic = bookShelf.getIsPublic();
+        this.subscribeCount = bookShelf.getSubscribeCount();
+        this.favoriteCount = bookShelf.getFavoriteCount();
+        this.bookIds = new ArrayList<>();
+        for (Book book : bookShelf.getBooks()) {
+            this.bookIds.add(book.getId());
+        }
+        this.reviewIds = new ArrayList<>();
+        for (BookReview review : bookShelf.getReviews()) {
+            this.reviewIds.add(String.valueOf(review.getId()));
         }
     }
 

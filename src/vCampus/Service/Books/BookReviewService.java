@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 import vCampus.Dao.Books.BookReviewDao;
+import vCampus.Entity.Books.BookReview;
 
 public class BookReviewService {
     private Long id;
@@ -84,6 +85,21 @@ public class BookReviewService {
         this.updateTime = createTime;
         this.isPublic = isPublic;
         this.id = new BookReviewDao().save(this);
+    }
+
+    // 根据BookReview实体类建立服务类的构造方法
+    public BookReviewService(BookReview bookReview) {
+        this.id = bookReview.getId();
+        this.user = new BookUserService(bookReview.getUser());
+        this.book = new BookService(bookReview.getBook());
+        this.shelfId = bookReview.getShelfId();
+        this.content = bookReview.getContent();
+        this.rating = bookReview.getRating();
+        this.createTime = bookReview.getCreateTime();
+        this.updateTime = bookReview.getUpdateTime();
+        this.isPublic = bookReview.getIsPublic();
+        this.userId = bookReview.getUser().getId();
+        this.bookId = bookReview.getBook().getId();
     }
 
     // Getter和Setter方法

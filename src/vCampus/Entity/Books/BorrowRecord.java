@@ -126,4 +126,35 @@ public class BorrowRecord {
     public void setFine(BigDecimal fine) {
         this.fine = fine;
     }
+
+    // 重写toString方法
+    @Override
+    public String toString() {
+        return String.format(
+                "+----------------+-------------------------+\n" +
+                        "| %-14s | %-23s |\n" +
+                        "+----------------+-------------------------+\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "| %-14s | %-23s |\n" +
+                        "+----------------+-------------------------+\n",
+                "Field", "Value",
+                "ID", id,
+                "Borrow Date", borrowDate,
+                "Return Date", returnDate,
+                "Book", book,
+                "Book User", bookUser,
+                "Is Deleted", isDeleted,
+                "Status", status,
+                "Is Overdue", isOverdue,
+                "Overdue Days", overdueDays,
+                "Fine", fine);
+    }
 }
