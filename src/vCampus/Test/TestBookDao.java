@@ -1,12 +1,12 @@
 package vCampus.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
+import java.util.List;
 
 import vCampus.Dao.Books.BookDao;
+import vCampus.Dao.Criteria.BookSearchCriteria;
+import vCampus.Dao.Criteria.BookSortCriteria;
+import vCampus.Dao.Criteria.SortCriteria.SortOrder;
 import vCampus.Service.Books.BookService;
 
 public class TestBookDao {
@@ -26,7 +26,7 @@ public class TestBookDao {
                 break;
             }
 
-            Map<String, String> searchCriteria = new HashMap<>();
+            BookSearchCriteria searchCriteria = new BookSearchCriteria();
             while (true) {
                 System.out.println("请选择搜索字段：");
                 System.out.println("1. isbn");
@@ -78,7 +78,7 @@ public class TestBookDao {
                 System.out.println("请输入搜索内容：");
                 String value = scanner.nextLine();
 
-                searchCriteria.put(field, value);
+                searchCriteria.addCriteria(field, value);
 
                 System.out.println("是否添加更多搜索条件？(y/n)");
                 String moreCriteria = scanner.nextLine();
@@ -87,7 +87,10 @@ public class TestBookDao {
                 }
             }
 
-            List<String> sortCriteria = new ArrayList<>();
+            int totalBooks = bookDao.getTotalBooks(searchCriteria);
+            System.out.println("符合条件的书籍总数：" + totalBooks);
+
+            BookSortCriteria sortCriteria = new BookSortCriteria();
             while (true) {
                 System.out.println("请选择排序字段：");
                 System.out.println("1. copy_count");
@@ -125,7 +128,23 @@ public class TestBookDao {
                         continue;
                 }
 
-                sortCriteria.add(sortField);
+                System.out.println("请选择排序顺序：");
+                System.out.println("1. 正序 (ASC)");
+                System.out.println("2. 倒序 (DESC)");
+                int orderChoice = scanner.nextInt();
+                scanner.nextLine(); // 清除缓冲区
+
+                SortOrder sortOrder;
+                if (orderChoice == 1) {
+                    sortOrder = SortOrder.ASC;
+                } else if (orderChoice == 2) {
+                    sortOrder = SortOrder.DESC;
+                } else {
+                    System.out.println("无效选择，请重新选择。");
+                    continue;
+                }
+
+                sortCriteria.addCriteria(sortField, sortOrder);
 
                 System.out.println("是否添加更多排序条件？(y/n)");
                 String moreSortCriteria = scanner.nextLine();
@@ -133,9 +152,6 @@ public class TestBookDao {
                     break;
                 }
             }
-
-            int totalBooks = bookDao.getTotalBooks(searchCriteria);
-            System.out.println("符合条件的书籍总数：" + totalBooks);
 
             if (choice == 2) {
                 System.out.println("请输入每页显示的记录数：");

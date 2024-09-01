@@ -5,8 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import vCampus.Dao.BaseDao;
+import vCampus.Dao.Criteria.BookReviewSearchCriteria;
+import vCampus.Dao.Criteria.BookReviewSortCriteria;
 import vCampus.Db.DbConnection;
 import vCampus.Service.Books.BookReviewService;
 
@@ -138,5 +143,104 @@ public class BookReviewDao implements BaseDao<BookReviewService> {
             DbConnection.closeConnection(conn);
         }
         return generatedId;
+    }
+
+    // 高级搜索算法
+    public int getTotalReviews(BookReviewSearchCriteria searchCriteria) {
+        int totalReviews = 0;
+        try {
+            conn = DbConnection.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBookReviews WHERE 1=1");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (searchCriteria.isValidCriteria(key)) {
+                    sql.append(" AND ").append(key).append(" = ?");
+                    params.add(value);
+                }
+            }
+
+            sql.append(" AND rating BETWEEN ? AND ?");
+            params.add(String.valueOf(searchCriteria.getRatingMin()));
+            params.add(String.valueOf(searchCriteria.getRatingMax()));
+
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                totalReviews = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return totalReviews;
+    }
+
+    public List<BookReviewService> findReviewsByPage(BookReviewSearchCriteria searchCriteria,
+            BookReviewSortCriteria sortCriteria, int page, int pageSize) {
+        List<BookReviewService> reviews = new ArrayList<>();
+        try {
+            conn = DbConnection.getConnection();
+            StringBuilder sql = new StringBuilder("SELECT * FROM tblBookReviews WHERE 1=1");
+            List<String> params = new ArrayList<>();
+
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (searchCriteria.isValidCriteria(key)) {
+                    sql.append(" AND ").append(key).append(" = ?");
+                    params.add(value);
+                }
+            }
+
+            sql.append(" AND rating BETWEEN ? AND ?");
+            params.add(String.valueOf(searchCriteria.getRatingMin()));
+            params.add(String.valueOf(searchCriteria.getRatingMax()));
+
+            if (!sortCriteria.getCriteria().isEmpty()) {
+                sql.append(" ORDER BY ");
+                for (int i = 0; i < sortCriteria.getCriteria().size(); i++) {
+                    sql.append(sortCriteria.getCriteria().get(i));
+                    if (i < sortCriteria.getCriteria().size() - 1) {
+                        sql.append(", ");
+                    }
+                }
+            }
+
+            sql.append(" LIMIT ? OFFSET ?");
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setString(i + 1, params.get(i));
+            }
+            pstmt.setInt(params.size() + 1, pageSize);
+            pstmt.setInt(params.size() + 2, (page - 1) * pageSize);
+
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                BookReviewService review = new BookReviewService(
+                        rs.getLong("id"),
+                        rs.getString("userId"),
+                        rs.getString("bookId"),
+                        rs.getLong("shelfId"),
+                        rs.getString("content"),
+                        rs.getBigDecimal("rating"),
+                        rs.getTimestamp("createTime").toLocalDateTime(),
+                        rs.getTimestamp("updateTime").toLocalDateTime(),
+                        rs.getBoolean("isPublic"));
+                reviews.add(review);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return reviews;
     }
 }

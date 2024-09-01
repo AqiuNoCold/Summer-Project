@@ -10,6 +10,8 @@ import java.util.Map;
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
 import vCampus.Service.Books.BookService;
+import vCampus.Dao.Criteria.BookSearchCriteria;
+import vCampus.Dao.Criteria.BookSortCriteria;
 
 public class BookDao implements BaseDao<BookService> {
     private Connection conn = null;
@@ -169,41 +171,41 @@ public class BookDao implements BaseDao<BookService> {
         return book;
     }
 
-    public int getTotalBooks(Map<String, String> searchCriteria) {
+    public int getTotalBooks(BookSearchCriteria searchCriteria) {
         int totalBooks = 0;
         try {
             Connection conn = DbConnection.getConnection();
             StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
 
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                switch (key) {
-                    case "isbn":
-                    case "isbn13":
-                        sql.append(" AND ").append(key).append(" = ?");
-                        params.add(value);
-                        break;
-                    case "language":
-                        sql.append(" AND ").append(key).append(" LIKE ?");
-                        params.add(value + "%");
-                        break;
-                    case "title":
-                        sql.append(
-                                " AND (MATCH(title) AGAINST (? IN BOOLEAN MODE) OR MATCH(title_long) AGAINST (? IN BOOLEAN MODE))");
-                        params.add(value);
-                        params.add(value);
-                        break;
-                    case "authors":
-                    case "subjects":
-                    case "synopsis":
-                    case "publisher":
-                        sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
-                        params.add(value);
-                        break;
-                    default:
-                        break;
+                if (searchCriteria.isValidCriteria(key)) {
+                    switch (key) {
+                        case "isbn":
+                        case "isbn13":
+                            sql.append(" AND ").append(key).append(" = ?");
+                            params.add(value);
+                            break;
+                        case "language":
+                            sql.append(" AND ").append(key).append(" LIKE ?");
+                            params.add(value + "%");
+                            break;
+                        case "title":
+                            sql.append(" AND MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
+                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                            break;
+                        case "authors":
+                        case "subjects":
+                        case "synopsis":
+                        case "publisher":
+                            sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
+                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
@@ -225,8 +227,8 @@ public class BookDao implements BaseDao<BookService> {
     }
 
     public List<String> findBooksByPage(
-            Map<String, String> searchCriteria,
-            List<String> sortCriteria,
+            BookSearchCriteria searchCriteria,
+            BookSortCriteria sortCriteria,
             int page,
             int pageSize) {
         List<String> bookIds = new ArrayList<>();
@@ -235,54 +237,46 @@ public class BookDao implements BaseDao<BookService> {
             StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
 
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                switch (key) {
-                    case "isbn":
-                    case "isbn13":
-                        sql.append(" AND ").append(key).append(" = ?");
-                        params.add(value);
-                        break;
-                    case "language":
-                        sql.append(" AND ").append(key).append(" LIKE ?");
-                        params.add(value + "%");
-                        break;
-                    case "title":
-                        sql.append(
-                                " AND (MATCH(title) AGAINST (? IN BOOLEAN MODE) OR MATCH(title_long) AGAINST (? IN BOOLEAN MODE))");
-                        params.add(value);
-                        params.add(value);
-                        break;
-                    case "authors":
-                    case "subjects":
-                    case "synopsis":
-                    case "publisher":
-                        sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
-                        params.add(value);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            if (sortCriteria != null && !sortCriteria.isEmpty()) {
-                sql.append(" ORDER BY ");
-                for (int i = 0; i < sortCriteria.size(); i++) {
-                    String criterion = sortCriteria.get(i);
-                    switch (criterion) {
-                        case "copy_count":
-                        case "review_count":
-                        case "average_rating":
-                        case "favorite_count":
-                        case "borrow_count":
-                            sql.append(criterion);
-                            if (i < sortCriteria.size() - 1) {
-                                sql.append(", ");
-                            }
+                if (searchCriteria.isValidCriteria(key)) {
+                    switch (key) {
+                        case "isbn":
+                        case "isbn13":
+                            sql.append(" AND ").append(key).append(" = ?");
+                            params.add(value);
+                            break;
+                        case "language":
+                            sql.append(" AND ").append(key).append(" LIKE ?");
+                            params.add(value + "%");
+                            break;
+                        case "title":
+                            sql.append(" AND MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
+                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                            break;
+                        case "authors":
+                        case "subjects":
+                        case "synopsis":
+                        case "publisher":
+                            sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
+                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
                             break;
                         default:
                             break;
+                    }
+                }
+            }
+
+            if (!sortCriteria.getCriteria().isEmpty()) {
+                sql.append(" ORDER BY ");
+                for (int i = 0; i < sortCriteria.getCriteria().size(); i++) {
+                    String criterion = sortCriteria.getCriteria().get(i);
+                    if (sortCriteria.isValidCriteria(criterion)) {
+                        sql.append(criterion);
+                        if (i < sortCriteria.getCriteria().size() - 1) {
+                            sql.append(", ");
+                        }
                     }
                 }
             }

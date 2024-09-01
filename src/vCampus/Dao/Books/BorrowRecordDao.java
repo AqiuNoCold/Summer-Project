@@ -11,6 +11,8 @@ import java.util.Map;
 import vCampus.Dao.BaseDao;
 import vCampus.Db.DbConnection;
 import vCampus.Service.Books.BorrowRecordService;
+import vCampus.Dao.Criteria.BorrowRecordSearchCriteria;
+import vCampus.Dao.Criteria.BorrowRecordSortCriteria;
 
 public class BorrowRecordDao implements BaseDao<BorrowRecordService> {
     private Connection conn = null;
@@ -84,7 +86,7 @@ public class BorrowRecordDao implements BaseDao<BorrowRecordService> {
 
     @Override
     public BorrowRecordService find(String id) {
-        String sql = "SELECT * FROM tblBorrowRecord WHERE id = ? AND is_deleted = false";
+        String sql = "SELECT * FROM tblBorrowRecord WHERE id = ?";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -109,24 +111,23 @@ public class BorrowRecordDao implements BaseDao<BorrowRecordService> {
         return null;
     }
 
-    public int getTotalRecords(Map<String, String> searchCriteria) {
+    public int getTotalRecords(BorrowRecordSearchCriteria searchCriteria) {
         int totalRecords = 0;
         try {
             conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBorrowRecord WHERE is_deleted = false");
+            StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBorrowRecord WHERE 1=1");
             List<String> params = new ArrayList<>();
 
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+            if (!searchCriteria.isIncludeDeleted()) {
+                sql.append(" AND is_deleted = false");
+            }
+
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                switch (key) {
-                    case "user_id":
-                    case "status":
-                        sql.append(" AND ").append(key).append(" = ?");
-                        params.add(value);
-                        break;
-                    default:
-                        break;
+                if (searchCriteria.isValidCriteria(key)) {
+                    sql.append(" AND ").append(key).append(" = ?");
+                    params.add(value);
                 }
             }
 
@@ -147,34 +148,32 @@ public class BorrowRecordDao implements BaseDao<BorrowRecordService> {
         return totalRecords;
     }
 
-    public List<BorrowRecordService> findAllByPage(Map<String, String> searchCriteria, List<String> sortCriteria,
-            int page,
-            int pageSize) {
+    public List<BorrowRecordService> findAllByPage(BorrowRecordSearchCriteria searchCriteria,
+            BorrowRecordSortCriteria sortCriteria, int page, int pageSize) {
         List<BorrowRecordService> borrowRecords = new ArrayList<>();
         try {
             conn = DbConnection.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT * FROM tblBorrowRecord WHERE is_deleted = false");
+            StringBuilder sql = new StringBuilder("SELECT * FROM tblBorrowRecord WHERE 1=1");
             List<String> params = new ArrayList<>();
 
-            for (Map.Entry<String, String> entry : searchCriteria.entrySet()) {
+            if (!searchCriteria.isIncludeDeleted()) {
+                sql.append(" AND is_deleted = false");
+            }
+
+            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                switch (key) {
-                    case "user_id":
-                    case "status":
-                        sql.append(" AND ").append(key).append(" = ?");
-                        params.add(value);
-                    default:
-                        break;
+                if (searchCriteria.isValidCriteria(key)) {
+                    sql.append(" AND ").append(key).append(" = ?");
+                    params.add(value);
                 }
             }
 
-            if (sortCriteria != null && !sortCriteria.isEmpty()) {
+            if (!sortCriteria.getCriteria().isEmpty()) {
                 sql.append(" ORDER BY ");
-                for (int i = 0; i < sortCriteria.size(); i++) {
-                    String criterion = sortCriteria.get(i);
-                    sql.append(criterion);
-                    if (i < sortCriteria.size() - 1) {
+                for (int i = 0; i < sortCriteria.getCriteria().size(); i++) {
+                    sql.append(sortCriteria.getCriteria().get(i));
+                    if (i < sortCriteria.getCriteria().size() - 1) {
                         sql.append(", ");
                     }
                 }
