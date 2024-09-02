@@ -232,6 +232,7 @@ public class DbCreator {
                 + "owner VARCHAR(9), "
                 + "discount FLOAT CHECK (discount BETWEEN 0 AND 1), "
                 + "time DATE"
+                + "image BLOB"
                 + ")";
 
         executeSQL(createTableSQL, "tblProduct");
