@@ -10,15 +10,55 @@ public class DbCreator {
     private static final Logger logger = Logger.getLogger(DbCreator.class.getName());
 
     public static void createTables() {
+        dropAllTables();
+
         createUserTable();
         createStuTable();
         createGradeTable();
         createBooksTable();
+        createBookShelfTable();
+        createBorrowRecordTable();
+        createBookReviewTable();
+        createBookUserTable();
         createShopStudentTable();
         createProductTable();
         createECardTable();
         createTransactionTable();
         createCourseTable();
+        createTeacherTable();
+    }
+
+    private static void dropAllTables() {
+        String[] tables = {
+                "tblUser",
+                "tblStu",
+                "tblGrade",
+                // "tblBooks", 谁敢删我表！
+                "tblBookShelf",
+                "tblBorrowRecord",
+                "tblShopStudent",
+                "tblProduct",
+                "tblECard",
+                "tblTransaction",
+                "tblCourse",
+                "tblBookReview",
+                "tblBookUser",
+                "tblTeacher"
+        };
+
+        try (Connection conn = DbConnection.getConnection();
+                Statement stmt = conn.createStatement()) {
+
+            for (String table : tables) {
+                String dropTableSQL = "DROP TABLE IF EXISTS " + table;
+                stmt.execute(dropTableSQL);
+                logger.info("表 " + table + " 删除成功。");
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "删除表失败", e);
+            throw new RuntimeException("删除表失败", e);
+        }
     }
 
     private static void createUserTable() {
@@ -30,10 +70,7 @@ public class DbCreator {
                 + "role ENUM('ST', 'TC', 'AD'), "
                 + "email VARCHAR(255) CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$'), "
                 + "card CHAR(9) CHECK (LENGTH(card) = 9), "
-//                + "remain FLOAT CHECK (remain >= 0), "
-//                + "password INT, "
-                + "lost BOOLEAN DEFAULT FALSE, "
-                + "courses TEXT"
+                + "lost BOOLEAN DEFAULT FALSE "
                 + ")";
 
         executeSQL(createTableSQL, "tblUser");
@@ -50,7 +87,7 @@ public class DbCreator {
                 + "grade VARCHAR(255), "
                 + "major VARCHAR(20), "
                 + "email VARCHAR(255) CHECK (email LIKE '%@%.com'), "
-                + "stage VARCHAR(3), "
+                + "stage VARCHAR(30), "
                 + "honor TEXT, "
                 + "punish TEXT, "
                 + "stu_code VARCHAR(19)"
@@ -80,36 +117,90 @@ public class DbCreator {
     private static void createBooksTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBooks ("
                 + "isbn CHAR(10), "
-                + "msrp VARCHAR(20), "
+                + "msrp DECIMAL(10,2), "
                 + "image TEXT, "
-                + "pages VARCHAR(20), "
-                + "title TEXT, "
+                + "pages INT, "
+                + "title VARCHAR(255), "
                 + "isbn13 CHAR(13), "
                 + "authors TEXT, "
-                + "edition TEXT, "
-                + "language TEXT, "
+                + "binding VARCHAR(50), "
+                + "edition VARCHAR(50), "
+                + "related TEXT, "
+                + "language VARCHAR(20), "
                 + "subjects TEXT, "
                 + "synopsis TEXT, "
-                + "publisher TEXT, "
+                + "publisher VARCHAR(100), "
+                + "dimensions VARCHAR(50), "
                 + "title_long TEXT, "
-                + "date_published TEXT, "
+                + "date_published VARCHAR(20), "
+                + "copy_count INT, "
+                + "review_count INT, "
+                + "average_rating DECIMAL(2,1), "
+                + "favorite_count INT, "
+                + "borrow_count INT, "
+                + "is_active BOOLEAN, "
+                + "is_deleted BOOLEAN, "
                 + "PRIMARY KEY (isbn, isbn13)"
                 + ")";
 
         executeSQL(createTableSQL, "tblBooks");
     }
 
+    private static void createBookShelfTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookShelf ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "name VARCHAR(255) NOT NULL, "
+                + "create_time TIMESTAMP NOT NULL, "
+                + "update_time TIMESTAMP NOT NULL, "
+                + "user_id CHAR(9) NOT NULL, "
+                + "book_ids TEXT, "
+                + "review_ids TEXT, "
+                + "is_public BOOLEAN, "
+                + "subscribe_count INT, "
+                + "favorite_count INT "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookShelf");
+    }
+
     private static void createBorrowRecordTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBorrowRecord ("
                 + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
-                + "borrowDate DATE, "
-                + "returnDate DATE, "
-                + "bookId BIGINT, "
-                + "bookUserId BIGINT, "
-                + "status VARCHAR(20)"
+                + "borrow_date DATE, "
+                + "return_date DATE, "
+                + "book_id CHAR(24), "
+                + "user_id CHAR(9), "
+                + "status VARCHAR(10), "
+                + "is_deleted BOOLEAN "
                 + ")";
 
         executeSQL(createTableSQL, "tblBorrowRecord");
+    }
+
+    private static void createBookReviewTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookReview ("
+                + "id BIGINT AUTO_INCREMENT PRIMARY KEY, "
+                + "user_id CHAR(9), "
+                + "book_id CHAR(24), "
+                + "shelf_id BIGINT, "
+                + "content TEXT, "
+                + "rating DECIMAL(3, 2), "
+                + "create_time TIMESTAMP, "
+                + "update_time TIMESTAMP, "
+                + "is_public BOOLEAN "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookReview");
+    }
+
+    private static void createBookUserTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblBookUser ("
+                + "id CHAR(9) PRIMARY KEY, "
+                + "default_shelf_id BIGINT, "
+                + "shelf_ids TEXT "
+                + ")";
+
+        executeSQL(createTableSQL, "tblBookUser");
     }
 
     private static void createShopStudentTable() {
@@ -138,7 +229,7 @@ public class DbCreator {
                 + "name VARCHAR(64), "
                 + "price FLOAT CHECK (price >= 0), "
                 + "numbers INT CHECK (numbers >= 0), "
-                + "owner VARCHAR(11), "
+                + "owner VARCHAR(9), "
                 + "discount FLOAT CHECK (discount BETWEEN 0 AND 1), "
                 + "time DATE"
                 + "image BLOB"
@@ -156,7 +247,6 @@ public class DbCreator {
 
         executeSQL(createTableSQL, "tblECard");
     }
-
 
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("
@@ -183,6 +273,14 @@ public class DbCreator {
                 + ")";
 
         executeSQL(createTableSQL, "tblCourse");
+    }
+
+    private static void createTeacherTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTeacher ("
+                + "id VARCHAR(255),"
+                + "course VARCHAR(255)"
+                + ")";
+        executeSQL(createTableSQL, "tbl");
     }
 
     private static void executeSQL(String sql, String tableName) {

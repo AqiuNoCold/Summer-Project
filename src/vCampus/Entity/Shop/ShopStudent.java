@@ -8,10 +8,6 @@ import vCampus.Entity.ECard.*;
 import vCampus.Entity.Shop.*;
 import vCampus.Entity.*;
 
-
-
-
-
 public class ShopStudent extends ECard {
 
     private List<Product> favorites;
@@ -21,6 +17,9 @@ public class ShopStudent extends ECard {
 
     public ShopStudent(User user){
         super(user);
+        favorites = new ArrayList<>();
+        belongs = new ArrayList<>();
+        bill = new ArrayList<>();
         //初始化商店用户
         ShopStudentDao dao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = dao.find(id);
@@ -85,8 +84,11 @@ public class ShopStudent extends ECard {
     }
 
     public void turnBill(String billId){
-        String[] billIds = billId.split(";");
-        bill.addAll(Arrays.asList(billIds));
+        String[] billIds;
+        if(billId != null) {
+            billIds = billId.split(";");
+            bill.addAll(Arrays.asList(billIds));
+        }
     }
 
     public void setFavorites(List<Product> favorites){

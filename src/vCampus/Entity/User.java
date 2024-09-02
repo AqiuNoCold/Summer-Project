@@ -2,7 +2,9 @@ package vCampus.Entity;
 
 // import java.util.ArrayList;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     // 属性定义
     protected String id; // 表管理项
     protected String pwd; // 密码
