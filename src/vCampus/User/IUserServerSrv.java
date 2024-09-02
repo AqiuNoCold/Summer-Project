@@ -34,33 +34,38 @@ public class IUserServerSrv {
     }
 
     // 忘记密码功能
-    public static User forgetPassword(String inid) {
+    public static User forgetPassword(String inid,String inemail) {
         User user = null;
         UserDao userDao = new UserDao();
         user = userDao.find(inid);
         if (user != null) {
-            try (Scanner scanner = new Scanner(System.in)) {
-                System.out.print("请输入注册时的验证邮箱: ");
-                String inputEmail = scanner.nextLine();
-                // 验证邮箱
-                if (!inputEmail.equals(user.getEmail())) {
-                    System.out.println("验证邮箱不符，请输入注册时的验证邮箱。");
-                    return null;
-                }
-
-                // 输入新密码
-                System.out.print("请输入新密码: ");
-                String newPwd = scanner.nextLine();
-
-                // 更新密码
-                user.setPwd(newPwd);
-                userDao.update(user);
-                System.out.println("密码修改成功。");
+            // 验证邮箱
+            if (!inemail.equals(user.getEmail())) {
+                System.out.println("验证邮箱不符，请输入注册时的验证邮箱。");
+                return null;
             }
+
         } else {
             System.out.println("用户不存在");
         }
         return user;
+    }
+
+    //重置密码功能
+    public static Boolean resetPassword(String inid,String newPwd) {
+        User user = null;
+        UserDao userDao = new UserDao();
+        user = userDao.find(inid);
+        if (user != null) {
+            // 更新密码
+            user.setPwd(newPwd);
+            userDao.update(user);
+            System.out.println("密码修改成功。");
+        } else {
+            System.out.println("用户不存在");
+            return false;
+        }
+        return true;
     }
 }
 
