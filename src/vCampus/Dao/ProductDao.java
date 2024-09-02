@@ -3,11 +3,8 @@ package vCampus.Dao;
 import vCampus.Db.DbConnection;
 import vCampus.Entity.Shop.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import javax.sql.rowset.serial.SerialBlob;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +27,8 @@ public class ProductDao implements BaseDao<Product> {
             pstmt.setString(5, product.getOwner());
             pstmt.setFloat(6, product.getDiscount());
             pstmt.setTimestamp(7, new Timestamp(product.getTime().getTime()));
+            Blob blob = new SerialBlob(product.getImage());
+            pstmt.setBlob(8,blob);
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -54,6 +53,8 @@ public class ProductDao implements BaseDao<Product> {
             pstmt.setFloat(5, product.getDiscount());
             pstmt.setTimestamp(6, new Timestamp(product.getTime().getTime()));
             pstmt.setString(7, product.getId());
+            Blob blob = new SerialBlob(product.getImage());
+            pstmt.setBlob(8,blob);
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {
@@ -134,7 +135,7 @@ public class ProductDao implements BaseDao<Product> {
         try {
             conn = DbConnection.getConnection();
             // 3. 创建查询语句
-            String sql = "SELECT product_id FROM products WHERE product_name LIKE ?";
+            String sql = "SELECT id FROM tblProduct WHERE name LIKE ?";
 
             // 4. 使用PreparedStatement来防止SQL注入
             try (PreparedStatement statement = conn.prepareStatement(sql)) {
@@ -146,7 +147,7 @@ public class ProductDao implements BaseDao<Product> {
                     rs = statement.executeQuery();
                     // 6. 处理结果
                     while (rs.next()) {
-                        int productId = rs.getInt("product_id");
+                        int productId = rs.getInt("id");
                         Ids.add(productId+"");
                     }
                 } catch (SQLException e) {
