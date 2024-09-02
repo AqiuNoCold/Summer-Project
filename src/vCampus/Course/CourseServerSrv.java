@@ -311,7 +311,7 @@ public class CourseServerSrv {
             return null;
         }
     }
-    /*
+    /**/
     public static void main(String[] args) {
         CourseServerSrv cSS= new CourseServerSrv();
         String[] courseInfo = {
@@ -325,7 +325,7 @@ public class CourseServerSrv {
                 "25",                 // now_num (current number of students enrolled)
                 "50",                 // max_num (maximum number of students allowed)
                 "Room 101",           // classroom
-                "12345"               // num (possibly a unique identifier or a section number)
+                "1"               // num (possibly a unique identifier or a section number)
         };
         String[] courseInfo2 = {
                 "CS101",              // course_id
@@ -338,7 +338,7 @@ public class CourseServerSrv {
                 "25",                 // now_num (current number of students enrolled)
                 "50",                 // max_num (maximum number of students allowed)
                 "Room 204",           // classroom
-                "12345"               // num (possibly a unique identifier or a section number)
+                "1"               // num (possibly a unique identifier or a section number)
         };
         String[] courseInfo3 = {
                 "CS192",              // course_id
@@ -351,10 +351,13 @@ public class CourseServerSrv {
                 "25",                 // now_num (current number of students enrolled)
                 "50",                 // max_num (maximum number of students allowed)
                 "Room 408",           // classroom
-                "12345"               // num (possibly a unique identifier or a section number)
+                "1"               // num (possibly a unique identifier or a section number)
         };
-        //cSS.addUser(courseInfo2);
-        //cSS.deleteUser(courseInfo[0]);
+        cSS.deleteUser(courseInfo2[0]);
+        cSS.deleteUser(courseInfo3[0]);
+        cSS.addUser(courseInfo2);
+        cSS.addUser(courseInfo3);
+
         //cSS.updateUser(courseInfo2);
         //System.out.println(cSS.searchOneUser("course_ID", courseInfo2[0]));
         //System.out.println(cSS.searchOneUser(courseInfo2[1], "0","0"));
@@ -369,5 +372,5 @@ public class CourseServerSrv {
         //System.out.println(cSS.searchCourse(idsOfCou));
         //System.out.println(cSS.searchPrivateCourse("card_id", "213222801"));
     }
-    */
+
 }
