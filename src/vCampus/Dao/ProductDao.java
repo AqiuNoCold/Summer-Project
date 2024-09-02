@@ -1,13 +1,15 @@
 package vCampus.Dao;
 
 import vCampus.Db.DbConnection;
-import vCampus.Entity.Product;
+import vCampus.Entity.Shop.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductDao implements BaseDao<Product> {
     private Connection conn = null;
@@ -106,5 +108,56 @@ public class ProductDao implements BaseDao<Product> {
             DbConnection.closeConnection(conn);
         }
         return product;
+    }
+
+    public int getRecordCount(String tableName) {
+        int count = 0;
+        try {
+            conn = DbConnection.getConnection();
+            String query = "SELECT COUNT(*) FROM " + tableName;
+            pstmt = conn.prepareStatement(query);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1); // 获取计数结果
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return count;
+    }
+
+
+    public String searchProduct(String productName) {
+        List<String> Ids = new ArrayList<>();
+        try {
+            conn = DbConnection.getConnection();
+            // 3. 创建查询语句
+            String sql = "SELECT product_id FROM products WHERE product_name LIKE ?";
+
+            // 4. 使用PreparedStatement来防止SQL注入
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                // 设置LIKE查询的参数
+                statement.setString(1, "%" + productName + "%");
+
+                // 5. 执行查询
+                try {
+                    rs = statement.executeQuery();
+                    // 6. 处理结果
+                    while (rs.next()) {
+                        int productId = rs.getInt("product_id");
+                        Ids.add(productId+"");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return String.join(",", Ids);
     }
 }
