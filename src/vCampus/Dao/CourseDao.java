@@ -3,10 +3,9 @@ package vCampus.Dao;
 import vCampus.Db.DbConnection;
 import vCampus.Entity.Course;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CourseDao implements BaseDao<Course> {
     private Connection conn = null;
@@ -81,6 +80,7 @@ public class CourseDao implements BaseDao<Course> {
             isDeleted = rowsAffected > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            //System.out.println("Cannot delete course. It is referenced by other records.");
         } finally {
             DbConnection.closeConnection(conn);
         }
@@ -117,5 +117,169 @@ public class CourseDao implements BaseDao<Course> {
             DbConnection.closeConnection(conn);
         }
         return course;
+    }
+
+    public ArrayList<ArrayList<String>> find_by_condition(String condition_name, String condition) {
+
+        HashMap<String, String> status = new HashMap<String, String>();
+        status.put("必修", "1");
+        status.put("选修", "2");
+        Statement statement = null;
+        ResultSetMetaData rsmd = null;
+        ArrayList<ArrayList<String>> al = new ArrayList<ArrayList<String>>();
+        ArrayList<String> temp = null;
+        boolean isInt = false;
+
+        try {
+            conn = DbConnection.getConnection();
+            String sql = null;
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            if (condition_name.equals("null") && condition.equals("null")) {
+                sql = "SELECT* FROM " + "tblCourse";
+            } else { // 如果两个参数不为空
+                if (condition_name.equals("time") || condition_name.equals("now_num") || condition_name.equals("max_num")
+                        || condition_name.equals("num")) {
+                    isInt = true;
+                }
+
+                if (isInt)
+                    sql = "SELECT* FROM " + "tblCourse" + " WHERE " + condition_name + "=" + condition;
+                else
+                    sql = "SELECT* FROM " + "tblCourse" + " WHERE " + condition_name + " LIKE" + "'%" + condition + "%'";
+            }
+            rs = statement.executeQuery(sql);
+            rsmd = rs.getMetaData();
+            while (rs.next()) {
+                temp = new ArrayList<String>();
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    if (i == 7)
+                        temp.add(status.get(rs.getString(i)));
+                    else
+                        temp.add(rs.getString(i));
+                }
+                al.add(temp);
+            }
+            return al;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return al;
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+    }
+
+    public ArrayList<ArrayList<String>> find_by_course(String cou_name, String status_, String isMax) {
+        HashMap<String, String> status = new HashMap<String, String>();
+        status.put("必修", "1");
+        status.put("选修", "2");
+        Statement statement = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        ArrayList<ArrayList<String>> al = new ArrayList<ArrayList<String>>();
+        ArrayList<String> temp = null;
+
+        String restrainSql = " WHERE num > 0";
+        if (isMax.equals("2"))
+            restrainSql += " and now_num=max_num";
+        else
+            restrainSql += " and now_num < max_num";
+        if (!cou_name.equals("null"))
+            restrainSql += " and course_name LIKE" + "'%" + cou_name + "%'";
+        if (status_.equals("1") || status_.equals("2"))
+            restrainSql += " and status=" + status_;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = null;
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            sql = "SELECT* FROM " + "tblCourse" + restrainSql;
+            rs = statement.executeQuery(sql);
+            rsmd = rs.getMetaData();
+            while (rs.next()) {
+                temp = new ArrayList<String>();
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    if (i == 7)
+                        temp.add(status.get(rs.getString(i)));
+                    else
+                        temp.add(rs.getString(i));
+                }
+                al.add(temp);
+            }
+            return al;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return al;
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+    }
+
+    public ArrayList<String> find_all_course(String column) {
+        Statement statement = null;
+        ResultSet rs = null;
+        ArrayList<String> al = new ArrayList<String>();
+        try {
+            conn = DbConnection.getConnection();
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String sql = "SELECT* FROM " + "tblCourse";
+            rs = statement.executeQuery(sql);
+            while (rs.next()) {
+                al.add(rs.getString(column));
+            }
+            return al;
+        } catch (SQLException e) {
+            System.out.println("该列不存在");
+            e.printStackTrace();
+            return al;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return al;
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+    }
+
+    public ArrayList<ArrayList<String>> searchCourse(String[] n) {
+        HashMap<String, String> status = new HashMap<String, String>();
+        status.put("必修", "1");
+        status.put("选修", "2");
+        Statement statement = null;
+        ResultSet rs = null;
+        ResultSetMetaData rsmd = null;
+        ArrayList<ArrayList<String>> al = new ArrayList<ArrayList<String>>();
+        ArrayList<String> temp = null;
+
+        try {
+            conn = DbConnection.getConnection();
+            String subsql = null, sql = null;
+            for (String data : n) {
+                subsql += "'" + data + "',";
+            }
+            subsql = subsql.substring(4, subsql.length() - 1);
+            System.out.println(subsql);
+
+            statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            if (subsql != null)
+                sql = "SELECT* FROM " + "tblCourse" + " WHERE course_id IN(" + subsql + ")";
+            else
+                return null;
+            rs = statement.executeQuery(sql);
+            rsmd = rs.getMetaData();
+            while (rs.next()) {
+                temp = new ArrayList<String>();
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    if (i == 7)
+                        temp.add(status.get(rs.getString(i)));
+                    else
+                        temp.add(rs.getString(i));
+                }
+                al.add(temp);
+            }
+            return al;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return al;
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
     }
 }
