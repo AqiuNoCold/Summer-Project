@@ -1,5 +1,9 @@
 package Pages.Pages;
 
+import Pages.MainApp;
+import vCampus.Entity.User;
+import vCampus.User.IUserServerSrv;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -36,7 +40,9 @@ public class LoginPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // 假设用户名是"admin"，密码是"password"
-                if (usernameField.getText().equals("1") && new String(passwordField.getPassword()).equals("1")) {
+                User cUser = IUserServerSrv.login(usernameField.getText(),new String(passwordField.getPassword()));
+                if (cUser!=null) {
+                    MainApp.setCurrentUser(cUser);
                     new NavigationPage().setVisible(true);
                     dispose(); // 关闭登录页面
                 } else {
