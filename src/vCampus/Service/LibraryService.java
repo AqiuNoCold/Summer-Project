@@ -6,6 +6,7 @@ import vCampus.Dao.Criteria.BookSearchCriteria;
 import vCampus.Dao.Criteria.BookSortCriteria;
 import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookUser;
+import vCampus.Entity.Books.BookShelf;
 import vCampus.Entity.Books.BorrowRecord;
 import vCampus.Service.Books.BookService;
 import vCampus.Service.Books.BookShelfService;
@@ -131,5 +132,49 @@ public class LibraryService {
 
         // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
         return new BookUser(bookUserService);
+    }
+
+    // 设置当前书架的方法
+    public BookUser setCurrentBookShelf(BookUser bookUser, BookShelf bookShelf) {
+        // 将 BookUser 对象转换为 BookUserService 对象
+        BookUserService bookUserService = new BookUserService(bookUser);
+
+        // 将 BookShelf 对象转换为 BookShelfService 对象
+        BookShelfService bookShelfService = new BookShelfService(bookShelf);
+
+        // 设置当前书架
+        bookUserService.setCurrentBookShelf(bookShelfService);
+
+        // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
+        return new BookUser(bookUserService);
+    }
+
+    // 通过图书ID添加图书到书架的方法
+    public void addBookToShelfById(BookUser bookUser, Long shelfId, String bookId) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 添加图书到书架
+        bookShelfService.addBookById(bookId);
+    }
+
+    // 通过图书对象添加图书到书架的方法
+    public void addBookToShelfByObject(BookUser bookUser, Long shelfId, Book book) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+        BookService bookService = new BookService(book);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 添加图书到书架
+        bookShelfService.addBook(bookService);
     }
 }

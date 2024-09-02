@@ -70,21 +70,6 @@ public class BookShelf implements Serializable {
         }
     }
 
-    // 加载图书和书评
-    public void loadBooksAndReviews(BookShelfService service) {
-        if (!isLoaded) {
-            this.books = new ArrayList<>();
-            for (BookService bookService : service.getBooks()) {
-                this.books.add(new Book(bookService));
-            }
-            this.reviews = new ArrayList<>();
-            for (BookReviewService reviewService : service.getReviews()) {
-                this.reviews.add(new BookReview(reviewService));
-            }
-            this.isLoaded = true;
-        }
-    }
-
     // Getter和Setter方法
     public Long getId() {
         return id;

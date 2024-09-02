@@ -56,6 +56,9 @@ public class BookUserService extends User {
 
     // 设置默认书架
     public void setDefaultBookShelf(BookShelfService defaultBookShelf) {
+        if (!bookShelves.contains(defaultBookShelf)) {
+            throw new IllegalArgumentException("书架不存在于用户的书架列表中");
+        }
         this.defaultBookShelf = defaultBookShelf;
         new BookUserDao().update(this);
     }
@@ -70,6 +73,19 @@ public class BookUserService extends User {
 
     // 设置当前书架
     public void setCurrentBookShelf(BookShelfService currentBookShelf) {
+        if (!bookShelves.contains(currentBookShelf)) {
+            throw new IllegalArgumentException("书架不存在于用户的书架列表中");
+        }
+        if (!currentBookShelf.getIsLoaded()) {
+            currentBookShelf.loadBooksAndReviews();
+            // 更新书架列表中的书架
+            for (int i = 0; i < bookShelves.size(); i++) {
+                if (bookShelves.get(i).getId().equals(currentBookShelf.getId())) {
+                    bookShelves.set(i, currentBookShelf);
+                    break;
+                }
+            }
+        }
         this.currentBookShelf = currentBookShelf;
     }
 
