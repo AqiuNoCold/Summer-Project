@@ -25,6 +25,7 @@ public class DbCreator {
         createECardTable();
         createTransactionTable();
         createCourseTable();
+        createTeacherTable();
     }
 
     private static void dropAllTables() {
@@ -41,7 +42,8 @@ public class DbCreator {
                 "tblTransaction",
                 "tblCourse",
                 "tblBookReview",
-                "tblBookUser"
+                "tblBookUser",
+                "tblTeacher"
         };
 
         try (Connection conn = DbConnection.getConnection();
@@ -270,6 +272,14 @@ public class DbCreator {
                 + ")";
 
         executeSQL(createTableSQL, "tblCourse");
+    }
+
+    private static void createTeacherTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTeacher ("
+                + "id VARCHAR(255),"
+                + "course VARCHAR(255),"
+                + ")";
+        executeSQL(createTableSQL, "tbl");
     }
 
     private static void executeSQL(String sql, String tableName) {
