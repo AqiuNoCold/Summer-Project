@@ -1,18 +1,26 @@
 package vCampus.Service;
 
+import vCampus.Dao.Books.BookDao;
 import vCampus.Dao.Books.BorrowRecordDao;
+import vCampus.Dao.Criteria.BookSearchCriteria;
+import vCampus.Dao.Criteria.BookSortCriteria;
+import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookUser;
 import vCampus.Entity.Books.BorrowRecord;
 import vCampus.Service.Books.BookService;
 import vCampus.Service.Books.BookUserService;
 import vCampus.Service.Books.BorrowRecordService;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LibraryService {
+    private BookDao bookDao;
     private BorrowRecordDao borrowRecordDao;
 
     public LibraryService() {
         this.borrowRecordDao = new BorrowRecordDao();
+        this.bookDao = new BookDao();
     }
 
     // 登录
@@ -85,5 +93,27 @@ public class LibraryService {
         borrowRecordService.setStatus(BorrowRecordService.BorrowStatus.RETURNED);
 
         return new BorrowRecord(borrowRecordService);
+    }
+
+    // 搜索并获取书籍的方法
+    public SearchResult<Book> searchBooks(BookSearchCriteria searchCriteria, BookSortCriteria sortCriteria,
+            int page, int pageSize) {
+        int totalBooks = bookDao.getTotalBooks(searchCriteria);
+        List<String> bookIds = bookDao.findBooksByPage(searchCriteria, sortCriteria, page, pageSize);
+        List<Book> books = new ArrayList<>();
+
+        for (String bookId : bookIds) {
+            Book book = new Book(bookDao.find(bookId));
+            if (book != null) {
+                books.add(book);
+            }
+        }
+
+        return new SearchResult<Book>(totalBooks, page, pageSize, books);
+    }
+
+    // 获取图书总数的方法
+    public int getTotalBooks(BookSearchCriteria searchCriteria) {
+        return bookDao.getTotalBooks(searchCriteria);
     }
 }
