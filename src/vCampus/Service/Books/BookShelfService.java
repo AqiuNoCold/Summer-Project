@@ -50,7 +50,12 @@ public class BookShelfService {
 
     // 用于首次登录时创建默认书架
     public BookShelfService(String userId) {
-        this.name = "我的书架";
+        this("我的书架", userId);
+    }
+
+    // 用于首次登录时创建指定名称的书架
+    public BookShelfService(String name, String userId) {
+        this.name = (name == null || name.isEmpty()) ? "我的书架" : name;
         this.userId = userId;
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
@@ -140,14 +145,8 @@ public class BookShelfService {
         this.isPublic = bookShelf.getIsPublic();
         this.subscribeCount = bookShelf.getSubscribeCount();
         this.favoriteCount = bookShelf.getFavoriteCount();
-        this.bookIds = new ArrayList<>();
-        for (Book book : bookShelf.getBooks()) {
-            this.bookIds.add(book.getId());
-        }
-        this.reviewIds = new ArrayList<>();
-        for (BookReview review : bookShelf.getReviews()) {
-            this.reviewIds.add(String.valueOf(review.getId()));
-        }
+        this.bookIds = new ArrayList<>(bookShelf.getBookIds());
+        this.reviewIds = new ArrayList<>(bookShelf.getReviewIds());
     }
 
     // Getter和Setter方法

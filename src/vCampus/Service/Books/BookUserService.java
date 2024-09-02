@@ -57,10 +57,14 @@ public class BookUserService extends User {
     // 设置默认书架
     public void setDefaultBookShelf(BookShelfService defaultBookShelf) {
         this.defaultBookShelf = defaultBookShelf;
+        new BookUserDao().update(this);
     }
 
     // 获取当前书架
     public BookShelfService getCurrentBookShelf() {
+        if (currentBookShelf == null) {
+            currentBookShelf = defaultBookShelf;
+        }
         return currentBookShelf;
     }
 
@@ -83,6 +87,7 @@ public class BookUserService extends User {
     public void addBookShelf(BookShelfService bookShelf) {
         if (!bookShelves.contains(bookShelf)) {
             bookShelves.add(bookShelf);
+            new BookUserDao().update(this);
         }
     }
 

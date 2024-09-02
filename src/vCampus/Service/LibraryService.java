@@ -8,6 +8,7 @@ import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookUser;
 import vCampus.Entity.Books.BorrowRecord;
 import vCampus.Service.Books.BookService;
+import vCampus.Service.Books.BookShelfService;
 import vCampus.Service.Books.BookUserService;
 import vCampus.Service.Books.BorrowRecordService;
 import java.time.LocalDate;
@@ -115,5 +116,20 @@ public class LibraryService {
     // 获取图书总数的方法
     public int getTotalBooks(BookSearchCriteria searchCriteria) {
         return bookDao.getTotalBooks(searchCriteria);
+    }
+
+    // 创建新的空书架的方法
+    public BookUser createBookShelf(BookUser bookUser, String shelfName) {
+        // 将 BookUser 对象转换为 BookUserService 对象
+        BookUserService bookUserService = new BookUserService(bookUser);
+
+        // 创建新的 BookShelfService 对象
+        BookShelfService newShelf = new BookShelfService(shelfName, bookUserService.getId());
+
+        // 将新的书架添加到 BookUserService 对象中
+        bookUserService.addBookShelf(newShelf);
+
+        // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
+        return new BookUser(bookUserService);
     }
 }
