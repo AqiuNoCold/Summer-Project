@@ -1,23 +1,24 @@
 package vCampus.Entity;
 
-import java.util.ArrayList;
+// import java.util.ArrayList;
 
 public class User {
     // 属性定义
-    protected String id;       // 表管理项
-    protected String pwd;      // 密码
-    protected Integer age;     // 年龄
-    protected Boolean gender;   // 性别
-    protected String role;     // 角色
-    protected String email;    // 邮箱
-    protected String card;     // 一卡通号、账号
-    protected Float remain;    //账户余额
-    protected Integer password; //支付密码
-    protected Boolean lost;    //账户冻结情况
-    protected ArrayList<String> courses;
+    protected String id; // 表管理项
+    protected String pwd; // 密码
+    protected Integer age; // 年龄
+    protected Boolean gender; // 性别
+    protected String role; // 角色
+    protected String email; // 邮箱
+    protected String card; // 一卡通号、账号
+    protected Boolean lost; // 账户冻结情况
+    // protected ArrayList<String> courses;//删除了courses属性
+
+    protected static User currentUser; // 当前用户，用于验证用户登录
 
     // 构造函数
-    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,Float remain,Integer password,Boolean lost, ArrayList<String> courses) {
+    public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,
+            Boolean lost) {
         setId(id);
         setPwd(pwd);
         setAge(age);
@@ -25,10 +26,22 @@ public class User {
         setRole(role);
         setEmail(email);
         setCard(card);
-        setRemain(remain);
-        setPassword(password);
+        // setRemain(remain);
+        // setPassword(password);
         setLost(lost);
-        setCourses(courses);
+        // setCourses(courses);
+    }
+
+    // 拷贝构造函数
+    public User(User other) {
+        this.id = other.id;
+        this.pwd = other.pwd;
+        this.age = other.age;
+        this.gender = other.gender;
+        this.role = other.role;
+        this.email = other.email;
+        this.card = other.card;
+        this.lost = other.lost;
     }
 
     // id的getter和setter
@@ -102,33 +115,15 @@ public class User {
         return card;
     }
 
-    public ArrayList<String> getCourses() {
-        return courses;
-    }
+    // public ArrayList<String> getCourses() {
+    // return courses;
+    // }
 
     public void setCard(String card) {
         if (card.length() != 9) {
             throw new IllegalArgumentException("一卡通号必须是9个字符");
         }
         this.card = card;
-    }
-
-    // remain的getter和setter
-    public float getRemain() {
-        return remain;
-    }
-
-    public void setRemain(Float remain) {
-        this.remain = remain; // 可以根据需要添加更多验证
-    }
-
-    // password的getter和setter
-    public Integer getPassword() {
-        return password;
-    }
-
-    public void setPassword(Integer password) {
-        this.password = password; // 可以根据需要添加更多验证
     }
 
     // lost的getter和setter
@@ -140,15 +135,23 @@ public class User {
         this.lost = lost; // 可以根据需要添加更多验证
     }
 
-    public void setCourses(ArrayList<String> courses) {
-        this.courses = courses;
+    // public void setCourses(ArrayList<String> courses) {
+    // this.courses = courses;
+    // }
+
+    // public void addCourse(String course) {
+    // if (courses == null) {
+    // courses = new ArrayList<>();
+    // }
+    // courses.add(course);
+    // }
+
+    public static User getCurrentUser() {
+        return currentUser;
     }
 
-    public void addCourse(String course) {
-        if (courses == null) {
-            courses = new ArrayList<>();
-        }
-        courses.add(course);
+    public static void setCurrentUser(User user) {
+        currentUser = user;
     }
 
     // 重写toString方法以便于输出用户信息
@@ -162,12 +165,10 @@ public class User {
                 ", role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", card='" + card + '\'' +
-                ", remain=" + remain +
-                ", password='" + password + '\'' +
+                // ", remain=" + remain +
+                // ", password='" + password + '\'' +
                 ", lost=" + (lost ? "正常" : "冻结") +
-                ", courses=" + courses +
+                // ", courses=" + courses +
                 '}';
     }
 }
-
-
