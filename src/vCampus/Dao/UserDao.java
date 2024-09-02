@@ -123,4 +123,19 @@ public class UserDao implements BaseDao<User> {
         }
         return user;
     }
+
+    public static void main(String[] args) {
+        UserDao dao = new UserDao();
+        User user = new User(
+                "123456789",         // ID
+                "password123",        // 密码
+                20,                   // 年龄
+                true,                 // 性别（true表示男，false表示女）
+                "ST",                 // 角色（ST表示学生）
+                "user@example.com",   // 邮箱
+                "987654321",          // 一卡通号
+                false                 // 账户状态（false表示冻结，true表示正常）
+        );
+        dao.add(user);
+    }
 }

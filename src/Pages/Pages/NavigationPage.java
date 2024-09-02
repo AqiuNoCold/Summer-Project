@@ -7,12 +7,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class NavigationPage extends JFrame {
-    private User user;
-    private Socket socket;
-
     private JButton storeButton;
     private JButton eCardButton;
     private JButton studentRecordButton;
@@ -20,9 +19,6 @@ public class NavigationPage extends JFrame {
     private JButton courseButton;
 
     public NavigationPage() {
-        this.user = MainApp.getCurrentUser();
-        this.socket = MainApp.getSocket();
-
         setTitle("导航页面");
         setSize(800, 600); // 调整窗口大小
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,7 +95,7 @@ public class NavigationPage extends JFrame {
         button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字在图片中心
         button.setVerticalTextPosition(SwingConstants.BOTTOM); // 文字在图片下方
         button.setFont(new Font("微软雅黑", Font.BOLD, 14)); // 设置字体
-        button.setBackground(new Color(100, 149, 237)); // 设置背景颜色
+        button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // 增加按钮内边距
         return button;

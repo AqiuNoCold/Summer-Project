@@ -232,6 +232,7 @@ public class DbCreator {
                 + "owner VARCHAR(9), "
                 + "discount FLOAT CHECK (discount BETWEEN 0 AND 1), "
                 + "time DATE"
+                + "image BLOB"
                 + ")";
 
         executeSQL(createTableSQL, "tblProduct");
@@ -277,7 +278,7 @@ public class DbCreator {
     private static void createTeacherTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTeacher ("
                 + "id VARCHAR(255),"
-                + "course VARCHAR(255),"
+                + "course VARCHAR(255)"
                 + ")";
         executeSQL(createTableSQL, "tbl");
     }
