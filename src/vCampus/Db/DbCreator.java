@@ -32,7 +32,7 @@ public class DbCreator {
                 "tblUser",
                 "tblStu",
                 "tblGrade",
-                "tblBooks",
+                // "tblBooks", 谁敢删我表！
                 "tblBookShelf",
                 "tblBorrowRecord",
                 "tblShopStudent",
