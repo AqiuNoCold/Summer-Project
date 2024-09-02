@@ -20,7 +20,7 @@ public class ECardServerSrv {
         // 请求服务端进行初始化
     }
 
-    public static boolean isLost(ECard testcard) {
+    public static boolean LostSettings(ECard testcard) {
         boolean result = !testcard.getLost();
         if (result) {
             testcard.setLost(true);
@@ -30,15 +30,6 @@ public class ECardServerSrv {
         return result;
     }
 
-    public static boolean notLost(ECard testcard) {
-        boolean result = testcard.getLost();
-        if (result) {
-            testcard.setLost(false);
-            UserDao userDao = new UserDao();
-            userDao.update(testcard);
-        }
-        return result;
-    }
 
     public static void addTransaction(String card, float amount, String reason) {
         TransactionDao transactionDao = new TransactionDao();
