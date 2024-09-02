@@ -8,11 +8,6 @@ import vCampus.Entity.ECard.*;
 import vCampus.Entity.Shop.*;
 import vCampus.Entity.*;
 
-
-
-
-
-
 public class ShopStudent extends ECard {
 
     private List<Product> favorites;
