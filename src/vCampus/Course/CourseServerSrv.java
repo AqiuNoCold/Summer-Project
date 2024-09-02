@@ -315,10 +315,10 @@ public class CourseServerSrv {
     public static void main(String[] args) {
         CourseServerSrv cSS= new CourseServerSrv();
         String[] courseInfo = {
-                "CS101",              // course_id
-                "Introduction to Programming",  // course_name
-                "Dr. John Doe",       // teacher_name
-                "3",                  // time (e.g., duration in hours)
+                "CS144",              // course_id
+                "Network",  // course_name
+                "Dr. Harry",       // teacher_name
+                "1",                  // time (e.g., duration in hours)
                 "9",                  // start_time (e.g., 9 AM)
                 "12",                 // end_time (e.g., 12 PM)
                 "1",             // status
@@ -331,7 +331,7 @@ public class CourseServerSrv {
                 "CS101",              // course_id
                 "Introduction",  // course_name
                 "Dr. Tao",       // teacher_name
-                "3",                  // time (e.g., duration in hours)
+                "2",                  // time (e.g., duration in hours)
                 "9",                  // start_time (e.g., 9 AM)
                 "12",                 // end_time (e.g., 12 PM)
                 "1",             // status
@@ -357,7 +357,7 @@ public class CourseServerSrv {
         cSS.deleteUser(courseInfo3[0]);
         cSS.addUser(courseInfo2);
         cSS.addUser(courseInfo3);
-
+        cSS.addUser(courseInfo);
         //cSS.updateUser(courseInfo2);
         //System.out.println(cSS.searchOneUser("course_ID", courseInfo2[0]));
         //System.out.println(cSS.searchOneUser(courseInfo2[1], "0","0"));

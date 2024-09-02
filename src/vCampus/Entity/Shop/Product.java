@@ -1,5 +1,9 @@
 package vCampus.Entity.Shop;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -12,6 +16,7 @@ public class Product {
     private String owner;
     private float discount;
     private Date time;
+    private byte[] image;
     /*
     可选功能：
     private int into;
@@ -25,6 +30,7 @@ public class Product {
         this.owner = owner;
         this.time = new Date();
         this.discount = 1;
+        this.image = null;
     }
 
     public String getId() {
@@ -48,11 +54,21 @@ public class Product {
     public float getDiscount(){
         return discount;
     }
+    public byte[] getImage(){
+        return image;
+    }
+    public void getPicture(){
+        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("src/vCampus/Shop/Img/"+this.id+".jpg"));) {
+            fileOutputStream.write(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void setId(String id){
         this.id = id;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -71,6 +87,15 @@ public class Product {
     }
     public void setDiscount(float discount){
         this.discount = discount;
+    }
+    public void setNewImage(String imagePath){
+
+        try (FileInputStream fileInputStream = new FileInputStream(new File(imagePath));) {
+            image = new byte[fileInputStream.available()];
+            fileInputStream.read(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
