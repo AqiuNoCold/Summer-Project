@@ -277,7 +277,7 @@ public class DbCreator {
     private static void createTeacherTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTeacher ("
                 + "id VARCHAR(255),"
-                + "course VARCHAR(255),"
+                + "course VARCHAR(255)"
                 + ")";
         executeSQL(createTableSQL, "tbl");
     }

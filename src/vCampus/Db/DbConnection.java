@@ -23,7 +23,7 @@ public final class DbConnection {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            logger.info("数据库成功连接。");
+//            logger.info("数据库成功连接。");
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "连接数据库失败", e);
             throw new RuntimeException("连接数据库失败", e);
