@@ -100,5 +100,15 @@ public class LoginPage extends JFrame {
                 }
             }
         });
+
+        forgotPasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 创建并显示 ForgotPasswordPage
+                ForgotPasswordPage forgotPasswordPage = new ForgotPasswordPage();
+                forgotPasswordPage.setVisible(true);
+                dispose(); // 关闭登录页面
+            }
+        });
     }
 }
