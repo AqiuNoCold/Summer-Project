@@ -23,14 +23,15 @@ public class LoginPage extends JFrame {
     public LoginPage() {
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
-        JPanel panel = new JPanel(null);
-        ImageIcon icon = new ImageIcon("src/imgs/background.png");
 
         setTitle("登录页面");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示窗口
-        setLayout(new GridBagLayout());
+
+        // 创建一个自定义的 JPanel
+        LoginPanel panel = new LoginPanel();
+        panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 210); // 添加间距
 
@@ -41,17 +42,17 @@ public class LoginPage extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        add(titleLabel, gbc);
+        panel.add(titleLabel, gbc);
 
         // 用户名输入框
         gbc.gridy = 1;
         usernameField = createPlaceholderTextField("用户名");
-        add(usernameField, gbc);
+        panel.add(usernameField, gbc);
 
         // 密码输入框
         gbc.gridy = 2;
         passwordField = createPasswordPlaceholderTextField("密码");
-        add(passwordField, gbc);
+        panel.add(passwordField, gbc);
 
         // 登录按钮
         gbc.gridy = 3;
@@ -59,20 +60,23 @@ public class LoginPage extends JFrame {
         loginButton.setContentAreaFilled(false);
         loginButton.setBorderPainted(false);
         loginButton.setFocusPainted(false);
-        add(loginButton, gbc);
+        panel.add(loginButton, gbc);
 
         // 找回密码按钮
         gbc.gridy = 4;
         forgotPasswordButton = new JButton("找回密码");
-        loginButton.setContentAreaFilled(false);
-        loginButton.setBorderPainted(false);
-        loginButton.setFocusPainted(false);
-        add(forgotPasswordButton, gbc);
+        forgotPasswordButton.setContentAreaFilled(false);
+        forgotPasswordButton.setBorderPainted(false);
+        forgotPasswordButton.setFocusPainted(false);
+        panel.add(forgotPasswordButton, gbc);
 
         // 消息标签
         gbc.gridy = 5;
         messageLabel = new JLabel("");
-        add(messageLabel, gbc);
+        panel.add(messageLabel, gbc);
+
+        // 将面板添加到 JFrame
+        add(panel);
 
         // 登录按钮事件
         loginButton.addActionListener(new ActionListener() {
@@ -111,10 +115,6 @@ public class LoginPage extends JFrame {
                 dispose(); // 关闭登录页面
             }
         });
-
-        // 确保组件正确显示
-        revalidate();
-        repaint();
     }
 
     private JTextField createPlaceholderTextField(String placeholder) {
@@ -170,17 +170,26 @@ public class LoginPage extends JFrame {
         return passwordField;
     }
 
-    @Override
-    public void paintComponents(Graphics g) {
-        // 加载并绘制背景图片
-        Image background = Toolkit.getDefaultToolkit().getImage("src/imgs/background.png");
-        g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
-        super.paintComponents(g);
+    // 自定义 JPanel 类
+    private class LoginPanel extends JPanel {
+        private Image backgroundImage;
+
+        public LoginPanel() {
+            // 加载背景图片
+            backgroundImage = Toolkit.getDefaultToolkit().getImage("src/imgs/background.png");
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            // 绘制背景图片
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        paintComponents(g); // 确保背景绘制
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new LoginPage().setVisible(true);
+        });
     }
 }
