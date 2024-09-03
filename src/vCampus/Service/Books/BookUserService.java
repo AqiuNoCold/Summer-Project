@@ -125,4 +125,23 @@ public class BookUserService extends User {
     public Boolean isFirstLogin() {
         return firstLogin;
     }
+
+    // 更新书架信息
+    public void updateBookShelf(BookShelfService updatedShelf) {
+        // 检查是否是默认书架或当前书架
+        if (defaultBookShelf != null && defaultBookShelf.getId().equals(updatedShelf.getId())) {
+            defaultBookShelf = updatedShelf;
+        }
+        if (currentBookShelf != null && currentBookShelf.getId().equals(updatedShelf.getId())) {
+            currentBookShelf = updatedShelf;
+        }
+
+        // 在书架列表中找到对应的书架并更新
+        for (int i = 0; i < bookShelves.size(); i++) {
+            if (bookShelves.get(i).getId().equals(updatedShelf.getId())) {
+                bookShelves.set(i, updatedShelf);
+                break;
+            }
+        }
+    }
 }
