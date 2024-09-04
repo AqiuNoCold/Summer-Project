@@ -2,6 +2,7 @@ package vCampus.Service.Books;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import vCampus.Entity.User;
 import vCampus.Entity.Books.BookShelf;
@@ -21,11 +22,16 @@ public class BookUserService extends User {
         BookUserDao bookUserDao = new BookUserDao();
         BookUserService bookUser = bookUserDao.find(id);
         if (bookUser == null) {
+            // 如果用户不存在，则创建新用户
             this.defaultBookShelf = new BookShelfService(id);
             this.bookShelves = new ArrayList<>();
+            this.bookShelves.add(this.defaultBookShelf); // 将默认书架添加到书架列表中
             // 将新用户添加到数据库
+            bookUser = new BookUserService(id, this.defaultBookShelf,
+                    this.bookShelves);
             bookUserDao.add(bookUser);
             this.firstLogin = true;
+            System.out.println("首次登录，注册图书馆用户");
         }
     }
 
