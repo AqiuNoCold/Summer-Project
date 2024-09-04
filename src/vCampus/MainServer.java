@@ -1,10 +1,13 @@
 package vCampus;
 
 import vCampus.Dao.Criteria.*;
+import vCampus.Entity.ECard.ECard;
 import vCampus.Entity.User;
 import vCampus.Entity.Books.*;
 import vCampus.Service.*;
 import vCampus.User.IUserServerSrv;
+import vCampus.ECard.ECardServerSrv;
+
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -12,6 +15,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static vCampus.ECard.ECardServerSrv.charge;
 
 public class MainServer {
     private static final int PORT = 5101;
@@ -192,9 +197,18 @@ public class MainServer {
 
     private static void EcardPage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
+        ECard eCard;
         if (function != null) {
             switch (function) {
-                case "Course":
+                case "cardIni":
+                    User user = (User) in.readObject();
+                    eCard = ECardServerSrv.cardIni(user);
+                    out.writeObject(eCard);
+                    break;
+                case "Charge":
+                    eCard = (ECard) in.readObject();
+                    float amount = (float) in.readObject();
+                    out.writeObject(ECardServerSrv.charge(eCard, amount));
             }
         } else {
             System.out.println("Unknown function: " + function);

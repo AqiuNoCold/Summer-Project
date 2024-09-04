@@ -21,15 +21,13 @@ public class ECardServerSrv {
     }
 
     public static boolean LostSettings(ECard testcard) {
-        boolean result = !testcard.getLost();
-        if (result) {
-            testcard.setLost(true);
-            UserDao userDao = new UserDao();
-            userDao.update(testcard);
-        }
+        boolean result = testcard.getLost();
+        if (result)
+            testcard.setLost(false);
+        else testcard.setLost(true);
         return result;
+//        返回true：解挂成功；返回false：挂失成功；
     }
-
 
     public static void addTransaction(String card, float amount, String reason) {
         TransactionDao transactionDao = new TransactionDao();
@@ -39,7 +37,7 @@ public class ECardServerSrv {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedNow = now.format(formatter);
         String newHistory = formattedNow + "," + amount + "," + reason + ";";
-         transactionDao.update(oldHistory+newHistory,card);
+        transactionDao.update(oldHistory+newHistory,card);
     }
 
     public static float showStatus(ECard testcard) {
@@ -47,16 +45,13 @@ public class ECardServerSrv {
         return cardDao.find(testcard.getCard()).getRemain();
     }
 
-    public static String getTransactionHistory(ECard testcard) {
+    public static String getTransactionHistory(String testcard) {
         TransactionDao transactionDao = new TransactionDao();
-        String transaction = transactionDao.find(testcard.getCard());
+        String transaction = transactionDao.find(testcard);
         // 连接数据库获取流水，传递给客户端
         return transaction;
     }
 
-    public static boolean comparePassword(ECard testcard, Integer passwordEntered) {
-        return Objects.equals(testcard.getPassword(), passwordEntered);
-    }
 
     public static boolean newPassword(ECard testcard, Integer newPassword) {
         testcard.setPassword(newPassword);
@@ -81,6 +76,12 @@ public class ECardServerSrv {
 
         addTransaction(cardInfo.getCard(), amount, reason);
         System.out.println("Successfully payed!");
+        return true;
+    }
+
+    public static boolean charge(ECard testcard, float amount) {
+        addTransaction(testcard.getCard(), amount, "charge");
+        testcard.setRemain(testcard.getRemain() + amount);
         return true;
     }
 }
