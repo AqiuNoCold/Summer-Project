@@ -150,7 +150,7 @@ public class LibraryService {
     }
 
     // 通过图书ID添加图书到书架的方法
-    public void addBookToShelfById(BookUser bookUser, Long shelfId, String bookId) {
+    public BookUser addBookToShelfById(BookUser bookUser, Long shelfId, String bookId) {
         BookUserService bookUserService = new BookUserService(bookUser);
         BookShelfService bookShelfService = new BookShelfService(shelfId);
 
@@ -161,10 +161,16 @@ public class LibraryService {
 
         // 添加图书到书架
         bookShelfService.addBookById(bookId);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
     }
 
     // 通过图书对象添加图书到书架的方法
-    public void addBookToShelfByObject(BookUser bookUser, Long shelfId, Book book) {
+    public BookUser addBookToShelfByObject(BookUser bookUser, Long shelfId, Book book) {
         BookUserService bookUserService = new BookUserService(bookUser);
         BookShelfService bookShelfService = new BookShelfService(shelfId);
         BookService bookService = new BookService(book);
@@ -175,6 +181,32 @@ public class LibraryService {
         }
 
         // 添加图书到书架
-        bookShelfService.addBook(bookService);
+        bookShelfService.addBookByObject(bookService);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
+    }
+
+    // 通过图书ID从书架中删除图书的方法
+    public BookUser removeBookFromShelfById(BookUser bookUser, Long shelfId, String bookId) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 从书架中删除图书
+        bookShelfService.removeBookById(bookId);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
     }
 }

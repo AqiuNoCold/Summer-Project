@@ -134,6 +134,8 @@ public class BookShelfService {
             this.subscribeCount = bookShelf.getSubscribeCount();
             this.favoriteCount = bookShelf.getFavoriteCount();
             this.isLoaded = false;
+            this.books = new ArrayList<>();
+            this.reviews = new ArrayList<>();
         } else {
             throw new IllegalArgumentException("BookShelf with id " + id + " not found.");
         }
@@ -146,20 +148,26 @@ public class BookShelfService {
         this.createTime = bookShelf.getCreateTime();
         this.updateTime = bookShelf.getUpdateTime();
         this.userId = bookShelf.getUserId();
-        this.books = new ArrayList<>();
-        for (Book book : bookShelf.getBooks()) {
-            this.books.add(new BookService(book));
-        }
-        this.reviews = new ArrayList<>();
-        for (BookReview review : bookShelf.getReviews()) {
-            this.reviews.add(new BookReviewService(review));
-        }
         this.isPublic = bookShelf.getIsPublic();
         this.subscribeCount = bookShelf.getSubscribeCount();
         this.favoriteCount = bookShelf.getFavoriteCount();
-        this.bookIds = new ArrayList<>(bookShelf.getBookIds());
-        this.reviewIds = new ArrayList<>(bookShelf.getReviewIds());
         this.isLoaded = bookShelf.getIsLoaded();
+
+        if (this.isLoaded) {
+            this.books = new ArrayList<>();
+            for (Book book : bookShelf.getBooks()) {
+                this.books.add(new BookService(book));
+            }
+            this.reviews = new ArrayList<>();
+            for (BookReview review : bookShelf.getReviews()) {
+                this.reviews.add(new BookReviewService(review));
+            }
+        } else {
+            this.books = new ArrayList<>();
+            this.reviews = new ArrayList<>();
+            this.bookIds = new ArrayList<>(bookShelf.getBookIds());
+            this.reviewIds = new ArrayList<>(bookShelf.getReviewIds());
+        }
     }
 
     // 加载图书和书评
@@ -329,45 +337,85 @@ public class BookShelfService {
     }
 
     // 添加图书
-    public void addBook(BookService book) {
+    public boolean addBookByObject(BookService book) {
+        boolean result = false;
         if (isLoaded) {
             if (!books.contains(book)) {
                 books.add(book);
+                result = true;
             }
         } else {
             if (!bookIds.contains(book.getId())) {
                 bookIds.add(book.getId());
+                result = true;
             }
         }
+        if (result) {
+            new BookShelfDao().update(this);
+        }
+        return result;
     }
 
     // 添加图书ID的方法
-    public void addBookById(String bookId) {
+    public boolean addBookById(String bookId) {
+        boolean result = false;
         if (!isLoaded) {
             if (!bookIds.contains(bookId)) {
                 bookIds.add(bookId);
+                result = true;
             }
         } else {
             BookDao bookDao = new BookDao();
             BookService book = bookDao.find(bookId);
             if (book != null && !books.contains(book)) {
                 books.add(book);
+                result = true;
             }
         }
+        if (result) {
+            new BookShelfDao().update(this);
+        }
+        return result;
     }
 
     // 移除图书
-    public boolean removeBook(BookService book) {
-        if (books.remove(book)) {
-            return true;
+    public boolean removeBookByObject(BookService book) {
+        boolean result;
+        if (isLoaded) {
+            result = books.remove(book);
+        } else {
+            result = bookIds.remove(book.getId());
         }
-        return false;
+        if (result) {
+            new BookShelfDao().update(this);
+        }
+        return result;
+    }
+
+    // 移除图书ID的方法
+    public boolean removeBookById(String bookId) {
+        boolean result = false;
+        if (!isLoaded) {
+            result = bookIds.remove(bookId);
+        } else {
+            result = books.removeIf(book -> book.getId().equals(bookId));
+        }
+        if (result) {
+            new BookShelfDao().update(this);
+        }
+        return result;
     }
 
     // 添加书评
-    public void addReview(BookReviewService review) {
+    public boolean addReview(BookReviewService review) {
+        boolean result = false;
         if (!reviews.contains(review)) {
             reviews.add(review);
+            result = true;
         }
+        if (result) {
+            new BookShelfDao().update(this);
+        }
+        return result;
     }
 }

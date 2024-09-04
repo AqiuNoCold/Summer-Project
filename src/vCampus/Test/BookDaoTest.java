@@ -9,7 +9,7 @@ import vCampus.Dao.Criteria.BookSortCriteria;
 import vCampus.Dao.Criteria.SortCriteria.SortOrder;
 import vCampus.Service.Books.BookService;
 
-public class TestBookDao {
+public class BookDaoTest {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         BookDao bookDao = new BookDao();

@@ -43,6 +43,9 @@ public class BookShelf implements Serializable {
 
     // 通过BookShelfService对象的get方法建立的构造函数
     public BookShelf(BookShelfService service, boolean lazyLoad) {
+        if (service == null) {
+            throw new IllegalArgumentException("BookShelfService cannot be null");
+        }
         this.id = service.getId();
         this.name = service.getName();
         this.createTime = service.getCreateTime();
@@ -173,5 +176,24 @@ public class BookShelf implements Serializable {
 
     public void setIsLoaded(Boolean isLoaded) {
         this.isLoaded = isLoaded;
+    }
+
+    @Override
+    public String toString() {
+        return "BookShelf{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", userId='" + userId + '\'' +
+                ", books=" + books +
+                ", reviews=" + reviews +
+                ", bookIds=" + bookIds +
+                ", reviewIds=" + reviewIds +
+                ", isPublic=" + isPublic +
+                ", subscribeCount=" + subscribeCount +
+                ", favoriteCount=" + favoriteCount +
+                ", isLoaded=" + isLoaded +
+                '}';
     }
 }

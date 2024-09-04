@@ -2,6 +2,7 @@ package vCampus.Service.Books;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import vCampus.Entity.User;
 import vCampus.Entity.Books.BookShelf;
@@ -13,7 +14,7 @@ public class BookUserService extends User {
     private BookShelfService defaultBookShelf; // 默认书架
     private BookShelfService currentBookShelf; // 当前书架
     private List<BookShelfService> bookShelves; // 所有书架
-    private Boolean firstLogin = false; // 首次登录标志
+    private Boolean firstLogin; // 首次登录标志
 
     // 构造函数，只接受id
     public BookUserService(String id) {
@@ -21,15 +22,29 @@ public class BookUserService extends User {
         BookUserDao bookUserDao = new BookUserDao();
         BookUserService bookUser = bookUserDao.find(id);
         if (bookUser == null) {
+            // 如果用户不存在，则创建新用户
             this.defaultBookShelf = new BookShelfService(id);
             this.bookShelves = new ArrayList<>();
+            this.bookShelves.add(this.defaultBookShelf); // 将默认书架添加到书架列表中
             // 将新用户添加到数据库
+            bookUser = new BookUserService(id, this.defaultBookShelf,
+                    this.bookShelves);
             bookUserDao.add(bookUser);
             this.firstLogin = true;
+            System.out.println("首次登录，注册图书馆用户");
+        } else {
+            // 如果用户存在，则初始化 BookUserService 实例
+            this.defaultBookShelf = new BookShelfService(bookUser.getDefaultBookShelf().getId());
+            this.currentBookShelf = new BookShelfService(bookUser.getCurrentBookShelf().getId());
+            this.bookShelves = new ArrayList<>();
+            for (BookShelfService shelf : bookUser.getBookShelves()) {
+                this.bookShelves.add(new BookShelfService(shelf.getId()));
+            }
+            this.firstLogin = false; // 默认设置为 false
         }
     }
 
-    // 构造函数，接受id，borrowRecordIds，defaultBookShelf，和shelfIds
+    // 构造函数，接受id，borrowRecordIds，defaultBookShelf，和bookShelves
     public BookUserService(String id, BookShelfService defaultBookShelf, List<BookShelfService> bookShelves) {
         super(new UserDao().find(id));
         this.bookShelves = new ArrayList<>();
@@ -124,5 +139,24 @@ public class BookUserService extends User {
     // 获取首次登录标志
     public Boolean isFirstLogin() {
         return firstLogin;
+    }
+
+    // 更新书架信息
+    public void updateBookShelf(BookShelfService updatedShelf) {
+        // 检查是否是默认书架或当前书架
+        if (defaultBookShelf != null && defaultBookShelf.getId().equals(updatedShelf.getId())) {
+            defaultBookShelf = updatedShelf;
+        }
+        if (currentBookShelf != null && currentBookShelf.getId().equals(updatedShelf.getId())) {
+            currentBookShelf = updatedShelf;
+        }
+
+        // 在书架列表中找到对应的书架并更新
+        for (int i = 0; i < bookShelves.size(); i++) {
+            if (bookShelves.get(i).getId().equals(updatedShelf.getId())) {
+                bookShelves.set(i, updatedShelf);
+                break;
+            }
+        }
     }
 }
