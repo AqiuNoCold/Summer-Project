@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 
 public class StudentMainPage extends JFrame {
     private JButton DNDXButton;
-    private JButton infoButton;
+    private JButton personButton;
     private JButton infoAllButton;
     private JButton gradeButton;
     private JButton libraryButton;
@@ -45,7 +45,7 @@ public class StudentMainPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        infoButton = createImageButton("一卡通号："+userTest.getCard(),  "src/imgs/man.png",90,110,16,new Color(76, 138, 77));
+        personButton = createImageButton("一卡通号："+userTest.getCard(),  "src/imgs/man.png",90,110,16,new Color(76, 138, 77));
         infoAllButton = createImageButton("个人信息查询", "src/imgs/info.png",80,80,16,new Color(0, 0, 0));
         DNDXButton = createImageButton("学生基本信息", "src/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
         gradeButton = createImageButton("个人成绩查询", "src/imgs/grade.png",80,80,16,new Color(0, 0, 0));
@@ -53,7 +53,7 @@ public class StudentMainPage extends JFrame {
         add(backButton, BorderLayout.SOUTH);
         // 添加按钮到主面板
         mainPanel.add(DNDXButton,gbc);
-        mainPanel.add(infoButton,gbc);
+        mainPanel.add(personButton,gbc);
         mainPanel.add(infoAllButton,gbc);
         mainPanel.add(gradeButton);
 //        mainPanel.add(backButton);
@@ -66,38 +66,6 @@ public class StudentMainPage extends JFrame {
                 navigateBack();
             }
         });
-
-//        // 按钮点击事件
-//        storeButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new StorePage());
-//            }
-//        });
-//        eCardButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new ECardPage());
-//            }
-//        });
-//        studentRecordButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new StudentMainPage());
-//            }
-//        });
-//        libraryButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new LibraryPage());
-//            }
-//        });
-//        courseButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new CoursePage());
-//            }
-//        });
     }
 
     // 创建带图片和文字的按钮
