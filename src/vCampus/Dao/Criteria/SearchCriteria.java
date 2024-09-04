@@ -21,4 +21,22 @@ public abstract class SearchCriteria {
     }
 
     public abstract boolean isValidCriteria(String key);
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        boolean firstCondition = true;
+        for (Map.Entry<String, String> entry : criteria.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            String operator = operators.get(key);
+            if (!firstCondition) {
+                sb.append(" ").append(operator).append(" ");
+            } else {
+                firstCondition = false;
+            }
+            sb.append(key).append(" = '").append(value).append("'");
+        }
+        return sb.toString();
+    }
 }
