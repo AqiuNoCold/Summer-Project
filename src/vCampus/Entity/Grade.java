@@ -30,6 +30,10 @@ public class Grade implements Serializable {
         this.term = term;
     }
 
+    public Grade() {
+
+    }
+
     // Getter和Setter方法
     public String getId() {
         return id;
