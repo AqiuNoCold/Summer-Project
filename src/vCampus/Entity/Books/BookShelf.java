@@ -17,9 +17,12 @@ public class BookShelf implements Serializable {
     private String userId; // 用户ID
     private List<Book> books; // 书架上的图书
     private List<BookReview> reviews; // 书架上的书评
+    private List<String> bookIds; // 图书ID列表
+    private List<String> reviewIds; // 书评ID列表
     private Boolean isPublic; // 书架是否公开
     private Integer subscribeCount; // 订阅数
     private Integer favoriteCount; // 收藏数
+    private Boolean isLoaded; // 标志位，说明是否加载完成
 
     // 拷贝构造函数
     public BookShelf(BookShelf other) {
@@ -30,29 +33,44 @@ public class BookShelf implements Serializable {
         this.userId = other.userId;
         this.books = new ArrayList<>(other.books);
         this.reviews = new ArrayList<>(other.reviews);
+        this.bookIds = new ArrayList<>(other.bookIds);
+        this.reviewIds = new ArrayList<>(other.reviewIds);
         this.isPublic = other.isPublic;
         this.subscribeCount = other.subscribeCount;
         this.favoriteCount = other.favoriteCount;
+        this.isLoaded = other.isLoaded;
     }
 
     // 通过BookShelfService对象的get方法建立的构造函数
-    public BookShelf(BookShelfService service) {
+    public BookShelf(BookShelfService service, boolean lazyLoad) {
+        if (service == null) {
+            throw new IllegalArgumentException("BookShelfService cannot be null");
+        }
         this.id = service.getId();
         this.name = service.getName();
         this.createTime = service.getCreateTime();
         this.updateTime = service.getUpdateTime();
         this.userId = service.getUserId();
-        this.books = new ArrayList<>();
-        for (BookService bookService : service.getBooks()) {
-            this.books.add(new Book(bookService));
-        }
-        this.reviews = new ArrayList<>();
-        for (BookReviewService reviewService : service.getReviews()) {
-            this.reviews.add(new BookReview(reviewService));
-        }
         this.isPublic = service.getIsPublic();
         this.subscribeCount = service.getSubscribeCount();
         this.favoriteCount = service.getFavoriteCount();
+        this.isLoaded = !lazyLoad;
+        this.bookIds = new ArrayList<>(service.getBookIds());
+        this.reviewIds = new ArrayList<>(service.getReviewIds());
+
+        if (!lazyLoad) {
+            this.books = new ArrayList<>();
+            for (BookService bookService : service.getBooks()) {
+                this.books.add(new Book(bookService));
+            }
+            this.reviews = new ArrayList<>();
+            for (BookReviewService reviewService : service.getReviews()) {
+                this.reviews.add(new BookReview(reviewService));
+            }
+        } else {
+            this.books = new ArrayList<>();
+            this.reviews = new ArrayList<>();
+        }
     }
 
     // Getter和Setter方法
@@ -112,6 +130,22 @@ public class BookShelf implements Serializable {
         this.reviews = reviews;
     }
 
+    public List<String> getBookIds() {
+        return bookIds;
+    }
+
+    public void setBookIds(List<String> bookIds) {
+        this.bookIds = bookIds;
+    }
+
+    public List<String> getReviewIds() {
+        return reviewIds;
+    }
+
+    public void setReviewIds(List<String> reviewIds) {
+        this.reviewIds = reviewIds;
+    }
+
     public Boolean getIsPublic() {
         return isPublic;
     }
@@ -134,5 +168,32 @@ public class BookShelf implements Serializable {
 
     public void setFavoriteCount(Integer favoriteCount) {
         this.favoriteCount = favoriteCount;
+    }
+
+    public Boolean getIsLoaded() {
+        return isLoaded;
+    }
+
+    public void setIsLoaded(Boolean isLoaded) {
+        this.isLoaded = isLoaded;
+    }
+
+    @Override
+    public String toString() {
+        return "BookShelf{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", userId='" + userId + '\'' +
+                ", books=" + books +
+                ", reviews=" + reviews +
+                ", bookIds=" + bookIds +
+                ", reviewIds=" + reviewIds +
+                ", isPublic=" + isPublic +
+                ", subscribeCount=" + subscribeCount +
+                ", favoriteCount=" + favoriteCount +
+                ", isLoaded=" + isLoaded +
+                '}';
     }
 }

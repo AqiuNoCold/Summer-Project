@@ -6,8 +6,10 @@ import vCampus.Dao.Criteria.BookSearchCriteria;
 import vCampus.Dao.Criteria.BookSortCriteria;
 import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookUser;
+import vCampus.Entity.Books.BookShelf;
 import vCampus.Entity.Books.BorrowRecord;
 import vCampus.Service.Books.BookService;
+import vCampus.Service.Books.BookShelfService;
 import vCampus.Service.Books.BookUserService;
 import vCampus.Service.Books.BorrowRecordService;
 import java.time.LocalDate;
@@ -115,5 +117,96 @@ public class LibraryService {
     // 获取图书总数的方法
     public int getTotalBooks(BookSearchCriteria searchCriteria) {
         return bookDao.getTotalBooks(searchCriteria);
+    }
+
+    // 创建新的空书架的方法
+    public BookUser createBookShelf(BookUser bookUser, String shelfName) {
+        // 将 BookUser 对象转换为 BookUserService 对象
+        BookUserService bookUserService = new BookUserService(bookUser);
+
+        // 创建新的 BookShelfService 对象
+        BookShelfService newShelf = new BookShelfService(shelfName, bookUserService.getId());
+
+        // 将新的书架添加到 BookUserService 对象中
+        bookUserService.addBookShelf(newShelf);
+
+        // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
+        return new BookUser(bookUserService);
+    }
+
+    // 设置当前书架的方法
+    public BookUser setCurrentBookShelf(BookUser bookUser, BookShelf bookShelf) {
+        // 将 BookUser 对象转换为 BookUserService 对象
+        BookUserService bookUserService = new BookUserService(bookUser);
+
+        // 将 BookShelf 对象转换为 BookShelfService 对象
+        BookShelfService bookShelfService = new BookShelfService(bookShelf);
+
+        // 设置当前书架
+        bookUserService.setCurrentBookShelf(bookShelfService);
+
+        // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
+        return new BookUser(bookUserService);
+    }
+
+    // 通过图书ID添加图书到书架的方法
+    public BookUser addBookToShelfById(BookUser bookUser, Long shelfId, String bookId) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 添加图书到书架
+        bookShelfService.addBookById(bookId);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
+    }
+
+    // 通过图书对象添加图书到书架的方法
+    public BookUser addBookToShelfByObject(BookUser bookUser, Long shelfId, Book book) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+        BookService bookService = new BookService(book);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 添加图书到书架
+        bookShelfService.addBookByObject(bookService);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
+    }
+
+    // 通过图书ID从书架中删除图书的方法
+    public BookUser removeBookFromShelfById(BookUser bookUser, Long shelfId, String bookId) {
+        BookUserService bookUserService = new BookUserService(bookUser);
+        BookShelfService bookShelfService = new BookShelfService(shelfId);
+
+        // 检查书架是否属于该用户
+        if (!bookShelfService.getUserId().equals(bookUserService.getId())) {
+            throw new IllegalArgumentException("书架不属于该用户");
+        }
+
+        // 从书架中删除图书
+        bookShelfService.removeBookById(bookId);
+
+        // 更新 BookUser 中对应书架的信息
+        bookUserService.updateBookShelf(bookShelfService);
+
+        // 返回更新后的 BookUser 对象
+        return new BookUser(bookUserService);
     }
 }

@@ -1,6 +1,8 @@
 package vCampus.Entity.ECard;
 
-public class ECardDTO {
+import java.io.Serializable;
+
+public class ECardDTO implements Serializable {
     private Float remain;    //账户余额
     private Integer password; //支付密码
     private String card;

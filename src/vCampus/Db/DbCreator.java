@@ -157,7 +157,8 @@ public class DbCreator {
                 + "review_ids TEXT, "
                 + "is_public BOOLEAN, "
                 + "subscribe_count INT, "
-                + "favorite_count INT "
+                + "favorite_count INT, "
+                + "is_deleted BOOLEAN DEFAULT FALSE " // 添加 is_deleted 字段
                 + ")";
 
         executeSQL(createTableSQL, "tblBookShelf");
@@ -231,7 +232,7 @@ public class DbCreator {
                 + "numbers INT CHECK (numbers >= 0), "
                 + "owner VARCHAR(9), "
                 + "discount FLOAT CHECK (discount BETWEEN 0 AND 1), "
-                + "time DATE"
+                + "time DATE,"
                 + "image BLOB"
                 + ")";
 
