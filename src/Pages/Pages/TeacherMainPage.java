@@ -69,37 +69,7 @@ public class TeacherMainPage extends JFrame {
                 navigateBack();
             }
         });
-//        // 按钮点击事件
-//        storeButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new StorePage());
-//            }
-//        });
-//        eCardButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new ECardPage());
-//            }
-//        });
-//        studentRecordButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new StudentMainPage());
-//            }
-//        });
-//        libraryButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new LibraryPage());
-//            }
-//        });
-//        courseButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                openPage(new CoursePage());
-//            }
-//        });
+
     }
 
     // 创建带图片和文字的按钮
