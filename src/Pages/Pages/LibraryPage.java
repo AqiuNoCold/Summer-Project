@@ -9,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -56,6 +58,14 @@ public class LibraryPage extends JFrame {
         bookshelvesButton.addActionListener(e -> switchPage("bookshelves"));
         exploreButton.addActionListener(e -> switchPage("explore"));
         profileButton.addActionListener(e -> switchPage("profile"));
+
+        // 添加窗口关闭事件监听器
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                navigateBack();
+            }
+        });
     }
 
     private void login() {
