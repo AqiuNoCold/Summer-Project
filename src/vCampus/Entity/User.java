@@ -16,7 +16,7 @@ public class User implements Serializable {
     protected Boolean lost; // 账户冻结情况
     // protected ArrayList<String> courses;//删除了courses属性
 
-    //protected static User currentUser; // 当前用户，用于验证用户登录
+    // protected static User currentUser; // 当前用户，用于验证用户登录
 
     // 构造函数
     public User(String id, String pwd, Integer age, Boolean gender, String role, String email, String card,
@@ -148,13 +148,13 @@ public class User implements Serializable {
     // courses.add(course);
     // }
 
-//    public static User getCurrentUser() {
-//        return currentUser;
-//    }
-//
-//    public static void setCurrentUser(User user) {
-//        currentUser = user;
-//    }
+    // public static User getCurrentUser() {
+    // return currentUser;
+    // }
+    //
+    // public static void setCurrentUser(User user) {
+    // currentUser = user;
+    // }
 
     // 重写toString方法以便于输出用户信息
     @Override
@@ -169,7 +169,7 @@ public class User implements Serializable {
                 ", card='" + card + '\'' +
                 // ", remain=" + remain +
                 // ", password='" + password + '\'' +
-                ", lost=" + (lost ? "正常" : "冻结") +
+                ", lost=" + (lost ? "冻结" : "正常") +
                 // ", courses=" + courses +
                 '}';
     }
