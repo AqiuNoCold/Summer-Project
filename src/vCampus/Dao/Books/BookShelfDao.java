@@ -24,7 +24,7 @@ public class BookShelfDao implements BaseDao<BookShelfService> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblBookShelf (name, create_time, update_time, user_id, book_ids, review_ids, is_public, subscribe_count, favorite_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblBookShelf (name, create_time, update_time, user_id, book_ids, review_ids, is_public, subscribe_count, favorite_count, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, bookShelf.getName());
             pstmt.setTimestamp(2, Timestamp.valueOf(bookShelf.getCreateTime()));
@@ -35,6 +35,7 @@ public class BookShelfDao implements BaseDao<BookShelfService> {
             pstmt.setBoolean(7, bookShelf.getIsPublic());
             pstmt.setInt(8, bookShelf.getSubscribeCount());
             pstmt.setInt(9, bookShelf.getFavoriteCount());
+            pstmt.setBoolean(10, false); // 设置 is_deleted 字段为 false
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -50,6 +51,17 @@ public class BookShelfDao implements BaseDao<BookShelfService> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
+
+            // 检查书架是否被删除
+            String checkSql = "SELECT is_deleted FROM tblBookShelf WHERE id = ?";
+            pstmt = conn.prepareStatement(checkSql);
+            pstmt.setLong(1, bookShelf.getId());
+            rs = pstmt.executeQuery();
+            if (rs.next() && rs.getBoolean("is_deleted")) {
+                throw new IllegalArgumentException("Cannot update a deleted bookshelf.");
+            }
+
+            // 更新书架信息
             String sql = "UPDATE tblBookShelf SET name = ?, create_time = ?, update_time = ?, user_id = ?, book_ids = ?, review_ids = ?, is_public = ?, subscribe_count = ?, favorite_count = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, bookShelf.getName());

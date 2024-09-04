@@ -74,4 +74,13 @@ public class BookUser extends User {
     public static BookUser getCurrentUser() {
         return currentUser;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "\n" +
+                "BookUser{" +
+                "isFirstLogin=" + firstLogin +
+                ", currentBookShelf=" + currentBookShelf +
+                '}';
+    }
 }

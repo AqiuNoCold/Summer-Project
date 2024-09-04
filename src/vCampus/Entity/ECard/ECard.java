@@ -4,7 +4,9 @@ import vCampus.Dao.ECardDao;
 // import vCampus.Dao.TransactionDao;
 import vCampus.Entity.User;
 
-public class ECard extends User {
+import java.io.Serializable;
+
+public class ECard extends User implements Serializable {
     protected Float remain; // 账户余额
     protected Integer password; // 支付密码
     // protected Boolean lost; //账户冻结情况
