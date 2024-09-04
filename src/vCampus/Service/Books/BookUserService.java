@@ -29,7 +29,7 @@ public class BookUserService extends User {
         }
     }
 
-    // 构造函数，接受id，borrowRecordIds，defaultBookShelf，和shelfIds
+    // 构造函数，接受id，borrowRecordIds，defaultBookShelf，和bookShelves
     public BookUserService(String id, BookShelfService defaultBookShelf, List<BookShelfService> bookShelves) {
         super(new UserDao().find(id));
         this.bookShelves = new ArrayList<>();

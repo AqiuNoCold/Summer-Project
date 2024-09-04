@@ -174,4 +174,23 @@ public class BookShelf implements Serializable {
     public void setIsLoaded(Boolean isLoaded) {
         this.isLoaded = isLoaded;
     }
+
+    @Override
+    public String toString() {
+        return "BookShelf{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", userId='" + userId + '\'' +
+                ", books=" + books +
+                ", reviews=" + reviews +
+                ", bookIds=" + bookIds +
+                ", reviewIds=" + reviewIds +
+                ", isPublic=" + isPublic +
+                ", subscribeCount=" + subscribeCount +
+                ", favoriteCount=" + favoriteCount +
+                ", isLoaded=" + isLoaded +
+                '}';
+    }
 }
