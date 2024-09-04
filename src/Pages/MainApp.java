@@ -5,6 +5,7 @@ import Pages.Pages.NavigationPage;
 import vCampus.Entity.User;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -27,6 +28,7 @@ public class MainApp {
                 new NavigationPage().setVisible(true);
             }
         });
+        Runtime.getRuntime().addShutdownHook(new Thread(MainApp::close_source));
     }
 
     private static void initializeSocket() {
@@ -40,6 +42,15 @@ public class MainApp {
         }
     }
 
+    public static void close_source() {
+        try {
+            out.writeObject("exit");
+            out.flush();
+            System.out.println("exit");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     // Getter and Setter for currentUser and socket
     public static User getCurrentUser() {
         return currentUser;

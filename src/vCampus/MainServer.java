@@ -31,7 +31,13 @@ public class MainServer {
                     continue;
                 }
 
-                Thread clientThread = new Thread(() -> handleClient(clientSocket));
+                Thread clientThread = new Thread(() -> {
+                    try {
+                        handleClient(clientSocket);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
                 socketMap.put(clientSocket, clientThread);
                 clientThread.start();
 
@@ -43,11 +49,17 @@ public class MainServer {
         }
     }
 
-    private static void handleClient(Socket clientSocket) {
+    private static void handleClient(Socket clientSocket) throws IOException {
         try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
                 ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
             while (true) {
                 String model = (String) in.readObject();
+                if (model.equals("exit")) {
+                    in.close();
+                    out.flush();
+                    out.close();
+                    break;
+                }
                 String function = (String) in.readObject();
                 switch (model) {
                     case "1":
@@ -75,6 +87,7 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
+            clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
     }
@@ -158,20 +171,30 @@ public class MainServer {
     private static void LoginPage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
         if (function != null) {
+            String userId = null;
             switch (function) {
                 case "Login":
-                    String username = (String) in.readObject();
+                    userId = (String) in.readObject();
                     String password = (String) in.readObject();
-                    System.out.println("Logged in: " + username + " " + password);
-                    User user = IUserServerSrv.login(username, password);
+                    User user = IUserServerSrv.login(userId, password);
                     out.writeObject(user);
                     out.flush();
                     break;
+
                 case "Forget":
-                    String userId = (String) in.readObject();
+                    userId = (String) in.readObject();
                     String email = (String) in.readObject();
                     User finduser = IUserServerSrv.forgetPassword(userId, email);
                     out.writeObject(finduser);
+                    out.flush();
+                    break;
+
+                case "Reset":
+                    userId = (String) in.readObject();
+                    String newPassword = (String) in.readObject();
+                    boolean success = IUserServerSrv.resetPassword(userId, newPassword);
+                    out.writeObject(success);
+                    out.flush();
                     break;
             }
         } else {

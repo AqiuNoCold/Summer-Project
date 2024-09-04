@@ -8,6 +8,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class ForgotPasswordPage extends JFrame{
     private JTextField idField;
@@ -16,6 +19,9 @@ public class ForgotPasswordPage extends JFrame{
     private JLabel messageLabel;
 
     public ForgotPasswordPage() {
+        ObjectInputStream in = MainApp.getIn();
+        ObjectOutputStream out = MainApp.getOut();
+
         setTitle("找回密码");
         setSize(800, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -65,12 +71,21 @@ public class ForgotPasswordPage extends JFrame{
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // 这里可以添加找回密码的逻辑
                 String userId = idField.getText();
                 String email = emailField.getText();
+                User finduser = null;
+                try {
+                    out.writeObject("1");
+                    out.writeObject("Forget");
+                    out.writeObject(userId);
+                    out.writeObject(email);
+                    finduser = (User) in.readObject();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
                 // 假设有一个方法来处理找回密码的逻辑
-                User finduser = IUserServerSrv.forgetPassword(userId,email);
                 if (finduser != null) {
+                    MainApp.setCurrentUser(finduser);
                     new ForgotPasswordPage.ResetPasswordPage(userId).setVisible(true);
                     dispose(); // 关闭找回密码页面
                 } else {
@@ -84,11 +99,13 @@ public class ForgotPasswordPage extends JFrame{
     public class ResetPasswordPage extends JFrame {
         private JPasswordField newPasswordField;
         private JPasswordField confirmPasswordField;
+        private JButton backToLoginButton;
         private JButton resetButton;
         private JLabel messageLabel;
         private String userId;
-
         public ResetPasswordPage(String userId) {
+            ObjectInputStream in = MainApp.getIn();
+            ObjectOutputStream out = MainApp.getOut();
             this.userId = userId;
             setTitle("重置密码");
             setSize(800, 400);
@@ -135,22 +152,52 @@ public class ForgotPasswordPage extends JFrame{
             messageLabel = new JLabel("");
             add(messageLabel, gbc);
 
+            gbc.gridy = 4;
+            backToLoginButton = new JButton("返回登录");
+            add(backToLoginButton, gbc);
+
             // 重置按钮事件
             resetButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String newPassword = new String(newPasswordField.getPassword());
                     String confirmPassword = new String(confirmPasswordField.getPassword());
+                    boolean success = false;
+                    if (newPassword.length() > 16 | newPassword.length() < 6) {
+                        messageLabel.setText("密码必须是6到16个字符");
+                        newPasswordField.setText("");
+                        confirmPasswordField.setText("");
+                        return;
+                    }
                     if (newPassword.equals(confirmPassword)) {
-                        boolean success = IUserServerSrv.resetPassword(userId, newPassword);
+                        try {
+                            out.writeObject("1");
+                            out.writeObject("Reset");
+                            out.writeObject(userId);
+                            out.writeObject(newPassword);
+                            success = (boolean) in.readObject();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                         if (success) {
                             messageLabel.setText("密码重置成功。");
+                            newPasswordField.setText("");
+                            confirmPasswordField.setText("");
                         } else {
                             messageLabel.setText("密码重置失败。");
                         }
                     } else {
                         messageLabel.setText("两次输入的密码不一致。");
                     }
+                }
+            });
+
+            backToLoginButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LoginPage loginpage = new LoginPage();
+                    loginpage.setVisible(true);
+                    dispose();
                 }
             });
         }
