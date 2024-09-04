@@ -2,7 +2,6 @@ package Pages.Pages;
 
 import Pages.MainApp;
 import vCampus.Entity.User;
-import vCampus.User.IUserServerSrv;
 
 import javax.swing.*;
 import java.awt.*;
