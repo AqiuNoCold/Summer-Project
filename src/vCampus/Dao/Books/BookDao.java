@@ -173,40 +173,52 @@ public class BookDao implements BaseDao<BookService> {
 
     public int getTotalBooks(BookSearchCriteria searchCriteria) {
         int totalBooks = 0;
+        Connection conn = null;
         try {
-            Connection conn = DbConnection.getConnection();
+            conn = DbConnection.getConnection();
             StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
+            boolean firstCondition = true;
 
-            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (searchCriteria.isValidCriteria(key)) {
-                    switch (key) {
-                        case "isbn":
-                        case "isbn13":
-                            sql.append(" AND ").append(key).append(" = ?");
-                            params.add(value);
-                            break;
-                        case "language":
-                            sql.append(" AND ").append(key).append(" LIKE ?");
-                            params.add(value + "%");
-                            break;
-                        case "title":
-                            sql.append(" AND MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
-                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
-                            break;
-                        case "authors":
-                        case "subjects":
-                        case "synopsis":
-                        case "publisher":
-                            sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
-                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
-                            break;
-                        default:
-                            break;
+            if (!searchCriteria.getCriteria().isEmpty()) {
+                sql.append(" AND (");
+                for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    String operator = searchCriteria.getOperators().get(key);
+                    if (searchCriteria.isValidCriteria(key)) {
+                        if (!firstCondition) {
+                            sql.append(" ").append(operator).append(" ");
+                        } else {
+                            firstCondition = false;
+                        }
+                        switch (key) {
+                            case "isbn":
+                            case "isbn13":
+                                sql.append(key).append(" = ?");
+                                params.add(value);
+                                break;
+                            case "language":
+                                sql.append(key).append(" LIKE ?");
+                                params.add(value + "%");
+                                break;
+                            case "title":
+                                sql.append("MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
+                                params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                                break;
+                            case "authors":
+                            case "subjects":
+                            case "synopsis":
+                            case "publisher":
+                                sql.append("MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
+                                params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
+                sql.append(")");
             }
 
             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
@@ -232,40 +244,52 @@ public class BookDao implements BaseDao<BookService> {
             int page,
             int pageSize) {
         List<String> bookIds = new ArrayList<>();
+        Connection conn = null;
         try {
-            Connection conn = DbConnection.getConnection();
+            conn = DbConnection.getConnection();
             StringBuilder sql = new StringBuilder("SELECT isbn, isbn13 FROM tblBooks WHERE is_deleted = false");
             List<String> params = new ArrayList<>();
+            boolean firstCondition = true;
 
-            for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                if (searchCriteria.isValidCriteria(key)) {
-                    switch (key) {
-                        case "isbn":
-                        case "isbn13":
-                            sql.append(" AND ").append(key).append(" = ?");
-                            params.add(value);
-                            break;
-                        case "language":
-                            sql.append(" AND ").append(key).append(" LIKE ?");
-                            params.add(value + "%");
-                            break;
-                        case "title":
-                            sql.append(" AND MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
-                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
-                            break;
-                        case "authors":
-                        case "subjects":
-                        case "synopsis":
-                        case "publisher":
-                            sql.append(" AND MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
-                            params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
-                            break;
-                        default:
-                            break;
+            if (!searchCriteria.getCriteria().isEmpty()) {
+                sql.append(" AND (");
+                for (Map.Entry<String, String> entry : searchCriteria.getCriteria().entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    String operator = searchCriteria.getOperators().get(key);
+                    if (searchCriteria.isValidCriteria(key)) {
+                        if (!firstCondition) {
+                            sql.append(" ").append(operator).append(" ");
+                        } else {
+                            firstCondition = false;
+                        }
+                        switch (key) {
+                            case "isbn":
+                            case "isbn13":
+                                sql.append(key).append(" = ?");
+                                params.add(value);
+                                break;
+                            case "language":
+                                sql.append(key).append(" LIKE ?");
+                                params.add(value + "%");
+                                break;
+                            case "title":
+                                sql.append("MATCH(title, title_long) AGAINST (? IN BOOLEAN MODE)");
+                                params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                                break;
+                            case "authors":
+                            case "subjects":
+                            case "synopsis":
+                            case "publisher":
+                                sql.append("MATCH(").append(key).append(") AGAINST (? IN BOOLEAN MODE)");
+                                params.add("\"" + value + "\""); // 使用引号包裹搜索关键字
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
+                sql.append(")");
             }
 
             if (!sortCriteria.getCriteria().isEmpty()) {
