@@ -232,7 +232,7 @@ public class DbCreator {
                 + "numbers INT CHECK (numbers >= 0), "
                 + "owner VARCHAR(9), "
                 + "discount FLOAT CHECK (discount BETWEEN 0 AND 1), "
-                + "time DATE, "
+                + "time DATE,"
                 + "image BLOB"
                 + ")";
 
