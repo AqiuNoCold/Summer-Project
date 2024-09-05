@@ -1,6 +1,6 @@
 package Pages.Pages.Library;
 
-import Pages.Utils.SVGImageLoader;
+import Pages.Utils.IconUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +11,8 @@ public class HomePage extends JPanel {
     private JTextField searchField;
     private JPanel advancedSearchPanel;
     private boolean isAdvancedSearchVisible = false;
+    private JButton settingsButton;
+    private JButton searchButton;
 
     public HomePage() {
         setLayout(new BorderLayout());
@@ -20,7 +22,7 @@ public class HomePage extends JPanel {
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // 创建设置按钮
-        JButton settingsButton = createImageButton("/imgs/setting.svg", 800, 600);
+        settingsButton = createImageButton("/imgs/setting.svg", 800, 600);
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -34,7 +36,7 @@ public class HomePage extends JPanel {
         topPanel.add(searchField, BorderLayout.CENTER);
 
         // 创建搜索按钮
-        JButton searchButton = createImageButton("/imgs/search.svg", 800, 600);
+        searchButton = createImageButton("/imgs/search.svg", 800, 600);
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,19 +101,17 @@ public class HomePage extends JPanel {
     }
 
     private JButton createImageButton(String imagePath, int windowWidth, int windowHeight) {
-        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
-        int iconSize = (int) (64 * scaleFactor); // 根据缩放比例调整图标大小
-        ImageIcon icon = SVGImageLoader.loadSVGImage(imagePath, iconSize, iconSize);
-
-        if (icon == null || icon.getIconWidth() == -1) { // 判断图片是否加载成功
-            System.err.println("Error: Could not load image at " + imagePath);
-        }
-
+        ImageIcon icon = IconUtils.loadSVGImage(imagePath, windowWidth, windowHeight);
         JButton button = new JButton(icon);
         button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor))); // 根据缩放比例调整按钮内边距
+        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
+        IconUtils.setButtonBorder(button, scaleFactor); // 设置按钮边框
         return button;
+    }
+
+    public void updateButtonIcons(int windowWidth, int windowHeight) {
+        IconUtils.updateButtonIcon(settingsButton, "/imgs/setting.svg", windowWidth, windowHeight);
+        IconUtils.updateButtonIcon(searchButton, "/imgs/search.svg", windowWidth, windowHeight);
     }
 }

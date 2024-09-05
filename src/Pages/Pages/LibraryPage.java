@@ -107,47 +107,34 @@ public class LibraryPage extends JFrame {
     }
 
     private JButton createImageButton(String text, String imagePath, int windowWidth, int windowHeight) {
-        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
-        int iconSize = (int) (64 * scaleFactor); // 根据缩放比例调整图标大小
-        ImageIcon icon = SVGImageLoader.loadSVGImage(imagePath, iconSize, iconSize);
-
-        if (icon == null || icon.getIconWidth() == -1) { // 判断图片是否加载成功
-            System.err.println("Error: Could not load image at " + imagePath);
-        }
-
+        ImageIcon icon = IconUtils.loadSVGImage(imagePath, windowWidth, windowHeight);
         JButton button = new JButton(text, icon);
         button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字在图片中心
         button.setVerticalTextPosition(SwingConstants.BOTTOM); // 文字在图片下方
-        button.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor))); // 根据缩放比例调整字体大小
         button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor))); // 根据缩放比例调整按钮内边距
+        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
+        button.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor))); // 根据缩放比例调整字体大小
+        IconUtils.setButtonBorder(button, scaleFactor); // 设置按钮边框
         return button;
     }
 
     private void updateButtonIcons(int windowWidth, int windowHeight) {
+        IconUtils.updateButtonIcon(homeButton, "/imgs/home.svg", windowWidth, windowHeight);
+        IconUtils.updateButtonIcon(bookshelvesButton, "/imgs/bookshelves.svg", windowWidth, windowHeight);
+        IconUtils.updateButtonIcon(exploreButton, "/imgs/explore.svg", windowWidth, windowHeight);
+        IconUtils.updateButtonIcon(profileButton, "/imgs/person.svg", windowWidth, windowHeight);
+
         double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
-        int iconSize = (int) (64 * scaleFactor);
-
-        homeButton.setIcon(SVGImageLoader.loadSVGImage("/imgs/home.svg", iconSize, iconSize));
-        bookshelvesButton.setIcon(SVGImageLoader.loadSVGImage("/imgs/bookshelves.svg", iconSize, iconSize));
-        exploreButton.setIcon(SVGImageLoader.loadSVGImage("/imgs/explore.svg", iconSize, iconSize));
-        profileButton.setIcon(SVGImageLoader.loadSVGImage("/imgs/person.svg", iconSize, iconSize));
-
         homeButton.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor)));
         bookshelvesButton.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor)));
         exploreButton.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor)));
         profileButton.setFont(new Font("微软雅黑", Font.BOLD, (int) (14 * scaleFactor)));
 
-        homeButton.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor)));
-        bookshelvesButton.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor)));
-        exploreButton.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor)));
-        profileButton.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
-                (int) (10 * scaleFactor), (int) (10 * scaleFactor)));
+        IconUtils.setButtonBorder(homeButton, scaleFactor);
+        IconUtils.setButtonBorder(bookshelvesButton, scaleFactor);
+        IconUtils.setButtonBorder(exploreButton, scaleFactor);
+        IconUtils.setButtonBorder(profileButton, scaleFactor);
     }
 
     private void navigateBack() {
