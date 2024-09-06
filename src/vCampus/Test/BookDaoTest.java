@@ -9,7 +9,7 @@ import vCampus.Dao.Criteria.BookSortCriteria;
 import vCampus.Dao.Criteria.SortCriteria.SortOrder;
 import vCampus.Service.Books.BookService;
 
-public class TestBookDao {
+public class BookDaoTest {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         BookDao bookDao = new BookDao();
@@ -27,6 +27,7 @@ public class TestBookDao {
             }
 
             BookSearchCriteria searchCriteria = new BookSearchCriteria();
+            boolean firstCondition = true;
             while (true) {
                 System.out.println("请选择搜索字段：");
                 System.out.println("1. isbn");
@@ -78,7 +79,27 @@ public class TestBookDao {
                 System.out.println("请输入搜索内容：");
                 String value = scanner.nextLine();
 
-                searchCriteria.addCriteria(field, value);
+                String operator = "AND"; // 默认第一个条件前面是 AND
+                if (!firstCondition) {
+                    System.out.println("请选择逻辑运算符：");
+                    System.out.println("1. AND");
+                    System.out.println("2. OR");
+                    int operatorChoice = scanner.nextInt();
+                    scanner.nextLine(); // 清除缓冲区
+
+                    if (operatorChoice == 1) {
+                        operator = "AND";
+                    } else if (operatorChoice == 2) {
+                        operator = "OR";
+                    } else {
+                        System.out.println("无效选择，请重新选择。");
+                        continue;
+                    }
+                }
+                searchCriteria.addCriteria(field, value, operator);
+                firstCondition = false;
+
+                System.out.println("当前搜索条件：" + searchCriteria);
 
                 System.out.println("是否添加更多搜索条件？(y/n)");
                 String moreCriteria = scanner.nextLine();
@@ -86,6 +107,8 @@ public class TestBookDao {
                     break;
                 }
             }
+
+            System.out.println("最终搜索条件：" + searchCriteria);
 
             int totalBooks = bookDao.getTotalBooks(searchCriteria);
             System.out.println("符合条件的书籍总数：" + totalBooks);

@@ -1,17 +1,22 @@
 package Pages.Pages;
 
+import Pages.Pages.ECard.ECardPage;
 import vCampus.Entity.User;
+import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class NavigationPage extends JFrame {
+    User user=MainApp.getCurrentUser();
+
     private JButton storeButton;
     private JButton eCardButton;
     private JButton studentRecordButton;
@@ -19,6 +24,7 @@ public class NavigationPage extends JFrame {
     private JButton courseButton;
 
     public NavigationPage() {
+
         setTitle("导航页面");
         setSize(800, 600); // 调整窗口大小
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -56,9 +62,24 @@ public class NavigationPage extends JFrame {
         eCardButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new ECardPage());
+                ObjectInputStream in = MainApp.getIn();
+                ObjectOutputStream out = MainApp.getOut();
+                try {
+                    out.writeObject("3");
+                    out.writeObject("cardIni");
+                    out.writeObject(user);
+                    out.flush();
+                    ECard response=(ECard) in.readObject();
+                    openPage(new ECardPage(response));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
+
+
+
+
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
