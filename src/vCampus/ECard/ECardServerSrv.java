@@ -18,7 +18,6 @@ public class ECardServerSrv {
         if(tdao.find(user.getCard())==null)
             tdao.add(user.getCard());
         return new ECard(user);
-        // 请求服务端进行初始化
     }
 
     public static boolean LostSettings(ECard testcard) {
@@ -38,7 +37,7 @@ public class ECardServerSrv {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedNow = now.format(formatter);
         String newHistory = formattedNow + ", " + amount + ", " + reason + ";";
-        transactionDao.update(oldHistory+newHistory,card);
+        transactionDao.update(newHistory+oldHistory,card);
     }
 
     public static float showStatus(ECard testcard) {
@@ -48,18 +47,17 @@ public class ECardServerSrv {
 
     public static String getTransactionHistory(String testcard) {
         TransactionDao transactionDao = new TransactionDao();
-        String transaction = transactionDao.find(testcard);
-        // 连接数据库获取流水，传递给客户端
-        return transaction;
+        return transactionDao.find(testcard);
     }
 
-
-    public static boolean newPassword(ECard testcard, Integer newPassword) {
-        testcard.setPassword(newPassword);
-        // 更新数据库tblUser
+    public static boolean comparePassword(String testcard, Integer enteredPassword) {
         ECardDao cardDao = new ECardDao();
-        cardDao.updatePassword(newPassword, testcard.getCard());
-        return true;
+        return (Objects.equals(enteredPassword, cardDao.find(testcard).getPassword()));
+    }
+
+    public static void newPassword(String testcard, Integer newPassword) {
+        ECardDao cardDao = new ECardDao();
+        cardDao.updatePassword(newPassword, testcard);
     }
 
     public static boolean pay(String card, float amount, String reason, Integer passwordEntered) {
@@ -80,15 +78,13 @@ public class ECardServerSrv {
         return true;
     }
 
-    public static boolean charge(ECard testcard, float amount) {
+    public static void charge(String testcard, float amount) {
         ECardDao cardDao = new ECardDao();
-        boolean result= testcard.getLost();
-        if(result)
-            return false;
-        addTransaction(testcard.getCard(), amount, "charge");
-        float newRemain=testcard.getRemain() + amount;
-        testcard.setRemain(newRemain);
-        cardDao.updateRemain(newRemain, testcard.getCard());
-        return true;
+
+        addTransaction(testcard, amount, "charge");
+
+        float newRemain=cardDao.find(testcard).getRemain() + amount;
+
+        cardDao.updateRemain(newRemain, testcard);
     }
 }

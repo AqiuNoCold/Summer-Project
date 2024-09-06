@@ -16,7 +16,7 @@ public class ECard extends User implements Serializable {
         super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(),
                 user.getCard(), user.getLost());
         ECardDao dao = new ECardDao();
-        ECardDTO dto = dao.find(user.getId());
+        ECardDTO dto = dao.find(user.getCard());
         remain = dto.getRemain();
         password = dto.getPassword();
     }
@@ -43,7 +43,7 @@ public class ECard extends User implements Serializable {
     }
 
     public void setPassword(Integer password) {
-        this.password = password; // 可以根据需要添加更多验证
+        this.password = password;
     }
 
     void deposit(float amount) {

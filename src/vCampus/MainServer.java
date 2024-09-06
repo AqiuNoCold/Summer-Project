@@ -14,10 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static vCampus.ECard.ECardServerSrv.charge;
-import static vCampus.ECard.ECardServerSrv.getTransactionHistory;
+import static vCampus.ECard.ECardServerSrv.*;
 
 public class MainServer {
     private static final int PORT = 5101;
@@ -221,22 +221,19 @@ public class MainServer {
 
     private static void EcardPage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
-        ECard eCard;
+        String eCard;
         if (function != null) {
             switch (function) {
                 case "cardIni":
                     User user = (User) in.readObject();
-                    eCard = ECardServerSrv.cardIni(user);
-                    out.writeObject(eCard);
+                    out.writeObject(ECardServerSrv.cardIni(user));
                     out.flush();
                     break;
                 case "Charge":
-                    eCard = (ECard) in.readObject();
+                    eCard = (String) in.readObject();
                     System.out.println(eCard);
                     float amount = (float) in.readObject();
-                    boolean result=ECardServerSrv.charge(eCard, amount);
-                    out.writeObject(result);
-                    out.flush();
+                    charge(eCard, amount);
                     break;
                 case "History":
                     String card=(String) in.readObject();
@@ -244,6 +241,18 @@ public class MainServer {
                     out.writeObject(response);
                     out.flush();
                     break;
+                case "comparePassword":
+                    eCard = (String) in.readObject();
+                    Integer enteredPassword=(Integer) in.readObject();
+                    out.writeObject(comparePassword(eCard,enteredPassword));
+                    out.flush();
+                    break;
+                case "newPassword":
+                    eCard = (String) in.readObject();
+                    Integer newEnPassword = (Integer) in.readObject();
+                    newPassword(eCard, newEnPassword);
+                    break;
+
             }
         } else {
             System.out.println("Unknown function: " + function);

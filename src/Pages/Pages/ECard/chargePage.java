@@ -8,10 +8,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -36,23 +33,26 @@ class LimitedLengthDocument extends PlainDocument {
 
 public class chargePage extends JFrame {
 
-    private ECard ecard;
+    private String ecardNumber;
     private JButton chargeButton;
     private JTextField amountField;
     private JLabel messageLabel;
-    private JButton backButton = new JButton("返回");
 
     public void setAmountField() {
         amountField.setText("");
     }
 
-    public chargePage(ECard newecard) {
-        ecard = newecard;
+    public void setMessageLabel() {
+        messageLabel.setText("");
+    }
+
+    public chargePage(String newecard) {
+        ecardNumber = newecard;
 
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
         setTitle("请输入充值金额");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(300, 150);
         setLocationRelativeTo(null);
         // 创建文本字段
@@ -94,36 +94,28 @@ public class chargePage extends JFrame {
 
 
         chargeButton = new JButton("充值");
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.add(chargeButton, BorderLayout.SOUTH);
-        buttonPanel.add(backButton, BorderLayout.SOUTH);
+        add(chargeButton, BorderLayout.SOUTH);
 
         getContentPane().add(panel);
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
 
         chargeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
                 if (amountField.getText().equals("")) {
                     messageLabel.setText("充值金额不能为空");
+                    messageLabel.setForeground(Color.RED);
                 } else if (Float.parseFloat(amountField.getText()) == 0f) {
                     messageLabel.setText("充值金额不能为零");
+                    messageLabel.setForeground(Color.RED);
                 } else {
                     try {
                         dispose();
                         out.writeObject("3");
                         out.writeObject("Charge");
-                        out.writeObject(ecard);
+                        out.writeObject(ecardNumber);
                         out.writeObject(Float.parseFloat(amountField.getText()));
                         out.flush();
-                        boolean response=(boolean)in.readObject();
-                        messageWindow(response);
+                        messageWindow();
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -134,27 +126,18 @@ public class chargePage extends JFrame {
         });
     }
 
-    private static void messageWindow(boolean response)
-    {
+    private void messageWindow() {
         JFrame frame = new JFrame("充值结果");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(300, 150);
+
         JLabel label = new JLabel("充值成功", SwingConstants.CENTER);
-        if(!response)
-        {    label.setText("卡片已被冻结，充值失败");
-            label.setForeground(Color.RED);
-        }
+        label.setForeground(Color.BLACK);
         frame.setLocationRelativeTo(null);
         // 设置字体样式和大小
+        label.setFont(new Font("", Font.BOLD, 20));
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(label, BorderLayout.CENTER);
         frame.setVisible(true);
-        JButton backButton = new JButton("返回");
-        frame.add(backButton, BorderLayout.SOUTH);
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frame.dispose();
-            }
-        });
     }
 }
