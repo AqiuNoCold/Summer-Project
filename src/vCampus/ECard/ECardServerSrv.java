@@ -15,7 +15,8 @@ public class ECardServerSrv {
 
     public static ECard cardIni(User user) {
         TransactionDao tdao = new TransactionDao();
-        tdao.add(user.getCard());
+        if(tdao.find(user.getCard())==null)
+            tdao.add(user.getCard());
         return new ECard(user);
         // 请求服务端进行初始化
     }
@@ -36,7 +37,7 @@ public class ECardServerSrv {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedNow = now.format(formatter);
-        String newHistory = formattedNow + "," + amount + "," + reason + ";";
+        String newHistory = formattedNow + ", " + amount + ", " + reason + ";";
         transactionDao.update(oldHistory+newHistory,card);
     }
 
@@ -80,8 +81,14 @@ public class ECardServerSrv {
     }
 
     public static boolean charge(ECard testcard, float amount) {
+        ECardDao cardDao = new ECardDao();
+        boolean result= testcard.getLost();
+        if(result)
+            return false;
         addTransaction(testcard.getCard(), amount, "charge");
-        testcard.setRemain(testcard.getRemain() + amount);
+        float newRemain=testcard.getRemain() + amount;
+        testcard.setRemain(newRemain);
+        cardDao.updateRemain(newRemain, testcard.getCard());
         return true;
     }
 }

@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static vCampus.ECard.ECardServerSrv.charge;
+import static vCampus.ECard.ECardServerSrv.getTransactionHistory;
 
 public class MainServer {
     private static final int PORT = 5101;
@@ -204,11 +205,22 @@ public class MainServer {
                     User user = (User) in.readObject();
                     eCard = ECardServerSrv.cardIni(user);
                     out.writeObject(eCard);
+                    out.flush();
                     break;
                 case "Charge":
                     eCard = (ECard) in.readObject();
+                    System.out.println(eCard);
                     float amount = (float) in.readObject();
-                    out.writeObject(ECardServerSrv.charge(eCard, amount));
+                    boolean result=ECardServerSrv.charge(eCard, amount);
+                    out.writeObject(result);
+                    out.flush();
+                    break;
+                case "History":
+                    String card=(String) in.readObject();
+                    String response=getTransactionHistory(card);
+                    out.writeObject(response);
+                    out.flush();
+                    break;
             }
         } else {
             System.out.println("Unknown function: " + function);

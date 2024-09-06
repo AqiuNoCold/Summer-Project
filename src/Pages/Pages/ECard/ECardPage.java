@@ -2,16 +2,21 @@ package Pages.Pages.ECard;
 
 import Pages.MainApp;
 import Pages.Pages.NavigationPage;
+import Pages.Pages.ECard.chargePage;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
+
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class ECardPage extends JFrame {
+    private chargePage charge;
 
     private ECard ecard;
     private JButton billsButton;
@@ -20,10 +25,16 @@ public class ECardPage extends JFrame {
     private JButton lostButton;
     private JButton statusButton;
     private JButton backButton = new JButton("返回");
+
     public ECardPage(ECard response) {
+        ObjectInputStream in=MainApp.getIn();
+        ObjectOutputStream out=MainApp.getOut();
+
         ecard=response;
         setTitle("一卡通页面");
         setSize(800, 600);
+
+        charge=new chargePage(ecard);
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示窗口
@@ -52,7 +63,8 @@ public class ECardPage extends JFrame {
         chargeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try{
-                    new chargePage(ecard).setVisible(true);
+                    charge.setAmountField();
+                    charge.setVisible(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -66,7 +78,16 @@ public class ECardPage extends JFrame {
         });
         billsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                
+                try{
+                    out.writeObject("3");
+                    out.writeObject("History");
+                    out.writeObject(ecard.getCard());
+                    out.flush();
+                    String response = (String) in.readObject();
+                    new transactionPage(response).setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
     }

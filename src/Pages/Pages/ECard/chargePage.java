@@ -42,6 +42,10 @@ public class chargePage extends JFrame {
     private JLabel messageLabel;
     private JButton backButton = new JButton("返回");
 
+    public void setAmountField() {
+        amountField.setText("");
+    }
+
     public chargePage(ECard newecard) {
         ecard = newecard;
 
@@ -56,7 +60,7 @@ public class chargePage extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
 
         amountField = new JTextField(8);
-        amountField.setDocument(new LimitedLengthDocument(8));
+        amountField.setDocument(new LimitedLengthDocument(3));
         // 添加键盘监听器，限制输入为数字
         amountField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -119,7 +123,7 @@ public class chargePage extends JFrame {
                         out.writeObject(Float.parseFloat(amountField.getText()));
                         out.flush();
                         boolean response=(boolean)in.readObject();
-                        messageWindow();
+                        messageWindow(response);
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -130,12 +134,17 @@ public class chargePage extends JFrame {
         });
     }
 
-    private static void messageWindow()
+    private static void messageWindow(boolean response)
     {
-        JFrame frame = new JFrame("支付结果");
+        JFrame frame = new JFrame("充值结果");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(300, 150);
-        JLabel label = new JLabel("支付成功", SwingConstants.CENTER);
+        JLabel label = new JLabel("充值成功", SwingConstants.CENTER);
+        if(!response)
+        {    label.setText("卡片已被冻结，充值失败");
+            label.setForeground(Color.RED);
+        }
+        frame.setLocationRelativeTo(null);
         // 设置字体样式和大小
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(label, BorderLayout.CENTER);

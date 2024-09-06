@@ -77,9 +77,6 @@ public class NavigationPage extends JFrame {
             }
         });
 
-
-
-
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

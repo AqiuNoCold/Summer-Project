@@ -51,7 +51,7 @@ public class ECardDao {
 
     public boolean updatePassword(Integer password, String card) {
         boolean isUpdated = false;
-        String sql = "UPDATE tblECard SET  password = ? WHERE card = ?";
+        String sql = "UPDATE tblECard SET password = ? WHERE card = ?";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -69,7 +69,7 @@ public class ECardDao {
 
     public boolean updateRemain(Float remain, String card)  {
         boolean isUpdated = false;
-        String sql = "UPDATE tblECard SET  remain = ? WHERE card = ?";
+        String sql = "UPDATE tblECard SET remain = ? WHERE card = ?";
         try {
             conn = DbConnection.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -131,4 +131,9 @@ public class ECardDao {
         }
         return cardInfo;
     }
+
+//    public static void main(String[] args) {
+//        ECardDao dao = new ECardDao();
+//        dao.updateRemain(2000f,"111111111");
+//    }
 }
