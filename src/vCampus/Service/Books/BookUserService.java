@@ -14,7 +14,7 @@ public class BookUserService extends User {
     private BookShelfService defaultBookShelf; // 默认书架
     private BookShelfService currentBookShelf; // 当前书架
     private List<BookShelfService> bookShelves; // 所有书架
-    private Boolean firstLogin = false; // 首次登录标志
+    private Boolean firstLogin; // 首次登录标志
 
     // 构造函数，只接受id
     public BookUserService(String id) {
@@ -32,6 +32,15 @@ public class BookUserService extends User {
             bookUserDao.add(bookUser);
             this.firstLogin = true;
             System.out.println("首次登录，注册图书馆用户");
+        } else {
+            // 如果用户存在，则初始化 BookUserService 实例
+            this.defaultBookShelf = new BookShelfService(bookUser.getDefaultBookShelf().getId());
+            this.currentBookShelf = new BookShelfService(bookUser.getCurrentBookShelf().getId());
+            this.bookShelves = new ArrayList<>();
+            for (BookShelfService shelf : bookUser.getBookShelves()) {
+                this.bookShelves.add(new BookShelfService(shelf.getId()));
+            }
+            this.firstLogin = false; // 默认设置为 false
         }
     }
 

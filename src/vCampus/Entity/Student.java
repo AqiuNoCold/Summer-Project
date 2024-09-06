@@ -35,6 +35,10 @@ public class Student {
         this.stuCode = stuCode;
     }
 
+    public Student() {
+
+    }
+
     // Getters and Setters
     public String getId() {
         return id;

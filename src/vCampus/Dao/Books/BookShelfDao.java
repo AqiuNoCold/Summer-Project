@@ -112,14 +112,21 @@ public class BookShelfDao implements BaseDao<BookShelfService> {
             pstmt.setLong(1, Long.parseLong(id));
             rs = pstmt.executeQuery();
             if (rs.next()) {
+                String bookIdsStr = rs.getString("book_ids");
+                String reviewIdsStr = rs.getString("review_ids");
+
+                List<String> bookIds = !bookIdsStr.equals("") ? List.of(bookIdsStr.split(",")) : new ArrayList<>();
+                List<String> reviewIds = !reviewIdsStr.equals("") ? List.of(reviewIdsStr.split(","))
+                        : new ArrayList<>();
+
                 bookShelf = new BookShelfService(
                         rs.getLong("id"),
                         rs.getString("name"),
                         rs.getString("user_id"),
                         rs.getTimestamp("create_time").toLocalDateTime(),
                         rs.getTimestamp("update_time").toLocalDateTime(),
-                        List.of(rs.getString("book_ids").split(",")),
-                        List.of(rs.getString("review_ids").split(",")),
+                        bookIds,
+                        reviewIds,
                         rs.getBoolean("is_public"),
                         rs.getInt("subscribe_count"),
                         rs.getInt("favorite_count"));

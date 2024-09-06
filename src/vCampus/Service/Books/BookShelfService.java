@@ -134,6 +134,8 @@ public class BookShelfService {
             this.subscribeCount = bookShelf.getSubscribeCount();
             this.favoriteCount = bookShelf.getFavoriteCount();
             this.isLoaded = false;
+            this.books = new ArrayList<>();
+            this.reviews = new ArrayList<>();
         } else {
             throw new IllegalArgumentException("BookShelf with id " + id + " not found.");
         }

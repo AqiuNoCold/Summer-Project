@@ -11,7 +11,7 @@ public class BookUser extends User {
     private BookShelf defaultBookShelf; // 默认书架
     private BookShelf currentBookShelf; // 当前书架
     private List<BookShelf> bookShelves; // 所有书架
-    private Boolean firstLogin = false; // 首次登录标志
+    private Boolean firstLogin; // 首次登录标志
     private static BookUser currentUser; // 当前用户
 
     // 拷贝构造函数
