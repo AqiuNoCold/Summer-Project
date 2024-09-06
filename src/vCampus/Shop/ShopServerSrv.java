@@ -233,7 +233,7 @@ public class ShopServerSrv {
                 student.getBill().add(hisProduct);
                 shopStudentDao.update(student);
 
-                //添加到一卡通账单
+                //添加到一卡通账单(服务端使用addTransaction E)
                 TransactionDao transactionDao = new TransactionDao();
                 //扣费与上传
                 String transaction = transactionDao.find(student.getCard());
