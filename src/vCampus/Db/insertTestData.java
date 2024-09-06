@@ -35,11 +35,11 @@ public class insertTestData {
             logger.info("插入数据到 tblGrade 表成功。");
 
             // 插入数据到tblShopStudent表
-            String insertShopStudentSQL = "INSERT INTO tblShopStudent (id, pwd, age, gender, role, email, card, remain, password, lost, favorites, belongs, bill) VALUES "
-                    + "('shopuser001', 'shoppwd1', 28, TRUE, 'AD', 'shopuser001@example.com', '123456789', 100.0, 1234, FALSE, '1,2,3', 'Store A', 'Bill A'),"
-                    + "('shopuser002', 'shoppwd2', 35, FALSE, 'ST', 'shopuser002@example.com', '987654321', 50.0, 5678, TRUE, '4,5,6', 'Store B', 'Bill B')";
-            stmt.execute(insertShopStudentSQL);
-            logger.info("插入数据到 tblShopStudent 表成功。");
+            //String insertShopStudentSQL = "INSERT INTO tblShopStudent (id, pwd, age, gender, role, email, card, remain, password, lost, favorites, belongs, bill) VALUES "
+            //        + "('shopuser001', 'shoppwd1', 28, TRUE, 'AD', 'shopuser001@example.com', '123456789', 100.0, 1234, FALSE, '1,2,3', 'Store A', 'Bill A'),"
+            //        + "('shopuser002', 'shoppwd2', 35, FALSE, 'ST', 'shopuser002@example.com', '987654321', 50.0, 5678, TRUE, '4,5,6', 'Store B', 'Bill B')";
+            //stmt.execute(insertShopStudentSQL);
+            //logger.info("插入数据到 tblShopStudent 表成功。");
 
             // 插入数据到tblProduct表
             String insertProductSQL = "INSERT INTO tblProduct (id, name, price, numbers, owner, discount, time, image) VALUES "
