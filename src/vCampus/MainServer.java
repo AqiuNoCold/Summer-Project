@@ -252,7 +252,15 @@ public class MainServer {
                     Integer newEnPassword = (Integer) in.readObject();
                     newPassword(eCard, newEnPassword);
                     break;
-
+                case "LostSettings":
+                    String id=(String) in.readObject();
+                    boolean isLost=(boolean) in.readObject();
+                    LostSettings(id,isLost);
+                    break;
+                case "Status":
+                    eCard=(String) in.readObject();
+                    out.writeObject(showStatus(eCard));
+                    out.flush();
             }
         } else {
             System.out.println("Unknown function: " + function);

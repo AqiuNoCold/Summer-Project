@@ -20,13 +20,9 @@ public class ECardServerSrv {
         return new ECard(user);
     }
 
-    public static boolean LostSettings(ECard testcard) {
-        boolean result = testcard.getLost();
-        if (result)
-            testcard.setLost(false);
-        else testcard.setLost(true);
-        return result;
-//        返回true：解挂成功；返回false：挂失成功；
+    public static void LostSettings(String id,boolean isLost) {
+        UserDao udao = new UserDao();
+        udao.updateLost(!isLost,id);
     }
 
     public static void addTransaction(String card, float amount, String reason) {
@@ -40,9 +36,9 @@ public class ECardServerSrv {
         transactionDao.update(newHistory+oldHistory,card);
     }
 
-    public static float showStatus(ECard testcard) {
+    public static ECardDTO showStatus(String testcard) {
         ECardDao cardDao = new ECardDao();
-        return cardDao.find(testcard.getCard()).getRemain();
+        return cardDao.find(testcard);
     }
 
     public static String getTransactionHistory(String testcard) {
