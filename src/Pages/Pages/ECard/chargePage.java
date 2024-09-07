@@ -31,7 +31,7 @@ class LimitedLengthDocument extends PlainDocument {
     }
 }
 
-public class chargePage extends JFrame {
+public class chargePage extends JDialog {
 
     private String ecardNumber;
     private JButton chargeButton;
@@ -48,16 +48,16 @@ public class chargePage extends JFrame {
 
     public chargePage(String newecard) {
         ecardNumber = newecard;
+        setModal(true);
 
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
         setTitle("请输入充值金额");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(300, 150);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setSize(200, 150);
         setLocationRelativeTo(null);
         // 创建文本字段
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        setLayout(new GridLayout(3,1));
 
         amountField = new JTextField(8);
         amountField.setDocument(new LimitedLengthDocument(3));
@@ -71,32 +71,13 @@ public class chargePage extends JFrame {
                 }
             }
         });
-
-        gbc.gridy=0;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""),gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.25;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(amountField, gbc);
-
-
-        gbc.gridy = 2;
         messageLabel = new JLabel("");
-        panel.add(messageLabel, gbc);
-
-        gbc.gridy=3;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""),gbc);
-
-
         chargeButton = new JButton("充值");
+
+        add(amountField);
+        add(messageLabel);
         add(chargeButton, BorderLayout.SOUTH);
 
-        getContentPane().add(panel);
 
         chargeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -127,7 +108,7 @@ public class chargePage extends JFrame {
     }
 
     private void messageWindow() {
-        JFrame frame = new JFrame("充值结果");
+        JDialog frame = new JDialog(this,"充值结果",true);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(300, 150);
 
@@ -135,7 +116,7 @@ public class chargePage extends JFrame {
         label.setForeground(Color.BLACK);
         frame.setLocationRelativeTo(null);
         // 设置字体样式和大小
-        label.setFont(new Font("", Font.BOLD, 20));
+        label.setFont(new Font("微软雅黑", Font.BOLD, 20));
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(label, BorderLayout.CENTER);
         frame.setVisible(true);

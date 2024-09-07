@@ -13,10 +13,12 @@ import vCampus.Entity.User;
 
 public class ECardServerSrv {
 
-    public static ECard cardIni(User user) {
+    public static ECard cardIni(String card) {
         TransactionDao tdao = new TransactionDao();
-        if(tdao.find(user.getCard())==null)
-            tdao.add(user.getCard());
+        if(tdao.find(card)==null)
+            tdao.add(card);
+        UserDao userDao = new UserDao();
+        User user=userDao.find(card);
         return new ECard(user);
     }
 
@@ -56,22 +58,18 @@ public class ECardServerSrv {
         cardDao.updatePassword(newPassword, testcard);
     }
 
-    public static boolean pay(String card, float amount, String reason, Integer passwordEntered) {
+    public static int pay(String id,String card, float amount, String reason) {
 
-        TransactionDao transactionDao = new TransactionDao();
         ECardDao cardDao = new ECardDao();
-        ECardDTO cardInfo = cardDao.find(card);
-
-        if (!Objects.equals(passwordEntered, cardInfo.getPassword())) {
-            System.out.println("Wrong password!");
-            return false;
-        }
-        cardInfo.setRemain(cardInfo.getRemain() - amount);
-        cardDao.update(cardInfo);
-
-        addTransaction(cardInfo.getCard(), amount, reason);
-        System.out.println("Successfully payed!");
-        return true;
+        UserDao userDao = new UserDao();
+        float currentBalance = cardDao.find(card).getRemain();
+        if(userDao.find(id).getLost())
+            return 2;
+        else if(currentBalance<amount)
+            return 1;
+        cardDao.updateRemain(currentBalance - amount,card);
+        addTransaction(card, -amount, reason);
+        return 0;
     }
 
     public static void charge(String testcard, float amount) {

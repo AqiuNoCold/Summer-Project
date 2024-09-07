@@ -2,6 +2,7 @@ package vCampus.Entity.ECard;
 
 import vCampus.Dao.ECardDao;
 // import vCampus.Dao.TransactionDao;
+import vCampus.Dao.UserDao;
 import vCampus.Entity.User;
 
 import java.io.Serializable;
@@ -9,8 +10,6 @@ import java.io.Serializable;
 public class ECard extends User implements Serializable {
     protected Float remain; // 账户余额
     protected Integer password; // 支付密码
-    // protected Boolean lost; //账户冻结情况
-    private String transactionHistory;
 
     public ECard(User user) {
         super(user.getId(), user.getPwd(), user.getAge(), user.getGender(), user.getRole(), user.getEmail(),
@@ -21,13 +20,6 @@ public class ECard extends User implements Serializable {
         password = dto.getPassword();
     }
 
-    public String getTransactionHistory() {
-        return transactionHistory;
-    }
-
-    public void setTransactionHistory(String transactionHistory) {
-        this.transactionHistory = transactionHistory;
-    }
 
     public float getRemain() {
         return remain;

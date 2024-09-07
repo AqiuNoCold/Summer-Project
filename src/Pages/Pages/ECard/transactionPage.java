@@ -5,19 +5,18 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public class transactionPage extends JFrame {
+public class transactionPage extends JDialog {
     private final LinkedList<String> history = new LinkedList<>();
     JScrollPane scrollPane;
     JTextArea textArea = new JTextArea();
     public transactionPage(String transactionHistory) {
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setModal(true);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(400, 550);
         setTitle("账单");
-
         textArea.setEditable(false);
-        textArea.setFont(new Font("", Font.BOLD, 17));
+        textArea.setFont(new Font("微软雅黑", Font.BOLD, 18));
         if (!transactionHistory.isEmpty()) {
             String[] items = transactionHistory.split(";");
 

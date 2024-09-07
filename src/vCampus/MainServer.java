@@ -225,8 +225,8 @@ public class MainServer {
         if (function != null) {
             switch (function) {
                 case "cardIni":
-                    User user = (User) in.readObject();
-                    out.writeObject(ECardServerSrv.cardIni(user));
+                    String iniId = (String) in.readObject();
+                    out.writeObject(ECardServerSrv.cardIni(iniId));
                     out.flush();
                     break;
                 case "Charge":
@@ -260,6 +260,15 @@ public class MainServer {
                 case "Status":
                     eCard=(String) in.readObject();
                     out.writeObject(showStatus(eCard));
+                    out.flush();
+                    break;
+                case "Pay":
+                    String payid=(String) in.readObject();
+                    eCard=(String) in.readObject();
+
+                    float payamount=(float) in.readObject();
+                    String reason=(String) in.readObject();
+                    out.writeObject(pay(payid,eCard,payamount,reason));
                     out.flush();
             }
         } else {

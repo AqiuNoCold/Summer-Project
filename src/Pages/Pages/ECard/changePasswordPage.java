@@ -13,7 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 
-public class changePasswordPage extends JFrame {
+public class changePasswordPage extends JDialog {
 
     private final String ecardNumber;
     private final JButton compareButton;
@@ -22,16 +22,14 @@ public class changePasswordPage extends JFrame {
     private int status;
 
     public changePasswordPage(String newecard) {
+        setModal(true);
         ecardNumber = newecard;
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
         setTitle("请输入旧的支付密码");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(300, 150);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setSize(200, 150);
         setLocationRelativeTo(null);
-        // 创建文本字段
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
 
         passwordField = new JTextField(8);
         passwordField.setDocument(new LimitedLengthDocument(6));
@@ -46,40 +44,28 @@ public class changePasswordPage extends JFrame {
             }
         });
 
-        gbc.gridy = 0;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""), gbc);
 
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.25;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(passwordField, gbc);
+        setLayout(new GridLayout(3,1));
 
 
-        gbc.gridy = 2;
+        add(passwordField);
+
         messageLabel = new JLabel("");
-        panel.add(messageLabel, gbc);
-
-        gbc.gridy = 3;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""), gbc);
+        add(messageLabel);
 
         compareButton = new JButton("确定");
         add(compareButton, BorderLayout.SOUTH);
 
-        getContentPane().add(panel);
         compareButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
                 setmessageLabel();
                 if (passwordField.getText().isEmpty()) {
-                    messageLabel.setText("不能为空");
+                    messageLabel.setText("输入不能为空");
                     messageLabel.setForeground(Color.RED);
                     setAmountField();
                 } else if (passwordField.getText().length() < 6) {
-                    messageLabel.setText("不少于6位数");
+                    messageLabel.setText("输入不少于6位数");
                     messageLabel.setForeground(Color.RED);
                     setAmountField();
                 } else {
@@ -137,8 +123,8 @@ public class changePasswordPage extends JFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(300, 150);
 
-        JLabel label = new JLabel("密码修改成功", SwingConstants.CENTER);
-        label.setFont(new Font("", Font.BOLD, 20));
+        JLabel label = new JLabel("密码修改成功！", SwingConstants.CENTER);
+        label.setFont(new Font("微软雅黑", Font.BOLD, 20));
         label.setForeground(Color.BLACK);
 
         frame.setLocationRelativeTo(null);

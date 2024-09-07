@@ -18,11 +18,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class ECardPage extends JFrame {
-    private chargePage charge;
-    private changePasswordPage changePassword;
-    private transactionPage transaction;
 
-    private JFrame message_failed;
+
+    private JDialog message_failed;
 
     private ECard ecard;
 
@@ -42,10 +40,8 @@ public class ECardPage extends JFrame {
         setTitle("一卡通页面");
         setSize(800, 600);
 
-        charge=new chargePage(ecard.getCard());
-        changePassword=new changePasswordPage(ecard.getCard());
         message_failed=messageWindow_failed();
-        transaction=new transactionPage("");
+
 
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -64,6 +60,13 @@ public class ECardPage extends JFrame {
         updateLostButton();
         statusButton=createImageButton("卡片状态","src/imgs/ecard/status.png");
 
+        billsButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        changePasswordButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        chargeButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        lostButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        statusButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+
+
         mainPanel.add(chargeButton);
         mainPanel.add(billsButton);
         mainPanel.add(changePasswordButton);
@@ -78,9 +81,7 @@ public class ECardPage extends JFrame {
                     message_failed.setVisible(true);
                 else{
                 try{
-                    charge.setAmountField();
-                    charge.setMessageLabel();
-                    charge.setVisible(true);
+                    new chargePage(ecard.getCard()).setVisible(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -95,8 +96,7 @@ public class ECardPage extends JFrame {
                     out.writeObject(ecard.getCard());
                     out.flush();
                     String response = (String) in.readObject();
-                    transaction.setHistory(response);
-                    transaction.setVisible(true);
+                    new transactionPage(response).setVisible(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -109,10 +109,7 @@ public class ECardPage extends JFrame {
                     message_failed.setVisible(true);
                 else{
                 try{
-                    changePassword.setAmountField();
-                    changePassword.setmessageLabel();
-                    changePassword.setStatus();
-                    changePassword.setVisible(true);
+                    new changePasswordPage(ecard.getCard()).setVisible(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -151,6 +148,7 @@ public class ECardPage extends JFrame {
             }
         });
 
+
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 navigateBack();
@@ -186,15 +184,18 @@ public class ECardPage extends JFrame {
     }
 
     private void updateLostButton(){
-        if(!ecard.getLost())
-            lostButton.setText("冻结");
+        if(!ecard.getLost()) {
+            lostButton.setText("冻结卡片");
+            lostButton.setForeground(Color.RED);
+        }
         else
-            lostButton.setText("解冻");
+        {lostButton.setText("解冻卡片");
+        lostButton.setForeground(new Color(98, 211, 98));}
     }
 
-    private JFrame messageWindow_failed() {
-        JFrame frame = new JFrame("打开服务失败");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    private JDialog messageWindow_failed() {
+        JDialog frame = new JDialog(this,"打开服务失败",true);
+        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(500, 150);
 
         JLabel label = new JLabel("卡片已被冻结，无法使用该服务", SwingConstants.CENTER);
@@ -208,9 +209,9 @@ public class ECardPage extends JFrame {
         return frame;
     }
 
-    private JFrame messageWindow_lostsettings(boolean islost) {
-        JFrame frame = new JFrame("");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    private JDialog messageWindow_lostsettings(boolean islost) {
+        JDialog frame = new JDialog(this,"打开服务失败",true);
+        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frame.setSize(500, 150);
         frame.setLocationRelativeTo(null);
 
@@ -235,21 +236,25 @@ public class ECardPage extends JFrame {
         JDialog modalDialog = new JDialog(this, "卡片状态", true);
 
         modalDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        modalDialog.setSize(500, 400);
+        modalDialog.setSize(300, 150);
         modalDialog.setLocationRelativeTo(null);
 
         JLabel cardLabel = new JLabel("卡号："+status.getCard());
         JLabel remainLabel=new JLabel("余额："+status.getRemain());
-
         JLabel lostLabel=new JLabel();
         if(ecard.getLost()){
-            lostLabel.setText("冻结状态：冻结中");
+            lostLabel.setText("冻结中");
             lostLabel.setForeground(Color.RED);
         }
         else{
-            lostLabel.setText("冻结状态：正常");
-            lostLabel.setForeground(Color.BLACK);
+            lostLabel.setText("正常");
+            lostLabel.setForeground(new Color(98, 211, 98));
         }
+
+
+        cardLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        remainLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        lostLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
