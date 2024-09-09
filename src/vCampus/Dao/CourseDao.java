@@ -255,7 +255,7 @@ public class CourseDao implements BaseDao<Course> {
                 subsql += "'" + data + "',";
             }
             subsql = subsql.substring(4, subsql.length() - 1);
-            System.out.println(subsql);
+            // System.out.println(subsql);
 
             statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             if (subsql != null)

@@ -7,26 +7,31 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TeacherInfoMS {
 
-    private static final int ROWS_PER_PAGE = 7; // 每页显示的行数
+    private static final int ROWS_PER_PAGE = 9; // 每页显示的行数
     private static int currentPage = 0;
     private static List<Object[]> data; // 表格数据
+    private static List<Object[]> filteredData; // 过滤后的数据
     private static JTable table;
     private static DefaultTableModel tableModel;
     private static JTextField pageNumberField;
+    private static JTextField searchField; // 搜索框
     private static JFrame frame;
 
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TeacherInfoMS::createAndShowGUI);
+        TeacherInfoMS infoPage = new TeacherInfoMS();
+        SwingUtilities.invokeLater(infoPage::createAndShowGUIInfo);
     }
 
-    private static void createAndShowGUI() {
+    public void createAndShowGUIInfo() {
         // 创建主面板，使用 GridBagLayout 布局
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
+//        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
 
         // 创建包含图片和文字的面板
         JPanel headerPanel = new JPanel();
@@ -37,7 +42,7 @@ public class TeacherInfoMS {
         icon = new ImageIcon(scaledImg);
 
         JLabel imageLabel = new JLabel(icon);
-        JLabel textLabel = new JLabel("            学生学籍管理");
+        JLabel textLabel = new JLabel("        学生学籍管理");
 
         // 设置字体大小为 24
         Font font = new Font("Serif", Font.BOLD, 24); // 字体名称，样式和大小
@@ -90,6 +95,7 @@ public class TeacherInfoMS {
         for (int i = 1; i <= 20; i++) {
             data.add(new Object[]{i, "Person " + i, 20 + i, "Action 1", "Action 2", "Action 3"});
         }
+        filteredData = new ArrayList<>(data); // 初始化为全数据
 
         // 填充第一页数据
         updateTableData();
@@ -102,13 +108,22 @@ public class TeacherInfoMS {
         JButton previousButton = new JButton("上一页");
         JButton nextButton = new JButton("下一页");
         JButton goButton = new JButton("跳转");
-        pageNumberField = new JTextField(5); // 输入框用于输入页码
+        JButton searchButton = new JButton("搜索");
+        pageNumberField = new JTextField(3); // 输入框用于输入页码
+        pageNumberField.setText(String.valueOf(currentPage + 1));
+        searchField = new JTextField(6); // 搜索框
+        // 创建“新建”按钮
+        JButton newButton = new JButton("新建");
+// 设置按钮的大小
+        newButton.setPreferredSize(new Dimension(80, 25));
 
         // 设置按钮的大小相同
-        Dimension buttonSize = new Dimension(100, 30); // 设置按钮的大小
-        previousButton.setPreferredSize(buttonSize);
-        nextButton.setPreferredSize(buttonSize);
+        Dimension buttonSize = new Dimension(60, 25); // 设置按钮的大小
+        Dimension buttonSize2 = new Dimension(80, 25); // 设置按钮的大小
+        previousButton.setPreferredSize(buttonSize2);
+        nextButton.setPreferredSize(buttonSize2);
         goButton.setPreferredSize(buttonSize);
+        searchButton.setPreferredSize(buttonSize);
 
         // 添加按钮动作监听器
         previousButton.addActionListener(e -> {
@@ -120,7 +135,7 @@ public class TeacherInfoMS {
         });
 
         nextButton.addActionListener(e -> {
-            if ((currentPage + 1) * ROWS_PER_PAGE < data.size()) {
+            if ((currentPage + 1) * ROWS_PER_PAGE < filteredData.size()) {
                 currentPage++;
                 updateTableData();
                 pageNumberField.setText(String.valueOf(currentPage + 1));
@@ -130,7 +145,7 @@ public class TeacherInfoMS {
         goButton.addActionListener(e -> {
             try {
                 int page = Integer.parseInt(pageNumberField.getText()) - 1;
-                if (page >= 0 && page < (data.size() + ROWS_PER_PAGE - 1) / ROWS_PER_PAGE) {
+                if (page >= 0 && page < (filteredData.size() + ROWS_PER_PAGE - 1) / ROWS_PER_PAGE) {
                     currentPage = page;
                     updateTableData();
                 } else {
@@ -141,11 +156,38 @@ public class TeacherInfoMS {
             }
         });
 
+        searchButton.addActionListener(e -> {
+            String searchText = searchField.getText().trim();
+            if (!searchText.isEmpty()) {
+                try {
+                    int searchId = Integer.parseInt(searchText);
+                    filteredData = data.stream()
+                            .filter(row -> row[0].equals(searchId))
+                            .collect(Collectors.toList());
+                    currentPage = 0; // 重置到第一页
+                    updateTableData();
+                    pageNumberField.setText(null);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                filteredData = new ArrayList<>(data); // 如果搜索框为空，则显示所有数据
+                updateTableData();
+                pageNumberField.setText(String.valueOf(currentPage + 1));
+            }
+        });
+        // 添加“新建”按钮的动作监听器，调用 NewStudent 方法
+        newButton.addActionListener(e -> NewStudent());
+
+        paginationPanel.add(newButton); // 添加“新建”按钮
         paginationPanel.add(previousButton);
         paginationPanel.add(nextButton);
         paginationPanel.add(new JLabel("Page:"));
         paginationPanel.add(pageNumberField);
         paginationPanel.add(goButton);
+        paginationPanel.add(new JLabel("一卡通号："));
+        paginationPanel.add(searchField);
+        paginationPanel.add(searchButton);
 
         // 创建底部面板，包含返回按钮
         JPanel footerPanel = new JPanel();
@@ -204,6 +246,40 @@ public class TeacherInfoMS {
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
     }
+    // 封装“新建”功能的函数
+    private void NewStudent() {
+        // 弹出对话框以输入新数据
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2));
+        JTextField cardIdField = new JTextField();
+        JTextField nameField = new JTextField();
+        JTextField genderField = new JTextField();
+
+        inputPanel.add(new JLabel("一卡通号:"));
+        inputPanel.add(cardIdField);
+        inputPanel.add(new JLabel("姓名:"));
+        inputPanel.add(nameField);
+        inputPanel.add(new JLabel("性别:"));
+        inputPanel.add(genderField);
+
+        int result = JOptionPane.showConfirmDialog(frame, inputPanel, "新建记录", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int cardId = Integer.parseInt(cardIdField.getText().trim());
+                String name = nameField.getText().trim();
+                String gender = genderField.getText().trim();
+
+                // 添加新数据到 data 和 filteredData 中
+                Object[] newRow = {cardId, name, gender, "Action 1", "Action 2", "Action 3"};
+                data.add(newRow);
+                filteredData = new ArrayList<>(data); // 确保 filteredData 包含新数据
+
+                // 更新表格数据
+                updateTableData();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "一卡通号必须是数字", "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     private static void updateTableData() {
         // 清空表格模型
@@ -211,20 +287,16 @@ public class TeacherInfoMS {
 
         // 计算分页数据
         int start = currentPage * ROWS_PER_PAGE;
-        int end = Math.min(start + ROWS_PER_PAGE, data.size());
-
+        int end = Math.min(start + ROWS_PER_PAGE, filteredData.size());
 
         // 将数据添加到表格模型中
         for (int i = start; i < end; i++) {
-            tableModel.addRow(data.get(i));
+            tableModel.addRow(filteredData.get(i));
         }
 
         // 更新表格的视口大小以适应新的行数
         int tableHeight = ROWS_PER_PAGE * table.getRowHeight(); // 根据行高和每页的行数计算表格高度
         table.setPreferredScrollableViewportSize(new Dimension(900, tableHeight)); // 高度调整
-        // 设置单元格内容水平居中
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.revalidate(); // 重新验证表格
     }
 
@@ -245,9 +317,6 @@ public class TeacherInfoMS {
                 setBackground(Color.WHITE); // 确保背景颜色是白色
                 setForeground(table.getForeground());
                 setHorizontalAlignment(SwingConstants.CENTER);
-                // 设置单元格内容水平居中
-                DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-                centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
             }
 
             // 设置按钮文本
@@ -294,14 +363,16 @@ public class TeacherInfoMS {
                     panel.add(genderField);
                     int result = JOptionPane.showConfirmDialog(button, panel, "修改信息", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                     if (result == JOptionPane.OK_OPTION) {
-                        data.set(row, new Object[]{rowData[0], nameField.getText(), genderField.getText(), "Action 1", "Action 2", "Action 3"});
+                        filteredData.set(row, new Object[]{rowData[0], nameField.getText(), genderField.getText(), "Action 1", "Action 2", "Action 3"});
+                        data = new ArrayList<>(filteredData); // 同步原始数据
                         updateTableData();
                     }
                 } else if (column == 5) {
                     // 删除按钮操作
                     int result = JOptionPane.showConfirmDialog(button, "确定要删除这一行吗？", "确认", JOptionPane.YES_NO_OPTION);
                     if (result == JOptionPane.YES_OPTION) {
-                        data.remove(row);
+                        filteredData.remove(row);
+                        data = new ArrayList<>(filteredData); // 同步原始数据
                         updateTableData();
                     }
                 }
@@ -363,3 +434,4 @@ public class TeacherInfoMS {
         }
     }
 }
+

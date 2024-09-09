@@ -7,24 +7,29 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TeacherGrade {
-    private static final int ROWS_PER_PAGE = 7; // 每页显示的行数
+    private static final int ROWS_PER_PAGE = 8; // 每页显示的行数
     private static int currentPage = 0;
     private static List<Object[]> data; // 表格数据
+    private static List<Object[]> filteredData; // 过滤后的数据
     private static JTable table;
     private static DefaultTableModel tableModel;
     private static JTextField pageNumberField;
+    private static JTextField searchField;
+    private static JComboBox<String> searchComboBox;
     private static JFrame frame;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TeacherGrade::createAndShowGUI);
+        TeacherGrade infoPage = new TeacherGrade();
+        SwingUtilities.invokeLater(infoPage::createAndShowGUIGrade);
     }
 
-    private static void createAndShowGUI() {
+    public void createAndShowGUIGrade() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
+//        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
 
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
@@ -36,9 +41,9 @@ public class TeacherGrade {
         icon = new ImageIcon(scaledImg);
 
         JLabel imageLabel = new JLabel(icon);
-        JLabel textLabel = new JLabel("            学生成绩管理");
+        JLabel textLabel = new JLabel("        学生成绩管理");
 
-        Font font = new Font("Serif", Font.BOLD, 24); // 字体名称，样式和大小
+        Font font = new Font("Serif", Font.BOLD, 27); // 字体名称，样式和大小
         textLabel.setForeground(new Color(3, 81, 32));
         textLabel.setFont(font);
         textLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -77,6 +82,7 @@ public class TeacherGrade {
         for (int i = 1; i <= 20; i++) {
             data.add(new Object[]{i, "Person " + i, (-1 + i) == 0 ? "未录入" : i, "Action 1", "Action 2", "Action 3"});
         }
+        filteredData = new ArrayList<>(data); // 初始化为全数据
 
         updateTableData();
 
@@ -87,10 +93,12 @@ public class TeacherGrade {
         JButton nextButton = new JButton("下一页");
         JButton goButton = new JButton("跳转");
         pageNumberField = new JTextField(5);
+        pageNumberField.setText(String.valueOf(currentPage + 1));
 
-        Dimension buttonSize = new Dimension(100, 30);
-        previousButton.setPreferredSize(buttonSize);
-        nextButton.setPreferredSize(buttonSize);
+        Dimension buttonSize = new Dimension(60, 25); // 设置按钮的大小
+        Dimension buttonSize2 = new Dimension(80, 25); // 设置按钮的大小
+        previousButton.setPreferredSize(buttonSize2);
+        nextButton.setPreferredSize(buttonSize2);
         goButton.setPreferredSize(buttonSize);
 
         previousButton.addActionListener(e -> {
@@ -157,19 +165,39 @@ public class TeacherGrade {
         gbc.anchor = GridBagConstraints.CENTER;
         mainPanel.add(headerPanel, gbc);
 
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         mainPanel.add(scrollPane, gbc);
 
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(paginationPanel, gbc);
 
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(footerPanel, gbc);
+
+        // 创建搜索面板
+        JPanel searchPanel = new JPanel();
+        searchComboBox = new JComboBox<>(new String[]{"一卡通号", "课程编号"});
+        searchField = new JTextField(15);
+        JButton searchButton = new JButton("搜索");
+
+        searchButton.addActionListener(e -> performSearch());
+
+        searchPanel.add(new JLabel("搜索方式:"));
+        searchPanel.add(searchComboBox);
+        searchPanel.add(new JLabel("关键词:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        gbc.gridy = 1;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(searchPanel, gbc);
+
 
         frame = new JFrame("学生信息管理");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -179,13 +207,15 @@ public class TeacherGrade {
         frame.setLocationRelativeTo(null);
     }
 
+
+
     private static void updateTableData() {
         tableModel.setRowCount(0);
         int start = currentPage * ROWS_PER_PAGE;
-        int end = Math.min(start + ROWS_PER_PAGE, data.size());
+        int end = Math.min(start + ROWS_PER_PAGE, filteredData.size());
 
         for (int i = start; i < end; i++) {
-            tableModel.addRow(data.get(i));
+            tableModel.addRow(filteredData.get(i));
         }
 
         int tableHeight = ROWS_PER_PAGE * table.getRowHeight();
@@ -193,6 +223,51 @@ public class TeacherGrade {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.revalidate();
+    }
+
+    private static void performSearch() {
+        String searchType = (String) searchComboBox.getSelectedItem();
+        String searchTerm = searchField.getText().trim();
+//        System.out.println("search by cardId111");
+//        System.out.println(searchTerm);
+//        System.out.println(searchType);
+        if (searchType != null && !searchTerm.isEmpty()) {
+            try {if (searchType.equals("一卡通号")) {
+//                System.out.println("search by cardId222");
+//                System.out.println(searchTerm);
+//                System.out.println(searchType);
+                int searchId = Integer.parseInt(searchTerm);
+                filteredData = data.stream()
+                        .filter(row -> row[0].equals(searchId))
+                        .collect(Collectors.toList());
+                currentPage = 0; // 重置到第一页
+                updateTableData();
+                pageNumberField.setText(null);
+                }
+                else if (searchType.equals("课程编号")) {
+//                System.out.println("search by courseId222");
+//                System.out.println(searchTerm);
+//                System.out.println(searchType);
+                    int searchId = Integer.parseInt(searchTerm);
+                    filteredData = data.stream()
+                            .filter(row -> row[1].equals(searchId))
+                            .collect(Collectors.toList());
+                    currentPage = 0; // 重置到第一页
+                    updateTableData();
+                    pageNumberField.setText(null);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "请输入正确的搜索条件", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+        } else {
+            // 如果没有搜索条件，显示所有数据
+            filteredData = new ArrayList<>(data);
+            currentPage = 0;
+            updateTableData();
+            pageNumberField.setText(String.valueOf(currentPage + 1));
+        }
     }
 
     // 自定义按钮渲染器

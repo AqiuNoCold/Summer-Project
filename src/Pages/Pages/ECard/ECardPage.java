@@ -53,12 +53,12 @@ public class ECardPage extends JFrame {
         mainPanel.setBackground(new Color(245, 245, 245)); // 设置背景颜色
         mainPanel.setBorder(new LineBorder(new Color(144, 238, 144), 5));
 
-        billsButton=createImageButton("账单","src/imgs/ecard/bills.png");
-        changePasswordButton=createImageButton("修改密码","src/imgs/ecard/changePassword.png");
-        chargeButton=createImageButton("充值","src/imgs/ecard/charge.png");
-        lostButton=createImageButton("","src/imgs/ecard/lost.png");
+        billsButton=createImageButton("账单","/imgs/ecard/bills.png");
+        changePasswordButton=createImageButton("修改密码","/imgs/ecard/changePassword.png");
+        chargeButton=createImageButton("充值","/imgs/ecard/charge.png");
+        lostButton=createImageButton("","/imgs/ecard/lost.png");
         updateLostButton();
-        statusButton=createImageButton("卡片状态","src/imgs/ecard/status.png");
+        statusButton=createImageButton("卡片状态","/imgs/ecard/status.png");
 
         billsButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
         changePasswordButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
@@ -158,11 +158,13 @@ public class ECardPage extends JFrame {
 
 
     private JButton createImageButton(String text, String imagePath) {
-        ImageIcon icon = new ImageIcon(imagePath);
+//        ImageIcon icon = new ImageIcon(imagePath);
+        Image icon1 = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));
+
 
         // 调整图片大小
-        Image img = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
-        icon = new ImageIcon(img);
+        Image img = icon1.getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
+        ImageIcon icon = new ImageIcon(img);
 
         if (icon.getIconWidth() == -1) { // 判断图片是否加载成功
             System.err.println("Error: Could not load image at " + imagePath);

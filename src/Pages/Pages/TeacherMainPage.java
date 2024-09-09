@@ -13,8 +13,6 @@ public class TeacherMainPage extends JFrame {
     private JButton infoButton;
     private JButton infoAllButton;
     private JButton gradeButton;
-    private JButton libraryButton;
-    private JButton courseButton;
 
     User user = MainApp.getCurrentUser();
     // 创建一个 User 对象
@@ -45,7 +43,7 @@ public class TeacherMainPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        infoButton = createImageButton("一卡通号："+userTest.getCard(),  "src/imgs/man.png",90,110,16,new Color(76, 138, 77));
+        infoButton = createImageButton("一卡通号："+userTest.getCard(),  "src/imgs/Tea3.jpg",90,110,16,new Color(76, 138, 77));
         infoAllButton = createImageButton("学生信息管理", "src/imgs/t11.jpg",80,80,16,new Color(0, 0, 0));
 //        JLabel imageLabel = createImageLabel("src/imgs/logoDNDX.png");
         DNDXButton = createImageButton("学籍管理系统", "src/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
@@ -58,6 +56,7 @@ public class TeacherMainPage extends JFrame {
         mainPanel.add(infoButton,gbc);
         mainPanel.add(infoAllButton,gbc);
         mainPanel.add(gradeButton);
+
 //        mainPanel.add(libraryButton);
 //        mainPanel.add(courseButton);
 
@@ -69,6 +68,9 @@ public class TeacherMainPage extends JFrame {
                 navigateBack();
             }
         });
+        // Add action listener to the infoAllButton
+        infoAllButton.addActionListener(e -> openTeacherInfoMS());
+        gradeButton.addActionListener(e -> openTeacherGrade());
 
     }
 
@@ -168,4 +170,19 @@ public class TeacherMainPage extends JFrame {
         new NavigationPage().setVisible(true);
         dispose(); // 关闭当前页面
     }
+    private void openTeacherInfoMS() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            TeacherInfoMS.main(new String[0]);
+        });
+        dispose(); // Close current page
+    }
+    private void openTeacherGrade() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            TeacherGrade.main(new String[0]);
+        });
+        dispose(); // Close current page
+    }
+
 }

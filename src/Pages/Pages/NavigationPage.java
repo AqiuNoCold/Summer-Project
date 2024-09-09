@@ -81,7 +81,23 @@ public class NavigationPage extends JFrame {
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new StudentRecordPage());
+                // 创建 User 实例
+                User user = new User(
+                        "user123",        // id
+                        "password",       // pwd
+                        25,               // age
+                        true,             // gender
+                        "ST",        // role
+                        "user123@example.com", // email
+                        "123456789",      // card
+                        false             // lost
+                );
+                if (user.getRole() == "ST") {
+                    openPage(new StudentMainPage());
+
+                } else if (user.getRole() == "TC") {
+                    openPage(new TeacherMainPage());
+                }
             }
         });
         libraryButton.addActionListener(new ActionListener() {
