@@ -1,4 +1,4 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -34,7 +34,7 @@ public class StudentGrade {
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
         // 创建 ImageIcon 并调整大小
-        ImageIcon icon = new ImageIcon("src/imgs/logoDNDX.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/imgs/logoDNDX.png"));
         Image img = icon.getImage();
         Image scaledImg = img.getScaledInstance(260, 86, Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImg);
