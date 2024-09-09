@@ -124,6 +124,27 @@ public class UserDao implements BaseDao<User> {
         return user;
     }
 
+    public boolean updateLost(boolean lost,String id) {
+        boolean isUpdated = false;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "UPDATE tblUser SET lost = ? WHERE id = ?";
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setBoolean(1, lost);
+            pstmt.setString(2, id);
+            // pstmt.setString(9, String.join(",", user.getCourses()));
+            int rowsAffected = pstmt.executeUpdate();
+            isUpdated = rowsAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isUpdated;
+    }
+
+
     public static void main(String[] args) {
         UserDao dao = new UserDao();
         User user = new User(

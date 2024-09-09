@@ -37,11 +37,11 @@ public class NavigationPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        storeButton = createImageButton("商店页面", "src/imgs/store_icon.png");
-        eCardButton = createImageButton("一卡通页面", "src/imgs/ecard_icon.png");
-        studentRecordButton = createImageButton("学籍管理页面", "src/imgs/student_record_icon.png");
-        libraryButton = createImageButton("图书馆页面", "src/imgs/library_icon.png");
-        courseButton = createImageButton("选课页面", "src/imgs/course_icon.png");
+        storeButton = createImageButton("商店页面", "/imgs/store_icon.png");
+        eCardButton = createImageButton("一卡通页面", "/imgs/ecard_icon.png");
+        studentRecordButton = createImageButton("学籍管理页面", "/imgs/student_record_icon.png");
+        libraryButton = createImageButton("图书馆页面", "/imgs/library_icon.png");
+        courseButton = createImageButton("选课页面", "/imgs/course_icon.png");
 
         // 添加按钮到主面板
         mainPanel.add(storeButton);
@@ -67,18 +67,17 @@ public class NavigationPage extends JFrame {
                 try {
                     out.writeObject("3");
                     out.writeObject("cardIni");
-                    out.writeObject(user);
+                    out.writeObject(user.getId());
                     out.flush();
                     ECard response=(ECard) in.readObject();
+                    user= response;
+                    MainApp.setCurrentUser(user);
                     openPage(new ECardPage(response));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
         });
-
-
-
 
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
@@ -89,7 +88,7 @@ public class NavigationPage extends JFrame {
         libraryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new LibraryPage());
+//                openPage(new LibraryPage());
             }
         });
         courseButton.addActionListener(new ActionListener() {
@@ -102,11 +101,13 @@ public class NavigationPage extends JFrame {
 
     // 创建带图片和文字的按钮
     private JButton createImageButton(String text, String imagePath) {
-        ImageIcon icon = new ImageIcon(imagePath);
+//        ImageIcon icon = new ImageIcon(imagePath);
+        Image icon1 = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));
+
 
         // 调整图片大小
-        Image img = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
-        icon = new ImageIcon(img);
+        Image img = icon1.getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
+        ImageIcon icon = new ImageIcon(img);
 
         if (icon.getIconWidth() == -1) { // 判断图片是否加载成功
             System.err.println("Error: Could not load image at " + imagePath);
@@ -125,12 +126,5 @@ public class NavigationPage extends JFrame {
     private void openPage(JFrame page) {
         page.setVisible(true);
         dispose(); // 关闭导航页面
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            NavigationPage navPage = new NavigationPage();
-            navPage.setVisible(true);
-        });
     }
 }

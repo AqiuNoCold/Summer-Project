@@ -28,6 +28,22 @@ public class ShopStudent extends ECard {
         turnBill(data.getBill());
     }
 
+    public ShopStudent(ECard eCard){
+        super(eCard);
+        remain = eCard.getRemain();
+        password = eCard.getPassword();
+
+        favorites = new ArrayList<>();
+        belongs = new ArrayList<>();
+        bill = new ArrayList<>();
+        //初始化商店用户
+        ShopStudentDao dao = new ShopStudentDao();
+        ShopStudentDao.ShopStudentData data = dao.find(id);
+        turnFavorites(data.getFavorites());
+        turnBelongs(data.getBelongs());
+        turnBill(data.getBill());
+    }
+
     public List<Product> getFavorites() {
         return favorites;
     }

@@ -8,10 +8,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -34,29 +31,36 @@ class LimitedLengthDocument extends PlainDocument {
     }
 }
 
-public class chargePage extends JFrame {
+public class chargePage extends JDialog {
 
-    private ECard ecard;
+    private String ecardNumber;
     private JButton chargeButton;
     private JTextField amountField;
     private JLabel messageLabel;
-    private JButton backButton = new JButton("返回");
 
-    public chargePage(ECard newecard) {
-        ecard = newecard;
+    public void setAmountField() {
+        amountField.setText("");
+    }
+
+    public void setMessageLabel() {
+        messageLabel.setText("");
+    }
+
+    public chargePage(String newecard) {
+        ecardNumber = newecard;
+        setModal(true);
 
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
         setTitle("请输入充值金额");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 150);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setSize(200, 150);
         setLocationRelativeTo(null);
         // 创建文本字段
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        setLayout(new GridLayout(3,1));
 
         amountField = new JTextField(8);
-        amountField.setDocument(new LimitedLengthDocument(8));
+        amountField.setDocument(new LimitedLengthDocument(3));
         // 添加键盘监听器，限制输入为数字
         amountField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -67,58 +71,31 @@ public class chargePage extends JFrame {
                 }
             }
         });
-
-        gbc.gridy=0;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""),gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.25;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(amountField, gbc);
-
-
-        gbc.gridy = 2;
         messageLabel = new JLabel("");
-        panel.add(messageLabel, gbc);
-
-        gbc.gridy=3;
-        gbc.weighty = 0.5;
-        panel.add(new JLabel(""),gbc);
-
-
         chargeButton = new JButton("充值");
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        buttonPanel.add(chargeButton, BorderLayout.SOUTH);
-        buttonPanel.add(backButton, BorderLayout.SOUTH);
 
-        getContentPane().add(panel);
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        add(amountField);
+        add(messageLabel);
+        add(chargeButton, BorderLayout.SOUTH);
 
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
 
         chargeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
                 if (amountField.getText().equals("")) {
                     messageLabel.setText("充值金额不能为空");
+                    messageLabel.setForeground(Color.RED);
                 } else if (Float.parseFloat(amountField.getText()) == 0f) {
                     messageLabel.setText("充值金额不能为零");
+                    messageLabel.setForeground(Color.RED);
                 } else {
                     try {
                         dispose();
                         out.writeObject("3");
                         out.writeObject("Charge");
-                        out.writeObject(ecard);
+                        out.writeObject(ecardNumber);
                         out.writeObject(Float.parseFloat(amountField.getText()));
                         out.flush();
-                        boolean response=(boolean)in.readObject();
                         messageWindow();
 
                     } catch (Exception ex) {
@@ -130,22 +107,18 @@ public class chargePage extends JFrame {
         });
     }
 
-    private static void messageWindow()
-    {
-        JFrame frame = new JFrame("支付结果");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private void messageWindow() {
+        JDialog frame = new JDialog(this,"充值结果",true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(300, 150);
-        JLabel label = new JLabel("支付成功", SwingConstants.CENTER);
+
+        JLabel label = new JLabel("充值成功", SwingConstants.CENTER);
+        label.setForeground(Color.BLACK);
+        frame.setLocationRelativeTo(null);
         // 设置字体样式和大小
+        label.setFont(new Font("微软雅黑", Font.BOLD, 20));
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(label, BorderLayout.CENTER);
         frame.setVisible(true);
-        JButton backButton = new JButton("返回");
-        frame.add(backButton, BorderLayout.SOUTH);
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frame.dispose();
-            }
-        });
     }
 }
