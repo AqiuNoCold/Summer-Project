@@ -82,16 +82,17 @@ public class NavigationPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // 创建 User 实例
-                User user = new User(
-                        "user123",        // id
-                        "password",       // pwd
-                        25,               // age
-                        true,             // gender
-                        "ST",        // role
-                        "user123@example.com", // email
-                        "123456789",      // card
-                        false             // lost
-                );
+//                User user = new User(
+//                        "user123",        // id
+//                        "password",       // pwd
+//                        25,               // age
+//                        true,             // gender
+//                        "ST",        // role
+//                        "user123@example.com", // email
+//                        "123456789",      // card
+//                        false             // lost
+//                );
+                User user1=MainApp.getCurrentUser();
                 if (user.getRole() == "ST") {
                     openPage(new StudentMainPage());
 
