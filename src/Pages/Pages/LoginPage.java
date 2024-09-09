@@ -89,18 +89,19 @@ public class LoginPage extends JFrame {
                     out.writeObject(new String(passwordField.getPassword()));
                     out.flush();
 
-                    User response = (User) in.readObject();
-                    MainApp.setCurrentUser(response);
+                    Object response = in.readObject();
+
+                    if (response instanceof User) {
+                        MainApp.setCurrentUser((User) response);
+                        new NavigationPage().setVisible(true);
+                        dispose();
+                    } else if (response instanceof String) {
+                        String message = (String) response;
+                        messageLabel.setText(message);
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.out.println(ex.getMessage());
-                }
-
-                if (MainApp.getCurrentUser() != null) {
-                    new NavigationPage().setVisible(true);
-                    dispose(); // 关闭登录页面
-                } else {
-                    messageLabel.setText("用户名或密码错误");
                 }
             }
         });

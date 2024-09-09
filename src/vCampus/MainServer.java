@@ -23,7 +23,7 @@ public class MainServer {
     private static final int PORT = 5101;
     private static final int MAX_CONNECTIONS = 10;
     private static ConcurrentHashMap<Socket, Thread> socketMap = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Integer, User> userMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, User> userMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -57,11 +57,13 @@ public class MainServer {
     }
 
     private static void handleClient(Socket clientSocket) throws IOException {
+        String userid = null;
         try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
+             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
+                    userid = (String) in.readObject();
                     in.close();
                     out.flush();
                     out.close();
@@ -94,6 +96,7 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
+            userMap.remove(userid);
             clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
@@ -183,8 +186,20 @@ public class MainServer {
                 case "Login":
                     userId = (String) in.readObject();
                     String password = (String) in.readObject();
+
+                    if (userMap.containsKey(userId)) {
+                        // 如果用户已经在线，返回相应的消息
+                        out.writeObject("用户已经登录");
+                        out.flush();
+                        return;  // 终止登录处理
+                    }
                     User user = IUserServerSrv.login(userId, password);
-                    out.writeObject(user);
+                    if (user != null) {
+                        userMap.put(userId, user);  // 将用户ID和User对象存入userMap
+                        out.writeObject(user);  // 返回用户对象
+                    } else {
+                        out.writeObject("Invalid login credentials.");  // 登录失败信息
+                    }
                     out.flush();
                     break;
 

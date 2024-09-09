@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Objects;
 
 public class NavigationPage extends JFrame {
     User user=MainApp.getCurrentUser();
@@ -92,10 +93,10 @@ public class NavigationPage extends JFrame {
                         "123456789",      // card
                         false             // lost
                 );
-                if (user.getRole() == "ST") {
+                if (Objects.equals(user.getRole(), "ST")) {
                     openPage(new StudentMainPage());
 
-                } else if (user.getRole() == "TC") {
+                } else if (Objects.equals(user.getRole(), "TC")) {
                     openPage(new TeacherMainPage());
                 }
             }
