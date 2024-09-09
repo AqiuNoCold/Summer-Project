@@ -1,4 +1,4 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -7,52 +7,51 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class TeacherInfoMS {
-
-    private static final int ROWS_PER_PAGE = 7; // 每页显示的行数
+public class TeacherGrade {
+    private static final int ROWS_PER_PAGE = 8; // 每页显示的行数
     private static int currentPage = 0;
     private static List<Object[]> data; // 表格数据
+    private static List<Object[]> filteredData; // 过滤后的数据
     private static JTable table;
     private static DefaultTableModel tableModel;
     private static JTextField pageNumberField;
+    private static JTextField searchField;
+    private static JComboBox<String> searchComboBox;
     private static JFrame frame;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(TeacherInfoMS::createAndShowGUI);
+        TeacherGrade infoPage = new TeacherGrade();
+        SwingUtilities.invokeLater(infoPage::createAndShowGUIGrade);
     }
 
-    private static void createAndShowGUI() {
-        // 创建主面板，使用 GridBagLayout 布局
+    public void createAndShowGUIGrade() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
+//        gbc.insets = new Insets(10, 10, 10, 10); // 设置内边距
 
-        // 创建包含图片和文字的面板
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        ImageIcon icon = new ImageIcon("src/imgs/logoDNDX.png");
+//        JLabel imageLabel = new JLabel(new ImageIcon("src/imgs/logoDNDX.png")); // 替换为你的图片路径
+        // 创建 ImageIcon 并调整大小
+        ImageIcon icon = new ImageIcon(getClass().getResource("/imgs/logoDNDX.png"));
         Image img = icon.getImage();
         Image scaledImg = img.getScaledInstance(260, 86, Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImg);
 
         JLabel imageLabel = new JLabel(icon);
-        JLabel textLabel = new JLabel("            学生学籍管理");
+        JLabel textLabel = new JLabel("        学生成绩管理");
 
-        // 设置字体大小为 24
-        Font font = new Font("Serif", Font.BOLD, 24); // 字体名称，样式和大小
-        // 设置字体颜色为蓝色
+        Font font = new Font("Serif", Font.BOLD, 27); // 字体名称，样式和大小
         textLabel.setForeground(new Color(3, 81, 32));
         textLabel.setFont(font);
-
-        // 设置文字水平居中
         textLabel.setHorizontalAlignment(SwingConstants.CENTER);
         headerPanel.add(imageLabel);
         headerPanel.add(textLabel);
         headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // 创建表格模型，添加三个额外的按钮列
-        tableModel = new DefaultTableModel(new Object[]{"一卡通号", "姓名", "性别", "详情", "修改", "删除"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"一卡通号", "课程编号", "最终成绩", "详情", "修改", "删除"}, 0);
         table = new JTable(tableModel) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -63,54 +62,45 @@ public class TeacherInfoMS {
             }
         };
 
-        // 设置每一行的高度
-        table.setRowHeight(40); // 设置每一行的高度为40像素
-
-        // 设置表格的首选视口大小，以调整表格的高度
-        int tableHeight = ROWS_PER_PAGE * table.getRowHeight(); // 根据行高和每页的行数计算表格高度
-        table.setPreferredScrollableViewportSize(new Dimension(900, tableHeight)); // 宽度900，高度为计算得到的值
-        // 设置表格在视口中填充满整个可视区域
+        table.setRowHeight(40);
+        int tableHeight = ROWS_PER_PAGE * table.getRowHeight();
+        table.setPreferredScrollableViewportSize(new Dimension(900, tableHeight));
         table.setFillsViewportHeight(true);
-        // 设置单元格内容水平居中
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // 应用渲染器到所有列
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-        // 为按钮列设置渲染器和编辑器
+
         for (int i = 3; i < tableModel.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(new ButtonRenderer());
-            table.getColumnModel().getColumn(i).setCellEditor(new ButtonEditor(new JCheckBox()));
+            table.getColumnModel().getColumn(i).setCellEditor(new ButtonEditor(new JCheckBox(), table));
         }
 
-        // 初始化数据
         data = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            data.add(new Object[]{i, "Person " + i, 20 + i, "Action 1", "Action 2", "Action 3"});
+            data.add(new Object[]{i, "Person " + i, (-1 + i) == 0 ? "未录入" : i, "Action 1", "Action 2", "Action 3"});
         }
+        filteredData = new ArrayList<>(data); // 初始化为全数据
 
-        // 填充第一页数据
         updateTableData();
 
-        // 自动调整列宽以填充视口
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        // 创建分页控件
         JPanel paginationPanel = new JPanel();
         JButton previousButton = new JButton("上一页");
         JButton nextButton = new JButton("下一页");
         JButton goButton = new JButton("跳转");
-        pageNumberField = new JTextField(5); // 输入框用于输入页码
+        pageNumberField = new JTextField(5);
+        pageNumberField.setText(String.valueOf(currentPage + 1));
 
-        // 设置按钮的大小相同
-        Dimension buttonSize = new Dimension(100, 30); // 设置按钮的大小
-        previousButton.setPreferredSize(buttonSize);
-        nextButton.setPreferredSize(buttonSize);
+        Dimension buttonSize = new Dimension(60, 25); // 设置按钮的大小
+        Dimension buttonSize2 = new Dimension(80, 25); // 设置按钮的大小
+        previousButton.setPreferredSize(buttonSize2);
+        nextButton.setPreferredSize(buttonSize2);
         goButton.setPreferredSize(buttonSize);
 
-        // 添加按钮动作监听器
         previousButton.addActionListener(e -> {
             if (currentPage > 0) {
                 currentPage--;
@@ -147,93 +137,145 @@ public class TeacherInfoMS {
         paginationPanel.add(pageNumberField);
         paginationPanel.add(goButton);
 
-        // 创建底部面板，包含返回按钮
         JPanel footerPanel = new JPanel();
         JButton backButton = new JButton("返回");
-        backButton.setPreferredSize(new Dimension(100, 50)); // 设置按钮的高度为50，宽度不固定
+        backButton.setPreferredSize(new Dimension(100, 50));
 
-        // 使用 GridBagConstraints 来确保按钮横跨整个宽度
         footerPanel.setLayout(new GridBagLayout());
         GridBagConstraints footerConstraints = new GridBagConstraints();
         footerConstraints.gridx = 0;
         footerConstraints.gridy = 0;
-        footerConstraints.weightx = 1.0; // 使按钮横跨整个宽度
-        footerConstraints.fill = GridBagConstraints.HORIZONTAL; // 按钮填充整个宽度
+        footerConstraints.weightx = 1.0;
+        footerConstraints.fill = GridBagConstraints.HORIZONTAL;
 
         footerPanel.add(backButton, footerConstraints);
 
-        // 添加返回按钮的动作监听器
         backButton.addActionListener(e -> {
-            new TeacherMainPage().setVisible(true); // 打开TeacherMainPage
-            frame.dispose(); // 关闭当前页面
+            new TeacherMainPage().setVisible(true);
+            frame.dispose();
         });
 
-        // 将表格放入 JScrollPane 中
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // 设置 GridBagConstraints 来使表格和标题居中
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
-        mainPanel.add(headerPanel, gbc); // 添加标题面板
+        mainPanel.add(headerPanel, gbc);
 
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
-        mainPanel.add(scrollPane, gbc); // 添加表格
+        mainPanel.add(scrollPane, gbc);
 
-        // 将分页控件放在 GridBagLayout 的底部
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(paginationPanel, gbc);
 
-        // 将底部面板放在 GridBagLayout 的最底部
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         mainPanel.add(footerPanel, gbc);
 
-        // 创建 JFrame 并设置其属性
+        // 创建搜索面板
+        JPanel searchPanel = new JPanel();
+        searchComboBox = new JComboBox<>(new String[]{"一卡通号", "课程编号"});
+        searchField = new JTextField(15);
+        JButton searchButton = new JButton("搜索");
+
+        searchButton.addActionListener(e -> performSearch());
+
+        searchPanel.add(new JLabel("搜索方式:"));
+        searchPanel.add(searchComboBox);
+        searchPanel.add(new JLabel("关键词:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        gbc.gridy = 1;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(searchPanel, gbc);
+
+
         frame = new JFrame("学生信息管理");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600); // 调整窗口大小以适应新的表格和底部面板
+        frame.setSize(800, 600);
         frame.add(mainPanel);
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
     }
 
+
+
     private static void updateTableData() {
-        // 清空表格模型
         tableModel.setRowCount(0);
-
-        // 计算分页数据
         int start = currentPage * ROWS_PER_PAGE;
-        int end = Math.min(start + ROWS_PER_PAGE, data.size());
+        int end = Math.min(start + ROWS_PER_PAGE, filteredData.size());
 
-
-        // 将数据添加到表格模型中
         for (int i = start; i < end; i++) {
-            tableModel.addRow(data.get(i));
+            tableModel.addRow(filteredData.get(i));
         }
 
-        // 更新表格的视口大小以适应新的行数
-        int tableHeight = ROWS_PER_PAGE * table.getRowHeight(); // 根据行高和每页的行数计算表格高度
-        table.setPreferredScrollableViewportSize(new Dimension(900, tableHeight)); // 高度调整
-        // 设置单元格内容水平居中
+        int tableHeight = ROWS_PER_PAGE * table.getRowHeight();
+        table.setPreferredScrollableViewportSize(new Dimension(900, tableHeight));
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        table.revalidate(); // 重新验证表格
+        table.revalidate();
+    }
+
+    private static void performSearch() {
+        String searchType = (String) searchComboBox.getSelectedItem();
+        String searchTerm = searchField.getText().trim();
+//        System.out.println("search by cardId111");
+//        System.out.println(searchTerm);
+//        System.out.println(searchType);
+        if (searchType != null && !searchTerm.isEmpty()) {
+            try {if (searchType.equals("一卡通号")) {
+//                System.out.println("search by cardId222");
+//                System.out.println(searchTerm);
+//                System.out.println(searchType);
+                int searchId = Integer.parseInt(searchTerm);
+                filteredData = data.stream()
+                        .filter(row -> row[0].equals(searchId))
+                        .collect(Collectors.toList());
+                currentPage = 0; // 重置到第一页
+                updateTableData();
+                pageNumberField.setText(null);
+                }
+                else if (searchType.equals("课程编号")) {
+//                System.out.println("search by courseId222");
+//                System.out.println(searchTerm);
+//                System.out.println(searchType);
+                    int searchId = Integer.parseInt(searchTerm);
+                    filteredData = data.stream()
+                            .filter(row -> row[1].equals(searchId))
+                            .collect(Collectors.toList());
+                    currentPage = 0; // 重置到第一页
+                    updateTableData();
+                    pageNumberField.setText(null);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "请输入正确的搜索条件", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+        } else {
+            // 如果没有搜索条件，显示所有数据
+            filteredData = new ArrayList<>(data);
+            currentPage = 0;
+            updateTableData();
+            pageNumberField.setText(String.valueOf(currentPage + 1));
+        }
     }
 
     // 自定义按钮渲染器
     static class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
             setOpaque(true);
-            setBackground(Color.WHITE); // 设置按钮背景颜色为白色
-            setHorizontalAlignment(SwingConstants.CENTER); // 设置水平对齐方式为居中
+            setBackground(Color.WHITE);
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         @Override
@@ -242,15 +284,10 @@ public class TeacherInfoMS {
                 setBackground(table.getSelectionBackground());
                 setForeground(table.getSelectionForeground());
             } else {
-                setBackground(Color.WHITE); // 确保背景颜色是白色
+                setBackground(Color.WHITE);
                 setForeground(table.getForeground());
-                setHorizontalAlignment(SwingConstants.CENTER);
-                // 设置单元格内容水平居中
-                DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-                centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
             }
 
-            // 设置按钮文本
             switch (column) {
                 case 3: setText("详情"); break;
                 case 4: setText("修改"); break;
@@ -267,21 +304,23 @@ public class TeacherInfoMS {
         private JButton button;
         private String label;
         private boolean isPushed;
+        private JTable table; // 添加 JTable 实例变量
 
-        public ButtonEditor(JCheckBox checkBox) {
+        public ButtonEditor(JCheckBox checkBox, JTable table) {
             super(checkBox);
+            this.table = table; // 初始化 JTable 实例变量
             button = new JButton();
             button.setOpaque(true);
-            button.setBackground(Color.WHITE); // 设置按钮背景颜色为白色
+            button.setBackground(Color.WHITE);
 
             button.addActionListener(e -> {
-                fireEditingStopped(); // Stops editing and notifies listeners
-                int row = table.getSelectedRow();
+                fireEditingStopped();
+                int row = table.getSelectedRow(); // 使用传递的 table 实例
                 int column = table.getSelectedColumn();
                 if (column == 3) {
                     // 详情按钮操作
                     Object[] rowData = getRowData(row);
-                    JOptionPane.showMessageDialog(button, "详细信息:\nCardId: " + rowData[0] + "\nName: " + rowData[1] + "\nGender: " + rowData[2]);
+                    JOptionPane.showMessageDialog(button, "详细信息:\nCardId: " + rowData[0] + "\ncourseId: " + rowData[1] + "\nGrade: " + rowData[2]);
                 } else if (column == 4) {
                     // 修改按钮操作
                     Object[] rowData = getRowData(row);
@@ -290,7 +329,7 @@ public class TeacherInfoMS {
                     JPanel panel = new JPanel(new GridLayout(2, 2));
                     panel.add(new JLabel("Name:"));
                     panel.add(nameField);
-                    panel.add(new JLabel("Gender:"));
+                    panel.add(new JLabel("Grade:"));
                     panel.add(genderField);
                     int result = JOptionPane.showConfirmDialog(button, panel, "修改信息", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                     if (result == JOptionPane.OK_OPTION) {
@@ -315,10 +354,9 @@ public class TeacherInfoMS {
                 button.setBackground(table.getSelectionBackground());
             } else {
                 button.setForeground(table.getForeground());
-                button.setBackground(Color.WHITE); // 确保背景颜色是白色
+                button.setBackground(Color.WHITE);
             }
 
-            // 设置按钮文本
             switch (column) {
                 case 3: label = "详情"; break;
                 case 4: label = "修改"; break;

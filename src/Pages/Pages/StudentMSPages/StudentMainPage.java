@@ -1,5 +1,6 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
+import Pages.Pages.NavigationPage;
 import vCampus.Entity.User;
 import Pages.MainApp;
 
@@ -45,10 +46,10 @@ public class StudentMainPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        personButton = createImageButton("一卡通号："+userTest.getCard(),  "src/imgs/man.png",90,110,16,new Color(76, 138, 77));
-        infoAllButton = createImageButton("个人信息查询", "src/imgs/info.png",80,80,16,new Color(0, 0, 0));
-        DNDXButton = createImageButton("学生基本信息", "src/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
-        gradeButton = createImageButton("个人成绩查询", "src/imgs/grade.png",80,80,16,new Color(0, 0, 0));
+        personButton = createImageButton("一卡通号："+userTest.getCard(),  "/imgs/man.png",90,110,16,new Color(76, 138, 77));
+        infoAllButton = createImageButton("个人信息查询", "/imgs/info.png",80,80,16,new Color(0, 0, 0));
+        DNDXButton = createImageButton("学生基本信息", "/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
+        gradeButton = createImageButton("个人成绩查询", "/imgs/grade.png",80,80,16,new Color(0, 0, 0));
         JButton backButton = new JButton("返回");
         add(backButton, BorderLayout.SOUTH);
         // 添加按钮到主面板
@@ -66,11 +67,29 @@ public class StudentMainPage extends JFrame {
                 navigateBack();
             }
         });
+        infoAllButton.addActionListener(e -> openStudentInfoMS());
+        gradeButton.addActionListener(e -> openStudentGrade());
+    }
+
+    private void openStudentGrade() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            StudentGrade.main(new String[0]);
+        });
+        dispose(); // Close current page
+    }
+
+    private void openStudentInfoMS() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            StudentInfo.main(new String[0]);
+        });
+        dispose(); // Close current page
     }
 
     // 创建带图片和文字的按钮
     private JButton createImageButton(String text, String imagePath,int weight,int height,int size,Color color) {
-        ImageIcon icon = new ImageIcon(imagePath);
+        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
 
         // 调整图片大小
         Image img = icon.getImage().getScaledInstance(weight, height, Image.SCALE_SMOOTH); // 调整图片为64x64像素
@@ -91,43 +110,7 @@ public class StudentMainPage extends JFrame {
         return button;
     }
 
-    // 创建带图片和文字的按钮
-    private JButton createImageButton2(String text, String imagePath) {
-        ImageIcon icon = new ImageIcon(imagePath);
 
-        // 调整图片大小
-        Image img = icon.getImage().getScaledInstance(250, 80, Image.SCALE_SMOOTH); // 调整图片为64x64像素
-        icon = new ImageIcon(img);
-
-        if (icon.getIconWidth() == -1) { // 判断图片是否加载成功
-            System.err.println("Error: Could not load image at " + imagePath);
-        }
-
-        JButton button = new JButton(text, icon);
-        button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字在图片中心
-        button.setVerticalTextPosition(SwingConstants.BOTTOM); // 文字在图片下方
-        button.setFont(new Font("微软雅黑", Font.BOLD, 16)); // 设置字体
-        button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // 增加按钮内边距
-        return button;
-    }
-
-    private static JLabel createImageLabel(String imagePath) {
-        ImageIcon icon = new ImageIcon(imagePath);
-
-        // 调整图片大小
-        Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH); // 调整图片为200x150像素
-        icon = new ImageIcon(img);
-
-        if (icon.getIconWidth() == -1) { // 判断图片是否加载成功
-            System.err.println("Error: Could not load image at " + imagePath);
-        }
-
-        // 创建 JLabel 并设置图标
-        JLabel label = new JLabel(icon);
-        return label;
-    }
 
     public static JLabel createTextLabel(String text1, String text2) {
         // 使用HTML格式来设置标签的内容，调整字体大小、行间距和字体颜色

@@ -1,6 +1,7 @@
 package Pages.Pages.ECard;
 
 import Pages.MainApp;
+import vCampus.Entity.ECard.ECard;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,32 +11,25 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
-public class PayPage extends JDialog {
-    private String id;
+public class changePasswordPage extends JDialog {
+
     private final String ecardNumber;
-    private final float amount;
-    private final String reason;
-
+    private final JButton compareButton;
     private final JTextField passwordField;
-    private final JLabel messageLabel=new JLabel("");
+    private final JLabel messageLabel;
+    private int status;
 
-
-    public PayPage(String newid,String newecard,float newamount, String newreason) {
+    public changePasswordPage(String newecard) {
         setModal(true);
-        id=newid;
         ecardNumber = newecard;
-        amount = newamount;
-        reason = newreason;
         ObjectInputStream in = MainApp.getIn();
         ObjectOutputStream out = MainApp.getOut();
-        setTitle("等待支付中...");
+        setTitle("请输入旧的支付密码");
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(300, 150);
+        setSize(200, 150);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(4, 1));
 
         passwordField = new JTextField(8);
         passwordField.setDocument(new LimitedLengthDocument(6));
@@ -50,19 +44,18 @@ public class PayPage extends JDialog {
             }
         });
 
-        JPanel labelPanel = new JPanel();
-        labelPanel.setLayout(new FlowLayout());
-        labelPanel.add(new JLabel("卡号："+ecardNumber));
-        labelPanel.add(new JLabel("金额："+amount));
-        labelPanel.add(new JLabel("原因："+reason));
 
-        JButton compareButton = new JButton("确定");
-        setmessageLabel();
+        setLayout(new GridLayout(3,1));
 
-        add(labelPanel);
+
         add(passwordField);
+
+        messageLabel = new JLabel("");
         add(messageLabel);
-        add(compareButton);
+
+        compareButton = new JButton("确定");
+        add(compareButton, BorderLayout.SOUTH);
+
         compareButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
@@ -77,6 +70,7 @@ public class PayPage extends JDialog {
                     setAmountField();
                 } else {
                     try {
+                        if (status == 0) {
                             out.writeObject("3");
                             out.writeObject("comparePassword");
                             out.writeObject(ecardNumber);
@@ -88,17 +82,22 @@ public class PayPage extends JDialog {
                                 messageLabel.setText("密码不正确");
                                 setAmountField();
                             } else {
-                                out.writeObject("3");
-                                out.writeObject("Pay");
-                                out.writeObject(id);
-                                out.writeObject(ecardNumber);
-                                out.writeObject(amount);
-                                out.writeObject(reason);
-                                out.flush();
-                                int payresult=(int)in.readObject();
-                                messageWindow(payresult);
-                                dispose();
+                                setTitle("请输入新的支付密码");
+                                setAmountField();
+                                setmessageLabel();
+                                status = 1;
                             }
+                        } else if (status == 1) {
+                            out.writeObject("3");
+                            out.writeObject("newPassword");
+                            Integer newPassword = Integer.parseInt(passwordField.getText());
+                            out.writeObject(ecardNumber);
+                            out.writeObject(newPassword);
+                            out.flush();
+                            messageWindow();
+                            dispose();
+                        }
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -115,18 +114,19 @@ public class PayPage extends JDialog {
         messageLabel.setText("");
     }
 
-    private void messageWindow(int result) {
-        JDialog frame = new JDialog(this, "支付结果", true);
-        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    public void setStatus() {
+        status = 0;
+    }
+
+    private void messageWindow() {
+        JFrame frame = new JFrame("密码修改结果");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(300, 150);
-        JLabel label = new JLabel("", SwingConstants.CENTER);
+
+        JLabel label = new JLabel("密码修改成功！", SwingConstants.CENTER);
         label.setFont(new Font("微软雅黑", Font.BOLD, 20));
-        if (result==0)
-            label.setText("支付成功！");
-        else if(result==1)
-            label.setText("余额不足，支付失败！");
-        else if(result==2)
-            label.setText("卡片被冻结，支付失败！");
+        label.setForeground(Color.BLACK);
+
         frame.setLocationRelativeTo(null);
         // 设置字体样式和大小
         frame.getContentPane().setLayout(new BorderLayout());

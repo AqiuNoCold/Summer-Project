@@ -17,14 +17,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static vCampus.ECard.ECardServerSrv.charge;
+import static vCampus.ECard.ECardServerSrv.*;
 
 public class MainServer {
     private static final int PORT = 5101;
     private static final int MAX_CONNECTIONS = 10;
     private static ConcurrentHashMap<Socket, Thread> socketMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, User> userMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -58,11 +60,17 @@ public class MainServer {
     }
 
     private static void handleClient(Socket clientSocket) throws IOException {
+        String userid = null;
         try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
+             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
+                    try {
+                        userid = (String) in.readObject();
+                    } catch (IOException e) {
+                        System.out.println("客户端未进行登录操作");
+                    }
                     in.close();
                     out.flush();
                     out.close();
@@ -95,6 +103,9 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
+            if (userid != null) {
+                userMap.remove(userid);
+            }
             clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
@@ -184,8 +195,20 @@ public class MainServer {
                 case "Login":
                     userId = (String) in.readObject();
                     String password = (String) in.readObject();
+
+                    if (userMap.containsKey(userId)) {
+                        // 如果用户已经在线，返回相应的消息
+                        out.writeObject("用户已经登录");
+                        out.flush();
+                        return;  // 终止登录处理
+                    }
                     User user = IUserServerSrv.login(userId, password);
-                    out.writeObject(user);
+                    if (user != null) {
+                        userMap.put(userId, user);  // 将用户ID和User对象存入userMap
+                        out.writeObject(user);  // 返回用户对象
+                    } else {
+                        out.writeObject("Invalid login credentials.");  // 登录失败信息
+                    }
                     out.flush();
                     break;
 
@@ -223,18 +246,55 @@ public class MainServer {
 
     private static void EcardPage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
-        ECard eCard;
+        String eCard;
         if (function != null) {
             switch (function) {
                 case "cardIni":
-                    User user = (User) in.readObject();
-                    eCard = ECardServerSrv.cardIni(user);
-                    out.writeObject(eCard);
+                    String iniId = (String) in.readObject();
+                    out.writeObject(ECardServerSrv.cardIni(iniId));
+                    out.flush();
                     break;
                 case "Charge":
-                    eCard = (ECard) in.readObject();
+                    eCard = (String) in.readObject();
+                    System.out.println(eCard);
                     float amount = (float) in.readObject();
-                    out.writeObject(ECardServerSrv.charge(eCard, amount));
+                    charge(eCard, amount);
+                    break;
+                case "History":
+                    String card=(String) in.readObject();
+                    String response=getTransactionHistory(card);
+                    out.writeObject(response);
+                    out.flush();
+                    break;
+                case "comparePassword":
+                    eCard = (String) in.readObject();
+                    Integer enteredPassword=(Integer) in.readObject();
+                    out.writeObject(comparePassword(eCard,enteredPassword));
+                    out.flush();
+                    break;
+                case "newPassword":
+                    eCard = (String) in.readObject();
+                    Integer newEnPassword = (Integer) in.readObject();
+                    newPassword(eCard, newEnPassword);
+                    break;
+                case "LostSettings":
+                    String id=(String) in.readObject();
+                    boolean isLost=(boolean) in.readObject();
+                    LostSettings(id,isLost);
+                    break;
+                case "Status":
+                    eCard=(String) in.readObject();
+                    out.writeObject(showStatus(eCard));
+                    out.flush();
+                    break;
+                case "Pay":
+                    String payid=(String) in.readObject();
+                    eCard=(String) in.readObject();
+
+                    float payamount=(float) in.readObject();
+                    String reason=(String) in.readObject();
+                    out.writeObject(pay(payid,eCard,payamount,reason));
+                    out.flush();
             }
         } else {
             System.out.println("Unknown function: " + function);
