@@ -243,7 +243,7 @@ public class DbCreator {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblECard ("
                 + "remain FLOAT CHECK (remain >= 0), "
                 + "password INT, "
-                + "card CHAR(9) CHECK (LENGTH(card) = 9)"
+                + "card CHAR(9) CHECK (LENGTH(card) = 9) PRIMARY KEY"
                 + ")";
 
         executeSQL(createTableSQL, "tblECard");
@@ -252,7 +252,7 @@ public class DbCreator {
     private static void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS tblTransaction ("
                 + "transaction TEXT, "
-                + "card CHAR(9) CHECK (LENGTH(card) = 9)"
+                + "card CHAR(9) CHECK (LENGTH(card) = 9) PRIMARY KEY"
                 + ")";
 
         executeSQL(createTableSQL, "tblTransaction");

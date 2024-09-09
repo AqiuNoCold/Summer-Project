@@ -67,18 +67,17 @@ public class NavigationPage extends JFrame {
                 try {
                     out.writeObject("3");
                     out.writeObject("cardIni");
-                    out.writeObject(user);
+                    out.writeObject(user.getId());
                     out.flush();
                     ECard response=(ECard) in.readObject();
+                    user= response;
+                    MainApp.setCurrentUser(user);
                     openPage(new ECardPage(response));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
         });
-
-
-
 
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
@@ -89,7 +88,7 @@ public class NavigationPage extends JFrame {
         libraryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new LibraryPage());
+//                openPage(new LibraryPage());
             }
         });
         courseButton.addActionListener(new ActionListener() {
@@ -125,12 +124,5 @@ public class NavigationPage extends JFrame {
     private void openPage(JFrame page) {
         page.setVisible(true);
         dispose(); // 关闭导航页面
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            NavigationPage navPage = new NavigationPage();
-            navPage.setVisible(true);
-        });
     }
 }

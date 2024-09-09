@@ -2,33 +2,51 @@ package Pages.Pages.ECard;
 
 import Pages.MainApp;
 import Pages.Pages.NavigationPage;
+import vCampus.Entity.ECard.ECardDTO;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
+
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class ECardPage extends JFrame {
 
+
+    private JDialog message_failed;
+
     private ECard ecard;
+
     private JButton billsButton;
     private JButton changePasswordButton;
     private JButton chargeButton;
     private JButton lostButton;
     private JButton statusButton;
-    private JButton backButton = new JButton("返回");
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+
     public ECardPage(ECard response) {
+        in=MainApp.getIn();
+        out=MainApp.getOut();
+
         ecard=response;
         setTitle("一卡通页面");
         setSize(800, 600);
 
+        message_failed=messageWindow_failed();
+
+
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示窗口
         setLayout(new BorderLayout());
-        add(backButton, BorderLayout.SOUTH);
 
         JPanel mainPanel = new JPanel(new GridLayout(2, 3, 10, 10)); // 2行3列的网格布局
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 增加边距
@@ -38,8 +56,16 @@ public class ECardPage extends JFrame {
         billsButton=createImageButton("账单","src/imgs/ecard/bills.png");
         changePasswordButton=createImageButton("修改密码","src/imgs/ecard/changePassword.png");
         chargeButton=createImageButton("充值","src/imgs/ecard/charge.png");
-        lostButton=createImageButton("挂失/解挂","src/imgs/ecard/lost.png");
+        lostButton=createImageButton("","src/imgs/ecard/lost.png");
+        updateLostButton();
         statusButton=createImageButton("卡片状态","src/imgs/ecard/status.png");
+
+        billsButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        changePasswordButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        chargeButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        lostButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        statusButton.setFont(new Font("微软雅黑", Font.BOLD, 20));
+
 
         mainPanel.add(chargeButton);
         mainPanel.add(billsButton);
@@ -51,59 +77,86 @@ public class ECardPage extends JFrame {
 
         chargeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(ecard.getLost())
+                    message_failed.setVisible(true);
+                else{
                 try{
-                    new chargePage(ecard).setVisible(true);
+                    new chargePage(ecard.getCard()).setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }}
+        });
+
+        billsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    out.writeObject("3");
+                    out.writeObject("History");
+                    out.writeObject(ecard.getCard());
+                    out.flush();
+                    String response = (String) in.readObject();
+                    new transactionPage(response).setVisible(true);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
         });
-        backButton.addActionListener(new ActionListener() {
-            @Override
+
+        changePasswordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if(ecard.getLost())
+                    message_failed.setVisible(true);
+                else{
+                try{
+                    new changePasswordPage(ecard.getCard()).setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }}
+        });
+
+        lostButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    out.writeObject("3");
+                    out.writeObject("LostSettings");
+                    out.writeObject(ecard.getId());
+                    out.writeObject(ecard.getLost());
+                    out.flush();
+                    ecard.setLost(!ecard.getLost());
+                    messageWindow_lostsettings(ecard.getLost()).setVisible(true);
+                    updateLostButton();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        statusButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    out.writeObject("3");
+                    out.writeObject("Status");
+                    out.writeObject(ecard.getCard());
+                    out.flush();
+                    ECardDTO cardStatus = (ECardDTO) in.readObject();
+                    statusWindow(cardStatus).setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
                 navigateBack();
             }
         });
-        billsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                
-            }
-        });
     }
 
 
-    public static void LostSettings(User user) {
-    }
-
-    public static void showStatus(User user) {
-        // 请求服务端showStatusSSrv后展示服务端返回的数据,假设为currentBalance
-        float currentBalance = 200f;
-        System.out.println("Current Balance: " + currentBalance);
-    }
-
-    public static void getTransactionHistory(User user) {
-        // 请求服务端getTransactionHistorySSrv后展示返回值.,假设为currentHistory
-
-    }
-
-    public static void comparePassword(User user) {
-
-        boolean ServerResult = false;
-        if (!ServerResult)
-            System.out.println("Doesn't match the old password");
-    }
-
-    public static void newPassword(User user) {
-
-        boolean ServerResult = true;
-        if (ServerResult)
-            System.out.println("Password changed successfully!");
-    }
-
-    public static boolean payClientSrv(User user) {
-        comparePassword(user);
-        return true;
-    }
     private JButton createImageButton(String text, String imagePath) {
         ImageIcon icon = new ImageIcon(imagePath);
 
@@ -130,5 +183,91 @@ public class ECardPage extends JFrame {
         dispose(); // 关闭当前页面
     }
 
+    private void updateLostButton(){
+        if(!ecard.getLost()) {
+            lostButton.setText("冻结卡片");
+            lostButton.setForeground(Color.RED);
+        }
+        else
+        {lostButton.setText("解冻卡片");
+        lostButton.setForeground(new Color(98, 211, 98));}
+    }
+
+    private JDialog messageWindow_failed() {
+        JDialog frame = new JDialog(this,"打开服务失败",true);
+        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        frame.setSize(500, 150);
+
+        JLabel label = new JLabel("卡片已被冻结，无法使用该服务", SwingConstants.CENTER);
+
+        label.setFont(new Font("", Font.BOLD, 20));
+        label.setForeground(Color.RED);
+
+        frame.setLocationRelativeTo(null);
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(label, BorderLayout.CENTER);
+        return frame;
+    }
+
+    private JDialog messageWindow_lostsettings(boolean islost) {
+        JDialog frame = new JDialog(this,"打开服务失败",true);
+        frame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        frame.setSize(500, 150);
+        frame.setLocationRelativeTo(null);
+
+        JLabel label = new JLabel("", SwingConstants.CENTER);
+        if(islost) {
+            frame.setTitle("冻结成功！");
+            label.setText("冻结成功！");
+        }else{
+            frame.setTitle("解冻成功！");
+            label.setText("解冻成功！");
+        }
+
+
+        label.setFont(new Font("", Font.BOLD, 20));
+
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(label, BorderLayout.CENTER);
+        return frame;
+    }
+
+    private JDialog statusWindow(ECardDTO status){
+        JDialog modalDialog = new JDialog(this, "卡片状态", true);
+
+        modalDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        modalDialog.setSize(300, 150);
+        modalDialog.setLocationRelativeTo(null);
+
+        JLabel cardLabel = new JLabel("卡号："+status.getCard());
+        JLabel remainLabel=new JLabel("余额："+status.getRemain());
+        JLabel lostLabel=new JLabel();
+        if(ecard.getLost()){
+            lostLabel.setText("冻结中");
+            lostLabel.setForeground(Color.RED);
+        }
+        else{
+            lostLabel.setText("正常");
+            lostLabel.setForeground(new Color(98, 211, 98));
+        }
+
+
+        cardLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        remainLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+        lostLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        panel.add(cardLabel);
+        panel.add(Box.createRigidArea(new java.awt.Dimension(0, 10)));
+        panel.add(remainLabel);
+        panel.add(Box.createRigidArea(new java.awt.Dimension(0, 10)));
+        panel.add(lostLabel);
+
+        modalDialog.add(panel);
+
+        return modalDialog;
+    }
 }
 

@@ -14,9 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static vCampus.ECard.ECardServerSrv.charge;
+import static vCampus.ECard.ECardServerSrv.*;
 
 public class MainServer {
     private static final int PORT = 5101;
@@ -220,18 +221,55 @@ public class MainServer {
 
     private static void EcardPage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
-        ECard eCard;
+        String eCard;
         if (function != null) {
             switch (function) {
                 case "cardIni":
-                    User user = (User) in.readObject();
-                    eCard = ECardServerSrv.cardIni(user);
-                    out.writeObject(eCard);
+                    String iniId = (String) in.readObject();
+                    out.writeObject(ECardServerSrv.cardIni(iniId));
+                    out.flush();
                     break;
                 case "Charge":
-                    eCard = (ECard) in.readObject();
+                    eCard = (String) in.readObject();
+                    System.out.println(eCard);
                     float amount = (float) in.readObject();
-                    out.writeObject(ECardServerSrv.charge(eCard, amount));
+                    charge(eCard, amount);
+                    break;
+                case "History":
+                    String card=(String) in.readObject();
+                    String response=getTransactionHistory(card);
+                    out.writeObject(response);
+                    out.flush();
+                    break;
+                case "comparePassword":
+                    eCard = (String) in.readObject();
+                    Integer enteredPassword=(Integer) in.readObject();
+                    out.writeObject(comparePassword(eCard,enteredPassword));
+                    out.flush();
+                    break;
+                case "newPassword":
+                    eCard = (String) in.readObject();
+                    Integer newEnPassword = (Integer) in.readObject();
+                    newPassword(eCard, newEnPassword);
+                    break;
+                case "LostSettings":
+                    String id=(String) in.readObject();
+                    boolean isLost=(boolean) in.readObject();
+                    LostSettings(id,isLost);
+                    break;
+                case "Status":
+                    eCard=(String) in.readObject();
+                    out.writeObject(showStatus(eCard));
+                    out.flush();
+                    break;
+                case "Pay":
+                    String payid=(String) in.readObject();
+                    eCard=(String) in.readObject();
+
+                    float payamount=(float) in.readObject();
+                    String reason=(String) in.readObject();
+                    out.writeObject(pay(payid,eCard,payamount,reason));
+                    out.flush();
             }
         } else {
             System.out.println("Unknown function: " + function);
