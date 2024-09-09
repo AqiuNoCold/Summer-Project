@@ -66,6 +66,24 @@ public class StudentMainPage extends JFrame {
                 navigateBack();
             }
         });
+        infoAllButton.addActionListener(e -> openStudentInfoMS());
+        gradeButton.addActionListener(e -> openStudentGrade());
+    }
+
+    private void openStudentGrade() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            StudentGrade.main(new String[0]);
+        });
+        dispose(); // Close current page
+    }
+
+    private void openStudentInfoMS() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            StudentInfo.main(new String[0]);
+        });
+        dispose(); // Close current page
     }
 
     // 创建带图片和文字的按钮
