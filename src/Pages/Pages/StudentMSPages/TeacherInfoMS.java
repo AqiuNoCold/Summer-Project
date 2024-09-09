@@ -1,4 +1,4 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -36,7 +36,7 @@ public class TeacherInfoMS {
         // 创建包含图片和文字的面板
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
-        ImageIcon icon = new ImageIcon("src/imgs/logoDNDX.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/imgs/logoDNDX.png"));
         Image img = icon.getImage();
         Image scaledImg = img.getScaledInstance(260, 86, Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImg);

@@ -1,5 +1,6 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
+import Pages.Pages.NavigationPage;
 import vCampus.Entity.User;
 import Pages.MainApp;
 
@@ -8,19 +9,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class StudentMainPage extends JFrame {
+public class TeacherMainPage extends JFrame {
     private JButton DNDXButton;
-    private JButton personButton;
+    private JButton infoButton;
     private JButton infoAllButton;
     private JButton gradeButton;
-    private JButton libraryButton;
-    private JButton courseButton;
 
     User user = MainApp.getCurrentUser();
     // 创建一个 User 对象
     User userTest = new User(
             "user123",  // id
-            "password1", // pwd
+            "password1", // pw/
             25,          // age
             true,        // gender (true = male, false = female)
             "ST",        // role (ST, TC, or AD)
@@ -29,8 +28,8 @@ public class StudentMainPage extends JFrame {
             false        // lost (false = not frozen, true = frozen)
     );
 
-    public StudentMainPage() {
-        setTitle("学生学籍系统（学生端）");
+    public TeacherMainPage() {
+        setTitle("学生学籍系统（教师端）");
         setSize(800, 600); // 调整窗口大小
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 居中显示窗口
@@ -45,18 +44,22 @@ public class StudentMainPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        personButton = createImageButton("一卡通号："+userTest.getCard(),  "/imgs/man.png",90,110,16,new Color(76, 138, 77));
-        infoAllButton = createImageButton("个人信息查询", "/imgs/info.png",80,80,16,new Color(0, 0, 0));
-        DNDXButton = createImageButton("学生基本信息", "/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
-        gradeButton = createImageButton("个人成绩查询", "/imgs/grade.png",80,80,16,new Color(0, 0, 0));
+        infoButton = createImageButton("一卡通号："+userTest.getCard(),  "/imgs/Tea3.jpg",90,110,16,new Color(76, 138, 77));
+        infoAllButton = createImageButton("学生信息管理", "/imgs/t11.jpg",80,80,16,new Color(0, 0, 0));
+//        JLabel imageLabel = createImageLabel("src/imgs/logoDNDX.png");
+        DNDXButton = createImageButton("学籍管理系统", "/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
+        gradeButton = createImageButton("学生成绩录入", "/imgs/t2.jpg",80,80,16,new Color(0, 0, 0));
         JButton backButton = new JButton("返回");
         add(backButton, BorderLayout.SOUTH);
+
         // 添加按钮到主面板
         mainPanel.add(DNDXButton,gbc);
-        mainPanel.add(personButton,gbc);
+        mainPanel.add(infoButton,gbc);
         mainPanel.add(infoAllButton,gbc);
         mainPanel.add(gradeButton);
-//        mainPanel.add(backButton);
+
+//        mainPanel.add(libraryButton);
+//        mainPanel.add(courseButton);
 
         add(mainPanel); // 将主面板添加到框架中
 
@@ -66,24 +69,10 @@ public class StudentMainPage extends JFrame {
                 navigateBack();
             }
         });
-        infoAllButton.addActionListener(e -> openStudentInfoMS());
-        gradeButton.addActionListener(e -> openStudentGrade());
-    }
+        // Add action listener to the infoAllButton
+        infoAllButton.addActionListener(e -> openTeacherInfoMS());
+        gradeButton.addActionListener(e -> openTeacherGrade());
 
-    private void openStudentGrade() {
-        // Instantiate and display TeacherInfoMS
-        SwingUtilities.invokeLater(() -> {
-            StudentGrade.main(new String[0]);
-        });
-        dispose(); // Close current page
-    }
-
-    private void openStudentInfoMS() {
-        // Instantiate and display TeacherInfoMS
-        SwingUtilities.invokeLater(() -> {
-            StudentInfo.main(new String[0]);
-        });
-        dispose(); // Close current page
     }
 
     // 创建带图片和文字的按钮
@@ -110,41 +99,29 @@ public class StudentMainPage extends JFrame {
     }
 
 
-
-    public static JLabel createTextLabel(String text1, String text2) {
-        // 使用HTML格式来设置标签的内容，调整字体大小、行间距和字体颜色
-        String htmlText = "<html><div style='text-align: center;'>"
-                + "<span style='font-size: 18px; color: rgb(0, 0, 255);'>" // 设置字体大小和颜色
-                + text1 + "</span><br>"
-                + "<span style='font-size: 18px; color: rgb(0, 0, 255);'>" // 设置字体大小和颜色
-                + text2 + "</span>"
-                + "<br><span style='font-size: 10px; line-height: 20px;'>"
-                + "</span></div></html>";
-
-        // 创建 JLabel 并设置文本
-        JLabel label = new JLabel(htmlText, SwingConstants.CENTER);
-
-        // 设置标签为居中对齐
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setVerticalAlignment(SwingConstants.CENTER);
-
-        return label;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TeacherMainPage navPage = new TeacherMainPage();
+            navPage.setVisible(true);
+        });
     }
-
-    private void openPage(JFrame page) {
-        page.setVisible(true);
-        dispose(); // 关闭导航页面
-    }
-
     private void navigateBack() {
         new NavigationPage().setVisible(true);
         dispose(); // 关闭当前页面
     }
-
-    public static void main(String[] args) {
+    private void openTeacherInfoMS() {
+        // Instantiate and display TeacherInfoMS
         SwingUtilities.invokeLater(() -> {
-            StudentMainPage navPage = new StudentMainPage();
-            navPage.setVisible(true);
+            TeacherInfoMS.main(new String[0]);
         });
+        dispose(); // Close current page
     }
+    private void openTeacherGrade() {
+        // Instantiate and display TeacherInfoMS
+        SwingUtilities.invokeLater(() -> {
+            TeacherGrade.main(new String[0]);
+        });
+        dispose(); // Close current page
+    }
+
 }

@@ -1,6 +1,8 @@
 package Pages.Pages;
 
 import Pages.Pages.ECard.ECardPage;
+import Pages.Pages.StudentMSPages.StudentMainPage;
+import Pages.Pages.StudentMSPages.TeacherMainPage;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
@@ -9,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -141,5 +142,8 @@ public class NavigationPage extends JFrame {
     private void openPage(JFrame page) {
         page.setVisible(true);
         dispose(); // 关闭导航页面
+    }
+    public static void main(String[] args) {
+        new NavigationPage().setVisible(true);
     }
 }

@@ -1,4 +1,4 @@
-package Pages.Pages;
+package Pages.Pages.StudentMSPages;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
