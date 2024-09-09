@@ -15,7 +15,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class NavigationPage extends JFrame {
-    User user=MainApp.getCurrentUser();
+    User user = MainApp.getCurrentUser();
 
     private JButton storeButton;
     private JButton eCardButton;
@@ -69,8 +69,8 @@ public class NavigationPage extends JFrame {
                     out.writeObject("cardIni");
                     out.writeObject(user.getId());
                     out.flush();
-                    ECard response=(ECard) in.readObject();
-                    user= response;
+                    ECard response = (ECard) in.readObject();
+                    user = response;
                     MainApp.setCurrentUser(user);
                     openPage(new ECardPage(response));
                 } catch (Exception ex) {
@@ -88,7 +88,7 @@ public class NavigationPage extends JFrame {
         libraryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                openPage(new LibraryPage());
+                openPage(new LibraryPage());
             }
         });
         courseButton.addActionListener(new ActionListener() {
@@ -101,9 +101,8 @@ public class NavigationPage extends JFrame {
 
     // 创建带图片和文字的按钮
     private JButton createImageButton(String text, String imagePath) {
-//        ImageIcon icon = new ImageIcon(imagePath);
+        // ImageIcon icon = new ImageIcon(imagePath);
         Image icon1 = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));
-
 
         // 调整图片大小
         Image img = icon1.getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素

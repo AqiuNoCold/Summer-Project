@@ -8,12 +8,12 @@ import vCampus.Service.*;
 import vCampus.User.IUserServerSrv;
 import vCampus.ECard.ECardServerSrv;
 
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -167,6 +167,11 @@ public class MainServer {
                         removeBookId);
                 out.writeObject(updatedRemoveUser);
                 break;
+            case "getRandomBooks":
+                int count = (int) in.readObject();
+                List<Book> randomBooks = libraryService.getRandomBooks(count);
+                out.writeObject(randomBooks);
+                break;
             default:
                 System.out.println("Unknown function: " + function);
                 break;
@@ -236,15 +241,15 @@ public class MainServer {
                     charge(eCard, amount);
                     break;
                 case "History":
-                    String card=(String) in.readObject();
-                    String response=getTransactionHistory(card);
+                    String card = (String) in.readObject();
+                    String response = getTransactionHistory(card);
                     out.writeObject(response);
                     out.flush();
                     break;
                 case "comparePassword":
                     eCard = (String) in.readObject();
-                    Integer enteredPassword=(Integer) in.readObject();
-                    out.writeObject(comparePassword(eCard,enteredPassword));
+                    Integer enteredPassword = (Integer) in.readObject();
+                    out.writeObject(comparePassword(eCard, enteredPassword));
                     out.flush();
                     break;
                 case "newPassword":
@@ -253,22 +258,22 @@ public class MainServer {
                     newPassword(eCard, newEnPassword);
                     break;
                 case "LostSettings":
-                    String id=(String) in.readObject();
-                    boolean isLost=(boolean) in.readObject();
-                    LostSettings(id,isLost);
+                    String id = (String) in.readObject();
+                    boolean isLost = (boolean) in.readObject();
+                    LostSettings(id, isLost);
                     break;
                 case "Status":
-                    eCard=(String) in.readObject();
+                    eCard = (String) in.readObject();
                     out.writeObject(showStatus(eCard));
                     out.flush();
                     break;
                 case "Pay":
-                    String payid=(String) in.readObject();
-                    eCard=(String) in.readObject();
+                    String payid = (String) in.readObject();
+                    eCard = (String) in.readObject();
 
-                    float payamount=(float) in.readObject();
-                    String reason=(String) in.readObject();
-                    out.writeObject(pay(payid,eCard,payamount,reason));
+                    float payamount = (float) in.readObject();
+                    String reason = (String) in.readObject();
+                    out.writeObject(pay(payid, eCard, payamount, reason));
                     out.flush();
             }
         } else {

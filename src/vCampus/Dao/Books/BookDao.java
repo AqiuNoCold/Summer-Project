@@ -327,4 +327,27 @@ public class BookDao implements BaseDao<BookService> {
         }
         return bookIds;
     }
+
+    public List<String> findRandomBooks(int count) {
+        List<String> bookIds = new ArrayList<>();
+        Connection conn = null;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT isbn, isbn13 FROM tblBooks WHERE is_deleted = false ORDER BY RAND() LIMIT ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, count);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String isbn = rs.getString("isbn");
+                String isbn13 = rs.getString("isbn13");
+                String bookId = isbn + "," + isbn13;
+                bookIds.add(bookId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return bookIds;
+    }
 }

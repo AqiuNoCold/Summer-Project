@@ -31,7 +31,7 @@ public class MainApp {
         Runtime.getRuntime().addShutdownHook(new Thread(MainApp::close_source));
     }
 
-    private static void initializeSocket() {
+    public static void initializeSocket() {
         try {
             socket = new Socket("localhost", 5101);
             out = new ObjectOutputStream(socket.getOutputStream());
@@ -51,6 +51,7 @@ public class MainApp {
             e.printStackTrace();
         }
     }
+
     // Getter and Setter for currentUser and socket
     public static User getCurrentUser() {
         return currentUser;
