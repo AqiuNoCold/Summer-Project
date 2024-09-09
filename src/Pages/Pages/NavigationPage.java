@@ -83,6 +83,7 @@ public class NavigationPage extends JFrame {
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("studentRecordButton");
                 // 创建 User 实例
 //                User user = new User(
 //                        "user123",        // id
@@ -94,11 +95,12 @@ public class NavigationPage extends JFrame {
 //                        "123456789",      // card
 //                        false             // lost
 //                );
-                User user1=MainApp.getCurrentUser();
-                if (user.getRole() == "ST") {
+                User user=MainApp.getCurrentUser();
+                System.out.println(user.getRole());
+                if (user.getRole().equals("ST")) {
                     openPage(new StudentMainPage());
 
-                } else if (user.getRole() == "TC") {
+                } else if (user.getRole().equals("TC")) {
                     openPage(new TeacherMainPage());
                 }
             }
