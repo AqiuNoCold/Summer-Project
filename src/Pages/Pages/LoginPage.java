@@ -56,7 +56,7 @@ public class LoginPage extends JFrame {
 
         // 登录按钮
         gbc.gridy = 3;
-        loginButton = new JButton(new ImageIcon("src/imgs/Login.png"));
+        loginButton = new JButton(new ImageIcon(getClass().getResource("/imgs/Login.png")));
         loginButton.setContentAreaFilled(false);
         loginButton.setBorderPainted(false);
         loginButton.setFocusPainted(false);
@@ -176,7 +176,7 @@ public class LoginPage extends JFrame {
 
         public LoginPanel() {
             // 加载背景图片
-            backgroundImage = Toolkit.getDefaultToolkit().getImage("src/imgs/background.png");
+            backgroundImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/imgs/background.png"));
         }
 
         @Override

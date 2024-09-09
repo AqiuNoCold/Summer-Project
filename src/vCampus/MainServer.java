@@ -23,6 +23,7 @@ public class MainServer {
     private static final int PORT = 5101;
     private static final int MAX_CONNECTIONS = 10;
     private static ConcurrentHashMap<Socket, Thread> socketMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Integer, User> userMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {

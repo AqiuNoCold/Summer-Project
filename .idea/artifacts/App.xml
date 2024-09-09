@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="App">
+    <output-path>$PROJECT_DIR$/out/artifacts/App</output-path>
+    <root id="archive" name="Summer Project.jar">
+      <element id="module-output" name="Summer Project" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/batik-1.17/batik-svgpp-1.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/batik-1.17/batik-ttf2svg-1.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/batik-1.17/batik-squiggle-1.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/batik-1.17/batik-slideshow-1.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/batik-1.17/batik-rasterizer-1.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Desktop/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
