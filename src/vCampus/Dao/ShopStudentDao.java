@@ -18,22 +18,14 @@ public class ShopStudentDao{
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblShopStudent (id, pwd, age, gender, role, email, card, remain, password, lost, favorites, belongs, bill) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblShopStudent (id, card, favorites, belongs, bill) " +
+                    "VALUES (?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, shopStudent.getId());
-            pstmt.setString(2, shopStudent.getPwd());
-            pstmt.setInt(3, shopStudent.getAge());
-            pstmt.setBoolean(4, shopStudent.getGender());
-            pstmt.setString(5, shopStudent.getRole());
-            pstmt.setString(6, shopStudent.getEmail());
-            pstmt.setString(7, shopStudent.getCard());
-            pstmt.setFloat(8, shopStudent.getRemain());
-            pstmt.setInt(9, shopStudent.getPassword());
-            pstmt.setBoolean(10, shopStudent.getLost());
-            pstmt.setString(11, shopStudent.getFavoritesId());
-            pstmt.setString(12, shopStudent.getBelongsId());
-            pstmt.setString(13, shopStudent.getBillId());
+            pstmt.setString(2, shopStudent.getCard());
+            pstmt.setString(3, shopStudent.getFavoritesId());
+            pstmt.setString(4, shopStudent.getBelongsId());
+            pstmt.setString(5, shopStudent.getBillId());
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -48,21 +40,13 @@ public class ShopStudentDao{
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblShopStudent SET pwd = ?, age = ?, gender = ?, role = ?, email = ?, card = ?, remain = ?, password = ?, lost = ?, favorites = ?, belongs = ?, bill = ? WHERE id = ?";
+            String sql = "UPDATE tblShopStudent SET card = ?, favorites = ?, belongs = ?, bill = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, shopStudent.getPwd());
-            pstmt.setInt(2, shopStudent.getAge());
-            pstmt.setBoolean(3, shopStudent.getGender());
-            pstmt.setString(4, shopStudent.getRole());
-            pstmt.setString(5, shopStudent.getEmail());
-            pstmt.setString(6, shopStudent.getCard());
-            pstmt.setFloat(7, shopStudent.getRemain());
-            pstmt.setInt(8, shopStudent.getPassword());
-            pstmt.setBoolean(9, shopStudent.getLost());
-            pstmt.setString(10, shopStudent.getFavoritesId());
-            pstmt.setString(11, shopStudent.getBelongsId());
-            pstmt.setString(12, shopStudent.getBillId());
-            pstmt.setString(13, shopStudent.getId());
+            pstmt.setString(1, shopStudent.getCard());
+            pstmt.setString(2, shopStudent.getFavoritesId());
+            pstmt.setString(3, shopStudent.getBelongsId());
+            pstmt.setString(4, shopStudent.getBillId());
+            pstmt.setString(5, shopStudent.getId());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {

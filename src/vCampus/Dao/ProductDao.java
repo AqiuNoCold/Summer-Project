@@ -18,7 +18,7 @@ public class ProductDao implements BaseDao<Product> {
         boolean isAdded = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "INSERT INTO tblProduct (id, name, price, numbers, owner, discount, time) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tblProduct (id, name, price, numbers, owner, discount, time, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, product.getId());
             pstmt.setString(2, product.getName());
@@ -27,8 +27,15 @@ public class ProductDao implements BaseDao<Product> {
             pstmt.setString(5, product.getOwner());
             pstmt.setFloat(6, product.getDiscount());
             pstmt.setTimestamp(7, new Timestamp(product.getTime().getTime()));
-            Blob blob = new SerialBlob(product.getImage());
-            pstmt.setBlob(8,blob);
+            // Handle the image as Blob
+            byte[] imageBytes = product.getImage();
+            if (imageBytes != null) {
+                Blob blob = conn.createBlob();
+                blob.setBytes(1, imageBytes);
+                pstmt.setBlob(8, blob);
+            } else {
+                pstmt.setNull(8, Types.BLOB); // Set NULL if image is not present
+            }
             int rowsAffected = pstmt.executeUpdate();
             isAdded = rowsAffected > 0;
         } catch (SQLException e) {
@@ -44,7 +51,7 @@ public class ProductDao implements BaseDao<Product> {
         boolean isUpdated = false;
         try {
             conn = DbConnection.getConnection();
-            String sql = "UPDATE tblProduct SET name = ?, price = ?, numbers = ?, owner = ?, discount = ?, time = ? WHERE id = ?";
+            String sql = "UPDATE tblProduct SET name = ?, price = ?, numbers = ?, owner = ?, discount = ?, time = ?,image = ? WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, product.getName());
             pstmt.setFloat(2, product.getPrice());
@@ -52,9 +59,15 @@ public class ProductDao implements BaseDao<Product> {
             pstmt.setString(4, product.getOwner());
             pstmt.setFloat(5, product.getDiscount());
             pstmt.setTimestamp(6, new Timestamp(product.getTime().getTime()));
-            pstmt.setString(7, product.getId());
-            Blob blob = new SerialBlob(product.getImage());
-            pstmt.setBlob(8,blob);
+            byte[] imageBytes = product.getImage();
+            if (imageBytes != null) {
+                Blob blob = conn.createBlob();
+                blob.setBytes(1, imageBytes);
+                pstmt.setBlob(7, blob);
+            } else {
+                pstmt.setNull(7, Types.BLOB); // Set NULL if image is not present
+            }
+            pstmt.setString(8, product.getId());
             int rowsAffected = pstmt.executeUpdate();
             isUpdated = rowsAffected > 0;
         } catch (SQLException e) {
@@ -102,6 +115,8 @@ public class ProductDao implements BaseDao<Product> {
                 );
                 product.setDiscount(rs.getFloat("discount"));
                 product.setTime(rs.getTimestamp("time"));
+                Blob blob = rs.getBlob("image");
+                product.setImage(blob);
             }
         } catch (SQLException e) {
             e.printStackTrace();

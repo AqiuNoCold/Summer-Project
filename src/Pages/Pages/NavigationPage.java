@@ -1,6 +1,7 @@
 package Pages.Pages;
 
 import Pages.Pages.ECard.ECardPage;
+import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
@@ -56,7 +57,18 @@ public class NavigationPage extends JFrame {
         storeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new StorePage());
+                ObjectInputStream in = MainApp.getIn();
+                ObjectOutputStream out = MainApp.getOut();
+                try {
+                    out.writeObject("5");
+                    out.writeObject("initialShopStudent");
+                    out.writeObject(user);
+                    out.flush();
+                    ShopStudent response=(ShopStudent) in.readObject();
+                    openPage(new StorePage(response));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         eCardButton.addActionListener(new ActionListener() {
