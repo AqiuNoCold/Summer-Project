@@ -186,10 +186,4 @@ public class LoginPage extends JFrame {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new LoginPage().setVisible(true);
-        });
-    }
 }
