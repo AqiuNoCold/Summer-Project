@@ -63,7 +63,11 @@ public class MainServer {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
-                    userid = (String) in.readObject();
+                    try {
+                        userid = (String) in.readObject();
+                    } catch (IOException e) {
+                        System.out.println("客户端未进行登录操作");
+                    }
                     in.close();
                     out.flush();
                     out.close();
@@ -96,7 +100,9 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
-            userMap.remove(userid);
+            if (userid != null) {
+                userMap.remove(userid);
+            }
             clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
