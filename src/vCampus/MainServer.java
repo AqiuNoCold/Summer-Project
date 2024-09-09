@@ -2,11 +2,14 @@ package vCampus;
 
 import vCampus.Dao.Criteria.*;
 import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.Shop.Product;
+import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.Books.*;
 import vCampus.Service.*;
 import vCampus.User.IUserServerSrv;
 import vCampus.ECard.ECardServerSrv;
+import vCampus.Shop.ShopServerSrv;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -23,6 +26,7 @@ public class MainServer {
     private static final int PORT = 5101;
     private static final int MAX_CONNECTIONS = 10;
     private static ConcurrentHashMap<Socket, Thread> socketMap = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, User> userMap = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -56,11 +60,17 @@ public class MainServer {
     }
 
     private static void handleClient(Socket clientSocket) throws IOException {
+        String userid = null;
         try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
+             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
+                    try {
+                        userid = (String) in.readObject();
+                    } catch (IOException e) {
+                        System.out.println("客户端未进行登录操作");
+                    }
                     in.close();
                     out.flush();
                     out.close();
@@ -93,6 +103,9 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
+            if (userid != null) {
+                userMap.remove(userid);
+            }
             clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
@@ -187,8 +200,20 @@ public class MainServer {
                 case "Login":
                     userId = (String) in.readObject();
                     String password = (String) in.readObject();
+
+                    if (userMap.containsKey(userId)) {
+                        // 如果用户已经在线，返回相应的消息
+                        out.writeObject("用户已经登录");
+                        out.flush();
+                        return;  // 终止登录处理
+                    }
                     User user = IUserServerSrv.login(userId, password);
-                    out.writeObject(user);
+                    if (user != null) {
+                        userMap.put(userId, user);  // 将用户ID和User对象存入userMap
+                        out.writeObject(user);  // 返回用户对象
+                    } else {
+                        out.writeObject("Invalid login credentials.");  // 登录失败信息
+                    }
                     out.flush();
                     break;
 
@@ -283,9 +308,71 @@ public class MainServer {
 
     private static void StorePage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
+        ShopStudent student;
         if (function != null) {
             switch (function) {
-                case "Course":
+                case "initialShopStudent":
+                    User user = (User) in.readObject();
+                    student = ShopServerSrv.initialShopStudent(user);
+                    ShopServerSrv.initialShop(8,student);
+                    out.writeObject(student);
+                    break;
+                case "refreshShop":
+                    student = (ShopStudent) in.readObject();
+                    ShopServerSrv.initialShop(8,student);
+                    out.writeObject(student);
+                    break;
+                case "searchProduct":
+                    student = (ShopStudent) in.readObject();
+                    String searchName = (String) in.readObject();
+                    boolean success = ShopServerSrv.searchProduct(student,searchName);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
+                case "changeFavorites":
+                    String productId = (String) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    boolean is = (boolean) in.readObject();
+                    ShopServerSrv.changeFavorites(productId,student,is);
+                    out.writeObject(student);
+                    break;
+                case "purchaseProduct":
+                    productId = (String) in.readObject();
+                    int buyNums = (int) in.readObject();
+                    int password = (int) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    int situation = ShopServerSrv.purchaseProduct(productId,buyNums,password,student);
+                    out.writeObject(student);
+                    out.writeObject(situation);
+                    break;
+                case "getRecordCount":
+                    String tablename = (String) in.readObject();
+                    String Id = ShopServerSrv.getRecordCount(tablename);
+                    out.writeObject(Id);
+                    break;
+                case "addNew":
+                    Product newProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.addNew(student,newProduct);
+                    out.writeObject(success);
+                    out.writeObject(newProduct);
+                    out.writeObject(student);
+                    break;
+                case "updateProduct":
+                    Product updateProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.updateProduct(student,updateProduct);
+                    out.writeObject(updateProduct);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
+                case "deleteProduct":
+                    Product deletProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.deleteProduct(student,deletProduct);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
             }
         } else {
             System.out.println("Unknown function: " + function);

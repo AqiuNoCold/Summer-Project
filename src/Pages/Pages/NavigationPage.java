@@ -1,6 +1,9 @@
 package Pages.Pages;
 
 import Pages.Pages.ECard.ECardPage;
+import vCampus.Entity.Shop.ShopStudent;
+import Pages.Pages.StudentMSPages.StudentMainPage;
+import Pages.Pages.StudentMSPages.TeacherMainPage;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
@@ -9,10 +12,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Objects;
 
 public class NavigationPage extends JFrame {
     User user = MainApp.getCurrentUser();
@@ -56,7 +59,18 @@ public class NavigationPage extends JFrame {
         storeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new StorePage());
+                ObjectInputStream in = MainApp.getIn();
+                ObjectOutputStream out = MainApp.getOut();
+                try {
+                    out.writeObject("5");
+                    out.writeObject("initialShopStudent");
+                    out.writeObject(user);
+                    out.flush();
+                    ShopStudent response = (ShopStudent) in.readObject();
+                    openPage(new StorePage(response));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         eCardButton.addActionListener(new ActionListener() {
@@ -82,7 +96,24 @@ public class NavigationPage extends JFrame {
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new StudentRecordPage());
+                // 创建 User 实例
+                // User user = new User(
+                // "user123", // id
+                // "password", // pwd
+                // 25, // age
+                // true, // gender
+                // "ST", // role
+                // "user123@example.com", // email
+                // "123456789", // card
+                // false // lost
+                // );
+                User user1 = MainApp.getCurrentUser();
+                if (user.getRole() == "ST") {
+                    openPage(new StudentMainPage());
+
+                } else if (user.getRole() == "TC") {
+                    openPage(new TeacherMainPage());
+                }
             }
         });
         libraryButton.addActionListener(new ActionListener() {
@@ -101,12 +132,11 @@ public class NavigationPage extends JFrame {
 
     // 创建带图片和文字的按钮
     private JButton createImageButton(String text, String imagePath) {
-        // ImageIcon icon = new ImageIcon(imagePath);
-        Image icon1 = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));
+        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
 
         // 调整图片大小
-        Image img = icon1.getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
-        ImageIcon icon = new ImageIcon(img);
+        Image img = icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH); // 调整图片为64x64像素
+        icon = new ImageIcon(img);
 
         if (icon.getIconWidth() == -1) { // 判断图片是否加载成功
             System.err.println("Error: Could not load image at " + imagePath);
@@ -125,5 +155,9 @@ public class NavigationPage extends JFrame {
     private void openPage(JFrame page) {
         page.setVisible(true);
         dispose(); // 关闭导航页面
+    }
+
+    public static void main(String[] args) {
+        new NavigationPage().setVisible(true);
     }
 }
