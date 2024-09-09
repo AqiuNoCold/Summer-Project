@@ -55,6 +55,7 @@ public class StudentInfo extends JFrame {
     }
 
     public StudentInfo(Student student) {
+
         setTitle("学生详细信息");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

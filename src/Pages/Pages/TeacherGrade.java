@@ -35,7 +35,7 @@ public class TeacherGrade {
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 //        JLabel imageLabel = new JLabel(new ImageIcon("src/imgs/logoDNDX.png")); // 替换为你的图片路径
         // 创建 ImageIcon 并调整大小
-        ImageIcon icon = new ImageIcon("src/imgs/logoDNDX.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/imgs/logoDNDX.png"));
         Image img = icon.getImage();
         Image scaledImg = img.getScaledInstance(260, 86, Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImg);
