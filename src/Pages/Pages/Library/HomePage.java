@@ -63,16 +63,11 @@ public class HomePage extends JPanel {
         });
         topPanel.add(searchButton, BorderLayout.EAST);
 
-        add(topPanel, BorderLayout.NORTH);
-
         // 创建图书展示区域
         bookDisplayPanel = new JPanel(new GridLayout(2, 4, 10, 10)); // 2行4列，间距为10
         bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
-        add(bookDisplayPanel, BorderLayout.CENTER);
 
-        // 异步获取并显示8本随机书籍的封面
-        new BookLoader().execute();
-
+        // 创建分页面板
         paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         prevButton = createImageButton("/imgs/caret-left.svg", 800, 600);
         JTextField pageNumberField = new JTextField(5);
@@ -81,11 +76,6 @@ public class HomePage extends JPanel {
         paginationPanel.add(prevButton);
         paginationPanel.add(pageNumberField);
         paginationPanel.add(nextButton);
-
-        add(paginationPanel, BorderLayout.SOUTH);
-
-        // 添加鼠标事件监听器
-        addPaginationButtonListeners();
 
         // 创建并隐藏高级搜索面板
         advancedSearchPanel = new JPanel();
@@ -98,8 +88,15 @@ public class HomePage extends JPanel {
 
         // 使用 JLayeredPane 以便高级搜索框覆盖在其他元素上方
         layeredPane = new JLayeredPane();
-        layeredPane.setLayout(new BorderLayout());
+        layeredPane.setLayout(null); // 使用绝对布局
+        layeredPane.setPreferredSize(new Dimension(800, 600)); // 设置首选大小
+
+        // 将当前面板添加到 JLayeredPane 的默认层
+        this.setBounds(0, 0, 800, 600);
         layeredPane.add(this, JLayeredPane.DEFAULT_LAYER);
+
+        // 将高级搜索覆盖面板添加到 JLayeredPane 的调色板层
+        advancedSearchOverlay.setBounds(0, 50, 800, 50); // 设置位置和大小
         layeredPane.add(advancedSearchOverlay, JLayeredPane.PALETTE_LAYER);
 
         // 添加初始的高级搜索行
@@ -112,6 +109,24 @@ public class HomePage extends JPanel {
                 resizeBookImages();
             }
         });
+
+        // 将 JLayeredPane 添加到 JFrame
+        JFrame frame = new JFrame("Library Home Page");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.add(layeredPane);
+        frame.setVisible(true);
+
+        // 添加组件到主面板
+        add(topPanel, BorderLayout.NORTH);
+        add(bookDisplayPanel, BorderLayout.CENTER);
+        add(paginationPanel, BorderLayout.SOUTH);
+
+        // 异步获取并显示8本随机书籍的封面
+        new BookLoader().execute();
+
+        // 添加鼠标事件监听器
+        addPaginationButtonListeners();
     }
 
     private void resizeBookImages() {
@@ -123,8 +138,25 @@ public class HomePage extends JPanel {
                     String imagePath = icon.getDescription();
                     ImageIcon newIcon = new ImageIcon(imagePath);
                     Image image = newIcon.getImage();
-                    int newWidth = bookLabel.getWidth();
-                    int newHeight = (int) (image.getHeight(null) * ((double) newWidth / image.getWidth(null)));
+                    int panelWidth = bookLabel.getWidth();
+                    int panelHeight = bookLabel.getHeight();
+                    int imageWidth = image.getWidth(null);
+                    int imageHeight = image.getHeight(null);
+
+                    double panelAspectRatio = (double) panelWidth / panelHeight;
+                    double imageAspectRatio = (double) imageWidth / imageHeight;
+
+                    int newWidth, newHeight;
+
+                    if (panelAspectRatio > imageAspectRatio) {
+                        // 按高度对齐
+                        newHeight = panelHeight;
+                        newWidth = (int) (imageWidth * ((double) newHeight / imageHeight));
+                    } else {
+                        // 按宽度对齐
+                        newWidth = panelWidth;
+                        newHeight = (int) (imageHeight * ((double) newWidth / imageWidth));
+                    }
                     Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
                     ImageIcon scaledIcon = new ImageIcon(scaledImage);
                     scaledIcon.setDescription(imagePath); // 设置描述以便后续使用
@@ -159,8 +191,25 @@ public class HomePage extends JPanel {
                         System.out.println("Failed to load image: " + imagePath); // 调试信息
                     } else {
                         Image image = bookIcon.getImage();
-                        int newWidth = bookDisplayPanel.getWidth() / 4 - 20; // 4列，每列之间有10的间距
-                        int newHeight = (int) (image.getHeight(null) * ((double) newWidth / image.getWidth(null)));
+                        int panelWidth = bookDisplayPanel.getWidth() / 4 - 20; // 4列，每列之间有10的间距
+                        int panelHeight = bookDisplayPanel.getHeight() / 2 - 20;
+                        int imageWidth = image.getWidth(null);
+                        int imageHeight = image.getHeight(null);
+
+                        double panelAspectRatio = (double) panelWidth / panelHeight;
+                        double imageAspectRatio = (double) imageWidth / imageHeight;
+
+                        int newWidth, newHeight;
+
+                        if (panelAspectRatio > imageAspectRatio) {
+                            // 按高度对齐
+                            newHeight = panelHeight;
+                            newWidth = (int) (imageWidth * ((double) newHeight / imageHeight));
+                        } else {
+                            // 按宽度对齐
+                            newWidth = panelWidth;
+                            newHeight = (int) (imageHeight * ((double) newWidth / imageWidth));
+                        }
                         Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
                         ImageIcon scaledIcon = new ImageIcon(scaledImage);
                         scaledIcon.setDescription(imagePath); // 设置描述以便后续使用
@@ -205,6 +254,13 @@ public class HomePage extends JPanel {
         isAdvancedSearchVisible = !isAdvancedSearchVisible;
         advancedSearchOverlay.setVisible(isAdvancedSearchVisible);
         searchField.setEditable(!isAdvancedSearchVisible);
+
+        // 调试信息
+        System.out.println("高级搜索面板可见性: " + isAdvancedSearchVisible);
+
+        // 重新布局 JLayeredPane
+        layeredPane.revalidate();
+        layeredPane.repaint();
     }
 
     private void addAdvancedSearchRow() {
@@ -338,11 +394,7 @@ public class HomePage extends JPanel {
         MainApp.initializeSocket();
 
         // 创建并显示HomePage
-        JFrame frame = new JFrame("Library Home Page");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.add(new HomePage());
-        frame.setVisible(true);
+        new HomePage();
 
         // 关闭资源
         Runtime.getRuntime().addShutdownHook(new Thread(() -> MainApp.close_source()));
