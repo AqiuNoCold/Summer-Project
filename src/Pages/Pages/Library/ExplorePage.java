@@ -192,6 +192,15 @@ public class ExplorePage extends JPanel {
             bookPanel.add(bookLabel, BorderLayout.CENTER);
             bookPanel.add(titleLabel, BorderLayout.SOUTH);
 
+            // 在 updateBookDisplay 方法中添加点击事件监听器
+            bookPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    BookDetailPage bookDetailPage = new BookDetailPage();
+                    bookDetailPage.showBookDetails(book);
+                }
+            });
+
             bookDisplayPanel.add(bookPanel);
         }
 

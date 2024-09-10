@@ -12,12 +12,10 @@ import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Random;
 
 public class BookshelvesPage extends JPanel {
     private JComboBox<String> bookshelfComboBox;
-    private JLabel currentBookshelfLabel;
     private JButton deleteBookshelfButton;
     private JButton addBookshelfButton;
     private JPanel booksPanel;
@@ -55,10 +53,6 @@ public class BookshelvesPage extends JPanel {
         });
         topPanel.add(bookshelfComboBox, BorderLayout.WEST);
 
-        // 中间：当前书架名称
-        currentBookshelfLabel = new JLabel(currentUser.getCurrentBookShelf().getName(), SwingConstants.CENTER);
-        topPanel.add(currentBookshelfLabel, BorderLayout.CENTER);
-
         // 右上角：删除书架和添加书架按钮
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         deleteBookshelfButton = new JButton("删除书架");
@@ -91,7 +85,6 @@ public class BookshelvesPage extends JPanel {
             out.writeObject(bookshelf);
             out.flush();
             currentUser.setCurrentBookShelf(bookshelf);
-            currentBookshelfLabel.setText(bookshelf.getName());
             displayBooks(bookshelf);
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,16 +99,35 @@ public class BookshelvesPage extends JPanel {
                 JOptionPane.showMessageDialog(this, "书架名称已存在，请选择其他名称。", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            try {
-                out.writeObject("createBookShelf");
-                out.writeObject(name);
-                out.flush();
-                BookShelf newShelf = (BookShelf) in.readObject();
-                currentUser.getBookShelves().add(newShelf);
-                bookshelfComboBox.addItem(newShelf.getName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            // 显示加载框
+            JDialog loadingDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "加载中", true);
+            JLabel loadingLabel = new JLabel("正在创建书架，请稍候...");
+            loadingDialog.add(loadingLabel);
+            loadingDialog.setSize(200, 100);
+            loadingDialog.setLocationRelativeTo(this);
+            loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+            SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
+
+            new Thread(() -> {
+                try {
+                    out.writeObject("createBookShelf");
+                    out.writeObject(name);
+                    out.flush();
+                    BookShelf newShelf = (BookShelf) in.readObject();
+                    currentUser.getBookShelves().add(newShelf);
+                    SwingUtilities.invokeLater(() -> {
+                        bookshelfComboBox.addItem(newShelf.getName());
+                        loadingDialog.dispose();
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeLater(() -> {
+                        loadingDialog.dispose();
+                        JOptionPane.showMessageDialog(this, "创建书架失败，请重试。", "错误", JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+            }).start();
         }
     }
 
@@ -294,5 +306,72 @@ public class BookshelvesPage extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void addBookToShelf(Book book) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "添加图书", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+        inputPanel.add(new JLabel("选择书架："));
+        JComboBox<String> shelfComboBox = new JComboBox<>(
+                currentUser.getBookShelves().stream().map(BookShelf::getName).toArray(String[]::new));
+        shelfComboBox.setSelectedItem(currentUser.getCurrentBookShelf().getName());
+        inputPanel.add(shelfComboBox);
+        inputPanel.add(new JLabel("评分："));
+        JTextField ratingField = new JTextField();
+        inputPanel.add(ratingField);
+        dialog.add(inputPanel, BorderLayout.NORTH);
+
+        JTextArea reviewArea = new JTextArea();
+        dialog.add(new JScrollPane(reviewArea), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton("取消");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+        JButton saveButton = new JButton("完成");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String selectedShelfName = (String) shelfComboBox.getSelectedItem();
+                    BookShelf selectedShelf = currentUser.getBookShelves().stream()
+                            .filter(shelf -> shelf.getName().equals(selectedShelfName))
+                            .findFirst()
+                            .orElse(null);
+                    if (selectedShelf != null) {
+                        BigDecimal newRating = new BigDecimal(ratingField.getText());
+                        int newReviewCount = book.getReviewCount() + 1;
+                        BigDecimal newAverageRating = (book.getAverageRating()
+                                .multiply(BigDecimal.valueOf(book.getReviewCount())).add(newRating))
+                                .divide(BigDecimal.valueOf(newReviewCount), 2, BigDecimal.ROUND_HALF_UP);
+                        book.setAverageRating(newAverageRating);
+                        book.setReviewCount(newReviewCount);
+                        // 这里可以添加保存书评的逻辑
+                        out.writeObject("addBookToShelfByObject");
+                        out.writeObject(selectedShelf);
+                        out.writeObject(book);
+                        out.flush();
+                        selectedShelf.getBooks().add(book);
+                        dialog.dispose();
+                        displayBooks(currentUser.getCurrentBookShelf());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 }

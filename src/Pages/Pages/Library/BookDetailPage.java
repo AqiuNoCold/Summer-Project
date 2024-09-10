@@ -5,12 +5,14 @@ import Pages.Utils.IconUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.math.BigDecimal;
 import java.util.Random;
 
 public class BookDetailPage extends JPanel {
-    private static BookDetailPage instance; // 唯一实例
     private JLabel bookCoverLabel;
     private JLabel titleLabel;
     private JLabel isbnLabel;
@@ -26,8 +28,9 @@ public class BookDetailPage extends JPanel {
     private JButton viewReviewsButton;
     private JButton addReviewButton;
     private String imagePath; // 保存图书封面路径
+    private Book currentBook; // 当前显示的图书对象
 
-    private BookDetailPage() {
+    public BookDetailPage() {
         setLayout(new BorderLayout());
 
         // 上半部分
@@ -114,16 +117,28 @@ public class BookDetailPage extends JPanel {
                 resizeBookCover();
             }
         });
-    }
 
-    public static synchronized BookDetailPage getInstance() {
-        if (instance == null) {
-            instance = new BookDetailPage();
-        }
-        return instance;
+        // 收藏按钮点击事件
+        favoriteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BookshelvesPage bookshelvesPage = new BookshelvesPage();
+                bookshelvesPage.addBookToShelf(getCurrentBook());
+            }
+        });
+
+        // 添加书评按钮点击事件
+        addReviewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addReview();
+            }
+        });
     }
 
     public void showBookDetails(Book book) {
+        this.currentBook = book; // 设置当前显示的图书对象
+
         // 设置图书封面路径
         imagePath = book.getCachedImagePath();
         if (imagePath == null) {
@@ -174,5 +189,59 @@ public class BookDetailPage extends JPanel {
             Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             bookCoverLabel.setIcon(new ImageIcon(scaledImg));
         }
+    }
+
+    private Book getCurrentBook() {
+        return currentBook;
+    }
+
+    private void addReview() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "添加书评", true);
+        dialog.setLayout(new BorderLayout());
+
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+        inputPanel.add(new JLabel("评分："));
+        JTextField ratingField = new JTextField();
+        inputPanel.add(ratingField);
+        inputPanel.add(new JLabel("书评："));
+        JTextArea reviewArea = new JTextArea();
+        inputPanel.add(new JScrollPane(reviewArea));
+        dialog.add(inputPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton cancelButton = new JButton("取消");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+        JButton saveButton = new JButton("完成");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    BigDecimal newRating = new BigDecimal(ratingField.getText());
+                    int newReviewCount = currentBook.getReviewCount() + 1;
+                    BigDecimal newAverageRating = (currentBook.getAverageRating()
+                            .multiply(BigDecimal.valueOf(currentBook.getReviewCount())).add(newRating))
+                            .divide(BigDecimal.valueOf(newReviewCount), 2, BigDecimal.ROUND_HALF_UP);
+                    currentBook.setAverageRating(newAverageRating);
+                    currentBook.setReviewCount(newReviewCount);
+                    // 这里可以添加保存书评的逻辑
+                    dialog.dispose();
+                    showBookDetails(currentBook);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 }

@@ -177,11 +177,12 @@ public class HomePage extends JPanel {
             bookPanel.add(bookLabel, BorderLayout.CENTER);
             bookPanel.add(titleLabel, BorderLayout.SOUTH);
 
-            // 添加点击事件监听器
+            // 在 updateBookDisplay 方法中添加点击事件监听器
             bookPanel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    BookDetailPage.getInstance().showBookDetails(book);
+                    BookDetailPage bookDetailPage = new BookDetailPage();
+                    bookDetailPage.showBookDetails(book);
                 }
             });
 
