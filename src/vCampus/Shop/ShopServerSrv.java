@@ -44,11 +44,13 @@ public class ShopServerSrv {
         }
 
         for(Product product : student.getFavorites()){
-            shopSet.add(product.getId());
+            if(product != null)
+                shopSet.add(product.getId());
         }
 
         for(Product product : student.getBelongs()){
-            shopSet.add(product.getId());
+            if(product != null)
+                shopSet.add(product.getId());
         }
 
         for (String Element : shopSet) {
