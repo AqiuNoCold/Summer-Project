@@ -23,6 +23,10 @@ public class ShopStudent extends ECard {
         //初始化商店用户
         ShopStudentDao dao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = dao.find(id);
+        if(data == null) {
+            dao.add(this);
+            data = dao.find(id);
+        }
         if(data.getFavorites() != null && !data.getFavorites().isEmpty())
             turnFavorites(data.getFavorites());
         if(data.getBelongs() != null && !data.getBelongs().isEmpty())
