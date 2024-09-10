@@ -2,6 +2,6 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/src/vCampus/Db/Index/create_indexes_tblBookReview.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/src/vCampus/Db/sql/tblUser.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/vCampus/Db/Index/create_indexes_tblBorrowRecord.sql" dialect="MySQL" />
   </component>
 </project>

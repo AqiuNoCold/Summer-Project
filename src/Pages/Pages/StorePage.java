@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -78,35 +79,35 @@ public class StorePage extends JFrame {
         JPanel bottomPanel = new JPanel();
 
         JButton addButton = new JButton("");
-        ImageIcon addIcon = new ImageIcon("src/imgs/shop/add.png");
+        ImageIcon addIcon = getImage("/imgs/shop/add.png");
         addButton.setIcon(addIcon);
         addButton.setOpaque(false);
         addButton.setContentAreaFilled(false);
         addButton.setBorderPainted(false);
 
         JButton homeButton = new JButton("");
-        ImageIcon homeIcon = new ImageIcon("src/imgs/shop/home.png");
+        ImageIcon homeIcon = getImage("/imgs/shop/home.png");
         homeButton.setIcon(homeIcon);
         homeButton.setOpaque(false);
         homeButton.setContentAreaFilled(false);
         homeButton.setBorderPainted(false);
 
         JButton favoritesButton = new JButton("");
-        ImageIcon favoritesIcon = new ImageIcon("src/imgs/shop/favourite.png");
+        ImageIcon favoritesIcon = getImage("/imgs/shop/favourite.png");
         favoritesButton.setIcon(favoritesIcon);
         favoritesButton.setOpaque(false);
         favoritesButton.setContentAreaFilled(false);
         favoritesButton.setBorderPainted(false);
 
         JButton myButton = new JButton("");
-        ImageIcon myIcon = new ImageIcon("src/imgs/shop/my.png");
+        ImageIcon myIcon = getImage("/imgs/shop/my.png");
         myButton.setIcon(myIcon);
         myButton.setOpaque(false);
         myButton.setContentAreaFilled(false);
         myButton.setBorderPainted(false);
         //个人信息
         JButton infoButton = new JButton("");
-        ImageIcon infoIcon = new ImageIcon("src/imgs/shop/info.png");
+        ImageIcon infoIcon = getImage("/imgs/shop/info.png");
         infoButton.setIcon(infoIcon);
         infoButton.setOpaque(false);
         infoButton.setContentAreaFilled(false);
@@ -144,7 +145,7 @@ public class StorePage extends JFrame {
         String defaultText = "搜索";
         searchField.setText("搜索");
         JButton searchButton = new JButton();
-        ImageIcon searchIcon = new ImageIcon("src/imgs/shop/search.png");
+        ImageIcon searchIcon = getImage("/imgs/shop/search.png");
         searchButton.setIcon(searchIcon);
         searchButton.setOpaque(false);
         searchButton.setContentAreaFilled(false);
@@ -174,9 +175,9 @@ public class StorePage extends JFrame {
         JButton priceDown = new JButton("价格从低到高排序");
         JButton priceUp = new JButton("价格从高到低排序");
         JButton refresh = new JButton("");
-        ImageIcon downIcon = resizePicture("src/imgs/shop/down.png",15,15);
-        ImageIcon upIcon = resizePicture("src/imgs/shop/up.png",15,15);
-        ImageIcon refreshIcon = resizePicture("src/imgs/shop/refresh.png",20,20);
+        ImageIcon downIcon = resizePicture("/imgs/shop/down.png",15,15);
+        ImageIcon upIcon = resizePicture("/imgs/shop/up.png",15,15);
+        ImageIcon refreshIcon = resizePicture("/imgs/shop/refresh.png",20,20);
         priceUp.setIcon(upIcon);
         priceDown.setIcon(downIcon);
         refresh.setIcon(refreshIcon);
@@ -220,7 +221,7 @@ public class StorePage extends JFrame {
         searchField.setText("搜索收藏夹内商品");
         String defaultText = "搜索收藏夹内商品";
         JButton searchButton = new JButton();
-        ImageIcon searchIcon = new ImageIcon("src/imgs/shop/search.png");
+        ImageIcon searchIcon = getImage("/imgs/shop/search.png");
         searchButton.setIcon(searchIcon);
         searchButton.setOpaque(false);
         searchButton.setContentAreaFilled(false);
@@ -250,8 +251,8 @@ public class StorePage extends JFrame {
         JPanel priceButton = new JPanel();
         JButton priceDown = new JButton("价格从低到高排序");
         JButton priceUp = new JButton("价格从高到低排序");
-        ImageIcon downIcon = resizePicture("src/imgs/shop/down.png",15,15);
-        ImageIcon upIcon = resizePicture("src/imgs/shop/up.png",15,15);
+        ImageIcon downIcon = resizePicture("/imgs/shop/down.png",15,15);
+        ImageIcon upIcon = resizePicture("/imgs/shop/up.png",15,15);
         priceUp.setIcon(upIcon);
         priceDown.setIcon(downIcon);
         priceUp.setOpaque(false);
@@ -263,7 +264,7 @@ public class StorePage extends JFrame {
 
         //更新
         JButton refresh = new JButton("");
-        ImageIcon refreshIcon = resizePicture("src/imgs/shop/refresh.png",20,20);
+        ImageIcon refreshIcon = resizePicture("/imgs/shop/refresh.png",20,20);
         refresh.setIcon(refreshIcon);
         refresh.setOpaque(false);
         refresh.setContentAreaFilled(false);
@@ -298,7 +299,7 @@ public class StorePage extends JFrame {
         searchField.setText("搜索所属的商品");
         String defaultText = "搜索所属的商品";
         JButton searchButton = new JButton();
-        ImageIcon searchIcon = new ImageIcon("src/imgs/shop/search.png");
+        ImageIcon searchIcon = getImage("/imgs/shop/search.png");
         searchButton.setIcon(searchIcon);
         searchButton.setOpaque(false);
         searchButton.setContentAreaFilled(false);
@@ -326,8 +327,8 @@ public class StorePage extends JFrame {
         JPanel priceButton = new JPanel();
         JButton priceDown = new JButton("价格从低到高排序");
         JButton priceUp = new JButton("价格从高到低排序");
-        ImageIcon downIcon = resizePicture("src/imgs/shop/down.png",15,15);
-        ImageIcon upIcon = resizePicture("src/imgs/shop/up.png",15,15);
+        ImageIcon downIcon = resizePicture("/imgs/shop/down.png",15,15);
+        ImageIcon upIcon = resizePicture("/imgs/shop/up.png",15,15);
         priceUp.setIcon(upIcon);
         priceDown.setIcon(downIcon);
         priceUp.setOpaque(false);
@@ -339,7 +340,7 @@ public class StorePage extends JFrame {
 
         //刷新
         JButton refresh = new JButton("");
-        ImageIcon refreshIcon = resizePicture("src/imgs/shop/refresh.png",20,20);
+        ImageIcon refreshIcon = resizePicture("/imgs/shop/refresh.png",20,20);
         refresh.setIcon(refreshIcon);
         refresh.setOpaque(false);
         refresh.setContentAreaFilled(false);
@@ -362,17 +363,6 @@ public class StorePage extends JFrame {
         JScrollPane scrollPane = createShowProducts(student.getBelongs());
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
-    }
-
-    public ImageIcon resizePicture(String imagePath,int targetWidth,int targetHeight){
-        ImageIcon originalIcon = new ImageIcon(imagePath);
-        Image originalImage = originalIcon.getImage();
-
-        // Resize the image
-        Image resizedImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-        // Create a new ImageIcon from the resized image
-        ImageIcon resizedIcon = new ImageIcon(resizedImage);
-        return resizedIcon;
     }
 
     private void createInfoFrame(boolean show){
@@ -528,13 +518,19 @@ public class StorePage extends JFrame {
                     BufferedImage originalImage = ImageIO.read(new File(imagePath));
 
                     // Create a new file for saving the compressed image
+                    //URL imageUrl = getClass().getResource(imagePath);
+                    //outputFile = new File("src/vCampus/Shop/img/" + id + ".png");
                     File outputFile = new File("src/vCampus/Shop/img/" + id + ".png");
 
+                    // Construct the path to the out folder
+                    String projectRoot = System.getProperty("user.dir");
+                    File outputFiletoOut = new File(projectRoot + "/out/production/Summer Project/vCampus/Shop/img/" + id + ".png");
                     // Save the resized image as PNG
                     saveCompressedImage(originalImage, outputFile, targetWidth, targetHeight);
+                    saveCompressedImage(originalImage, outputFiletoOut, targetWidth, targetHeight);
 
                     // Load the compressed image into a byte array
-                    byte[] compressedImage = Files.readAllBytes(outputFile.toPath());
+                    byte[] compressedImage = Files.readAllBytes(outputFiletoOut.toPath());
 
                     // Compress image
                     //byte[] compressedImage = compressImage(new File(imagePath), 48 * 1024,200,200); // 63 KB
@@ -596,7 +592,7 @@ public class StorePage extends JFrame {
     private JScrollPane createShowProducts(List<Product> productList){
         JPanel productPanel = new JPanel(new GridLayout(0, 4));
         for (Product randomProduct : productList) {
-            ImageIcon imageIcon = resizePicture("src/vCampus/Shop/img/"+randomProduct.getId()+".png",175,175);
+            ImageIcon imageIcon = resizePicture("/vCampus/Shop/img/"+randomProduct.getId()+".png",175,175);
             JPanel product = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.fill = GridBagConstraints.BOTH;
@@ -660,7 +656,8 @@ public class StorePage extends JFrame {
         productFrame.setLocationRelativeTo(null);
         productFrame.setLayout(new BorderLayout());
 
-        ImageIcon imageIcon = resizePicture("src/vCampus/Shop/img/"+product.getId()+".png",300,400);
+        ImageIcon imageIcon = new ImageIcon();
+        imageIcon = resizePicture("/vCampus/Shop/img/"+product.getId()+".png",300,400);
         // Create a panel for product details
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -672,7 +669,8 @@ public class StorePage extends JFrame {
         gbc.gridy = 0;
         gbc.weightx = 0;
         gbc.weighty = 0.5;
-        detailsPanel.add(new JLabel(imageIcon), gbc);
+        JLabel newImageLabel = new JLabel(resizePicture("/vCampus/Shop/img/" + product.getId() + ".png", 300, 400));
+        detailsPanel.add(newImageLabel, gbc);
 
         JPanel rightUp = new JPanel(new GridBagLayout());
         gbc.gridx = 0;
@@ -744,9 +742,9 @@ public class StorePage extends JFrame {
         ImageIcon favorIcon = new ImageIcon();
         boolean is = isFavorites(product.getId());
         if(is)
-            favorIcon = resizePicture("src/imgs/shop/star1.png",30,30);
+            favorIcon = resizePicture("/imgs/shop/star1.png",30,30);
         else
-            favorIcon = resizePicture("src/imgs/shop/star0.png",30,30);
+            favorIcon = resizePicture("/imgs/shop/star0.png",30,30);
         favorButton.setIcon(favorIcon);
         favorButton.setOpaque(false);
         favorButton.setContentAreaFilled(false);
@@ -767,6 +765,8 @@ public class StorePage extends JFrame {
         // Add the details panel to the frame
         productFrame.add(detailsPanel, BorderLayout.CENTER);
 
+        productFrame.revalidate();
+        productFrame.repaint();
         // Display the frame
         productFrame.setVisible(true);
     }
@@ -911,8 +911,14 @@ public class StorePage extends JFrame {
                     // Load the image
                     BufferedImage originalImage = ImageIO.read(new File(imagePath));
                     File outputFile = new File("src/vCampus/Shop/img/" + id + ".png");
+
+                    String projectRoot = System.getProperty("user.dir");
+                    File outputFiletoOut = new File(projectRoot + "/out/production/Summer Project/vCampus/Shop/img/" + id + ".png");
+                    // Save the resized image as PNG
                     saveCompressedImage(originalImage, outputFile, targetWidth, targetHeight);
-                    byte[] compressedImage = Files.readAllBytes(outputFile.toPath());
+                    saveCompressedImage(originalImage, outputFiletoOut, targetWidth, targetHeight);
+
+                    byte[] compressedImage = Files.readAllBytes(outputFiletoOut.toPath());
                     updatedProduct.setImage2(compressedImage); // Use compressed image
                 }else{
                     updatedProduct.setImage2(product.getImage());
@@ -1375,12 +1381,13 @@ public class StorePage extends JFrame {
         errorFrame.setSize(325, 475);
         errorFrame.setLocationRelativeTo(null);
         JLabel errorLabel = new JLabel("");
-        ImageIcon failIcon = resizePicture("src/imgs/shop/searchfail.png",320,450);
+        ImageIcon failIcon = resizePicture("/imgs/shop/searchfail.png",320,450);
         errorLabel.setIcon(failIcon);
         errorFrame.add(errorLabel);
 
         // Play the WAV file
-        playWav("src/imgs/shop/searchfail.wav");
+        String projectRoot = System.getProperty("user.dir");
+        playWav(projectRoot+"/imgs/shop/searchfail.wav");
 
         errorFrame.setVisible(true);
         errorFrame.setResizable(false);
@@ -1398,6 +1405,53 @@ public class StorePage extends JFrame {
         }
     }
 
+    // Load image from classpath
+//        URL imageUrl = getClass().getResource(imagePath);
+//
+//        if (imageUrl == null) {
+//            System.out.println("Image not found: " + imagePath);
+//            return null;
+//        }
+//        BufferedImage originalImage = null;
+//        try {
+//            // Read the image from the file
+//            originalImage = ImageIO.read(new File(imagePath));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null; // Return null or handle error as needed
+//        }
+
+//        if (originalImage == null) {
+//            return null; // Handle the case where the image couldn't be read
+//        }
+    //ImageIcon originalIcon = getImage(imagePath);
+    //Image originalImage = originalIcon.getImage();
+    //
+//URL imageUrl = getClass().getResource(imagePath);
+//
+//        if (imageUrl == null) {
+//        System.out.println("找不到图片: " + imagePath);
+//        return null;
+//    }
+//
+
+    public ImageIcon resizePicture(String imagePath,int targetWidth,int targetHeight){
+
+        ImageIcon originalIcon = getImage(imagePath);
+        Image originalImage = originalIcon.getImage();
+
+
+        // Resize the image
+        Image resizedImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+        // Create a new ImageIcon from the resized image
+        ImageIcon resizedIcon = new ImageIcon(resizedImage);
+        return resizedIcon;
+    }
+
+    public ImageIcon getImage(String imagePath){
+        Image img = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));
+        return new ImageIcon(img);
+    }
 
     public String getRecordCount(String tablename){
         try {
