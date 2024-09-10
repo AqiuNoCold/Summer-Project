@@ -3,6 +3,7 @@ package vCampus.Entity;
 import java.io.Serializable;
 
 public class Grade implements Serializable {
+//    private static final long serialVersionUID = 1L; // 添加 serialVersionUID
     private String id;           // 登录ID
     private String cardId;       // 一卡通号
     private String courseName;   // 课程名称
@@ -130,5 +131,23 @@ public class Grade implements Serializable {
 
     public void setFinal(double finalScore) {
         this.finalScore = finalScore;
+    }
+
+    // toString方法
+    @Override
+    public String toString() {
+        return "Grade{" +
+                "id='" + id + '\'' +
+                ", cardId='" + cardId + '\'' +
+                ", courseName='" + courseName + '\'' +
+                ", courseId='" + courseId + '\'' +
+                ", usual=" + usual +
+                ", mid=" + mid +
+                ", finalScore=" + finalScore +
+                ", total=" + total +
+                ", point=" + point +
+                ", isFirst=" + isFirst +
+                ", term='" + term + '\'' +
+                '}';
     }
 }

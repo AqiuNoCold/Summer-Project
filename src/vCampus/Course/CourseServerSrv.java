@@ -236,7 +236,7 @@ public class CourseServerSrv {
             temp[7] = now_temp.toString();
             updateUser(temp); // 修改课程已选人数
             GradeDao newDao = new GradeDao(); // 修改成绩单
-            newDao.delete_course(id, course_id);
+//            newDao.delete_course(id, course_id);
             return 1;
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,7 +307,8 @@ public class CourseServerSrv {
     public ArrayList<ArrayList<String>> searchPrivateCourse(String condition_name, String condition) {
         try {
             GradeDao newDao = new GradeDao();
-            return newDao.searchPrivateCourse(condition_name, condition);
+//            return newDao.searchPrivateCourse(condition_name, condition);
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

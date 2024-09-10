@@ -209,4 +209,19 @@ public class LibraryService {
         // 返回更新后的 BookUser 对象
         return new BookUser(bookUserService);
     }
+
+    // 随机获取指定数量的书籍
+    public List<Book> getRandomBooks(int count) {
+        List<String> bookIds = bookDao.findRandomBooks(count);
+        List<Book> books = new ArrayList<>();
+
+        for (String bookId : bookIds) {
+            Book book = new Book(bookDao.find(bookId));
+            if (book != null) {
+                books.add(book);
+            }
+        }
+
+        return books;
+    }
 }

@@ -31,3 +31,5 @@ bin/
 # 本人的数据库备份文件，12个G，就不为难Github了
 
 *_backup.sql
+
+cache/

@@ -1,7 +1,11 @@
 package vCampus.Entity.Books;
 
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 import vCampus.Service.Books.BookService;
 
@@ -30,6 +34,7 @@ public class Book implements Serializable {
     private int borrowCount; // 借阅数量
     private boolean isActive; // 是否激活
     private boolean isDeleted; // 是否删除
+    private String cachedImagePath; // 缓存图片路径
 
     public Book(String isbn, BigDecimal msrp, String image, int pages, String title, String isbn13, String authors,
             String binding, String edition, String related, String language, String subjects, String synopsis,
@@ -315,6 +320,41 @@ public class Book implements Serializable {
         isDeleted = deleted;
     }
 
+    public String getCachedImagePath() {
+        return cachedImagePath;
+    }
+
+    public void setCachedImagePath(String cachedImagePath) {
+        this.cachedImagePath = cachedImagePath;
+    }
+
+    // 初始化方法
+    public void initialize() {
+        if (image != null && !image.isEmpty()) {
+            try {
+                String cacheDir = "cache/images"; // 缓存目录
+                Files.createDirectories(Paths.get(cacheDir)); // 创建缓存目录
+
+                // 生成缓存文件名
+                String fileName = image.substring(image.lastIndexOf('/') + 1);
+                String cachedFilePath = cacheDir + "/" + fileName;
+
+                File cachedFile = new File(cachedFilePath);
+                if (!cachedFile.exists()) {
+                    // 下载图片并保存到缓存目录
+                    try (InputStream in = new URL(image).openStream()) {
+                        Files.copy(in, Paths.get(cachedFilePath));
+                    }
+                }
+
+                // 设置缓存图片路径
+                this.cachedImagePath = cachedFilePath;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return String.format(
@@ -345,10 +385,11 @@ public class Book implements Serializable {
                         "| Borrow Count    | %-32d |\n" +
                         "| Is Active       | %-32b |\n" +
                         "| Is Deleted      | %-32b |\n" +
+                        "| Cached Image    | %-32s |\n" +
                         "+-----------------+----------------------------------+\n",
                 isbn, msrp, image, pages, title, isbn13, authors, binding, edition, related, language, subjects,
                 synopsis, publisher,
                 dimensions, titleLong, datePublished, copyCount, reviewCount, averageRating, favoriteCount, borrowCount,
-                isActive, isDeleted);
+                isActive, isDeleted, cachedImagePath);
     }
 }

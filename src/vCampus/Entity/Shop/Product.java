@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.io.Serializable;
 
 // 商品类
-public class Product {
+public class Product implements Serializable  {
     private String id;
     private String name;
     private float price;
@@ -58,7 +61,11 @@ public class Product {
         return image;
     }
     public void getPicture(){
-        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("src/vCampus/Shop/Img/"+this.id+".jpg"));) {
+        if (image == null) {
+            System.out.println("Image data is null");
+            return;
+        }
+        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("src/vCampus/Shop/Img/"+this.id+".png"));) {
             fileOutputStream.write(image);
         } catch (IOException e) {
             e.printStackTrace();
@@ -97,11 +104,30 @@ public class Product {
             e.printStackTrace();
         }
     }
+    public void setImage(Blob blob) throws SQLException {
+        image = blob.getBytes(1, (int) blob.length());
+    }
+
+    public void setImage2(byte[] compressedImage) throws SQLException {
+        image = compressedImage;
+    }
 
     @Override
     public String toString() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String datetime = dateFormat.format(time);
         return "ID: " + id + ", Name: " + name + ", Price: " + price*discount + ", Numbers: "+numbers+", Date: "+ datetime+", owner: "+owner;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id); // Compare based on unique id
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id); // Hash based on unique id
     }
 }

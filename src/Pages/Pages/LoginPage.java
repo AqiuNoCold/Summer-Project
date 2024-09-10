@@ -46,17 +46,17 @@ public class LoginPage extends JFrame {
 
         // 用户名输入框
         gbc.gridy = 1;
-        usernameField = createPlaceholderTextField("用户名");
+        usernameField = createPlaceholderTextField("213221798");
         panel.add(usernameField, gbc);
 
         // 密码输入框
         gbc.gridy = 2;
-        passwordField = createPasswordPlaceholderTextField("密码");
+        passwordField = createPasswordPlaceholderTextField("123456");
         panel.add(passwordField, gbc);
 
         // 登录按钮
         gbc.gridy = 3;
-        loginButton = new JButton(new ImageIcon("src/imgs/Login.png"));
+        loginButton = new JButton(new ImageIcon(getClass().getResource("/imgs/Login.png")));
         loginButton.setContentAreaFilled(false);
         loginButton.setBorderPainted(false);
         loginButton.setFocusPainted(false);
@@ -89,18 +89,19 @@ public class LoginPage extends JFrame {
                     out.writeObject(new String(passwordField.getPassword()));
                     out.flush();
 
-                    User response = (User) in.readObject();
-                    MainApp.setCurrentUser(response);
+                    Object response = in.readObject();
+
+                    if (response instanceof User) {
+                        MainApp.setCurrentUser((User) response);
+                        new NavigationPage().setVisible(true);
+                        dispose();
+                    } else if (response instanceof String) {
+                        String message = (String) response;
+                        messageLabel.setText(message);
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     System.out.println(ex.getMessage());
-                }
-
-                if (MainApp.getCurrentUser() != null) {
-                    new NavigationPage().setVisible(true);
-                    dispose(); // 关闭登录页面
-                } else {
-                    messageLabel.setText("用户名或密码错误");
                 }
             }
         });
@@ -176,7 +177,7 @@ public class LoginPage extends JFrame {
 
         public LoginPanel() {
             // 加载背景图片
-            backgroundImage = Toolkit.getDefaultToolkit().getImage("src/imgs/background.png");
+            backgroundImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/imgs/background.png"));
         }
 
         @Override

@@ -217,6 +217,37 @@ public class GradeDao implements BaseDao<Grade> {
         return grades;
     }
 
+    public List<Grade> findAll() {
+        List<Grade> grades = new ArrayList<>();
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblGrade";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Grade grade = new Grade(
+                        rs.getString("id"),
+                        rs.getString("card_id"),
+                        rs.getString("course_name"),
+                        rs.getString("course_id"),
+                        rs.getDouble("usual"),
+                        rs.getDouble("mid"),
+                        rs.getDouble("final"),
+                        rs.getDouble("total"),
+                        rs.getDouble("point"),
+                        rs.getBoolean("is_first"),
+                        rs.getString("term")
+                );
+                grades.add(grade);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return grades;
+    }
     public Grade findFromCardandCourse(String card_id, String course_id) {
         Grade grade = null;
         try {
@@ -248,7 +279,6 @@ public class GradeDao implements BaseDao<Grade> {
         }
         return grade;
     }
-
 
     public List<Grade> findAllByCourseId(String courseId) {
         List<Grade> grades = new ArrayList<>();
@@ -329,7 +359,7 @@ public class GradeDao implements BaseDao<Grade> {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                grade = new Grade(
+                gradeResult = new Grade(
                         rs.getString("id"),
                         rs.getString("card_id"),
                         rs.getString("course_name"),
@@ -348,7 +378,7 @@ public class GradeDao implements BaseDao<Grade> {
         } finally {
             DbConnection.closeConnection(conn);
         }
-        return grade;
+        return gradeResult;
     }
 
     public boolean setGrade(Grade grade) {
@@ -377,5 +407,23 @@ public class GradeDao implements BaseDao<Grade> {
         }
         return false;
     }
-
+    
+    public boolean deleteGrade(String cardId, String courseId, boolean isFirst) {
+        boolean isDeleted = false;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "DELETE FROM tblGrade WHERE course_id = ?AND card_id = ?AND is_first = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, courseId);
+            pstmt.setString(2, cardId);
+            pstmt.setBoolean(3, isFirst);
+            int rowsAffected = pstmt.executeUpdate();
+            isDeleted = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isDeleted;
+    }
 }
