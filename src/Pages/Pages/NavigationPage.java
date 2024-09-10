@@ -18,7 +18,7 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class NavigationPage extends JFrame {
-    User user=MainApp.getCurrentUser();
+    User user = MainApp.getCurrentUser();
 
     private JButton storeButton;
     private JButton eCardButton;
@@ -66,7 +66,7 @@ public class NavigationPage extends JFrame {
                     out.writeObject("initialShopStudent");
                     out.writeObject(user);
                     out.flush();
-                    ShopStudent response=(ShopStudent) in.readObject();
+                    ShopStudent response = (ShopStudent) in.readObject();
                     openPage(new StorePage(response));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
@@ -83,8 +83,8 @@ public class NavigationPage extends JFrame {
                     out.writeObject("cardIni");
                     out.writeObject(user.getId());
                     out.flush();
-                    ECard response=(ECard) in.readObject();
-                    user= response;
+                    ECard response = (ECard) in.readObject();
+                    user = response;
                     MainApp.setCurrentUser(user);
                     openPage(new ECardPage(response));
                 } catch (Exception ex) {
@@ -97,17 +97,17 @@ public class NavigationPage extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // 创建 User 实例
-//                User user = new User(
-//                        "user123",        // id
-//                        "password",       // pwd
-//                        25,               // age
-//                        true,             // gender
-//                        "ST",        // role
-//                        "user123@example.com", // email
-//                        "123456789",      // card
-//                        false             // lost
-//                );
-                User user1=MainApp.getCurrentUser();
+                // User user = new User(
+                // "user123", // id
+                // "password", // pwd
+                // 25, // age
+                // true, // gender
+                // "ST", // role
+                // "user123@example.com", // email
+                // "123456789", // card
+                // false // lost
+                // );
+                User user1 = MainApp.getCurrentUser();
                 if (user.getRole() == "ST") {
                     openPage(new StudentMainPage());
 
@@ -156,6 +156,7 @@ public class NavigationPage extends JFrame {
         page.setVisible(true);
         dispose(); // 关闭导航页面
     }
+
     public static void main(String[] args) {
         new NavigationPage().setVisible(true);
     }

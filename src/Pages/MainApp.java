@@ -19,38 +19,42 @@ public class MainApp {
     public static void main(String[] args) {
         // 初始化Socket或其他必要的设置
         initializeSocket();
+
         // 检查用户状态并显示相应的页面
         SwingUtilities.invokeLater(() -> {
-            if (socket != null) {
+            if (currentUser == null) {
                 new LoginPage().setVisible(true);
             } else {
-                // 连接失败，显示导航页面或错误页面
-                JOptionPane.showMessageDialog(null, "连接失败，请检查网络设置。", "连接错误", JOptionPane.ERROR_MESSAGE);
+                new NavigationPage().setVisible(true);
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(MainApp::close_source));
     }
 
-    private static void initializeSocket() {
+    public static void initializeSocket() {
         try {
             socket = new Socket("localhost", 5101);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
             System.out.println("Connected to server");
-        } catch (Exception _) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public static void close_source() {
         try {
             out.writeObject("exit");
-            out.writeObject(currentUser.getId());
+            if (currentUser != null) {
+                out.writeObject(currentUser.getId());
+            }
             out.flush();
+            System.out.println("exit");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     // Getter and Setter for currentUser and socket
     public static User getCurrentUser() {
         return currentUser;
