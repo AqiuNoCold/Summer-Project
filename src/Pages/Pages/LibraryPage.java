@@ -3,6 +3,7 @@ package Pages.Pages;
 import Pages.MainApp;
 import Pages.Utils.*;
 import Pages.Pages.Library.*;
+import vCampus.Entity.User;
 import vCampus.Entity.Books.BookUser;
 
 import javax.swing.*;
@@ -13,82 +14,85 @@ import java.io.ObjectOutputStream;
 
 public class LibraryPage extends JFrame {
     private static LibraryPage instance; // 唯一实例
-    private static BookUser bookUser;
-    private static JPanel contentPanel;
-    private static JPanel menuPanel;
-    private static JButton homeButton;
-    private static JButton bookshelvesButton;
-    private static JButton exploreButton;
-    private static JButton profileButton;
+    private BookUser bookUser;
+    private JPanel contentPanel;
+    private JPanel menuPanel;
+    private JButton homeButton;
+    private JButton bookshelvesButton;
+    private JButton exploreButton;
+    private JButton profileButton;
 
     private LibraryPage() {
         // 私有构造函数，防止实例化
+        setTitle("图书馆页面");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null); // 居中显示窗口
+        setLayout(new BorderLayout());
+
+        // 调用login方法并存储返回的BookUser对象
+        login();
+
+        // 创建内容面板
+        contentPanel = new JPanel(new CardLayout());
+        contentPanel.add(HomePage.getInstance(), "home");
+        contentPanel.add(new BookshelvesPage(), "bookshelves");
+        contentPanel.add(ExplorePage.getInstance(), "explore");
+        contentPanel.add(new ProfilePage(), "profile");
+
+        add(contentPanel, BorderLayout.CENTER);
+
+        // 创建底部菜单栏
+        menuPanel = new JPanel(new GridLayout(1, 4));
+        menuPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
+
+        homeButton = createImageButton("首页", "/imgs/home.svg", 800, 600);
+        exploreButton = createImageButton("探索", "/imgs/explore.svg", 800, 600);
+        bookshelvesButton = createImageButton("书架", "/imgs/bookshelves.svg", 800, 600);
+        profileButton = createImageButton("个人主页", "/imgs/person.svg", 800, 600);
+
+        menuPanel.add(homeButton);
+        menuPanel.add(exploreButton);
+        menuPanel.add(bookshelvesButton);
+        menuPanel.add(profileButton);
+
+        add(menuPanel, BorderLayout.SOUTH);
+
+        // 按钮点击事件
+        homeButton.addActionListener(e -> switchPage("home"));
+        bookshelvesButton.addActionListener(e -> switchPage("bookshelves"));
+        exploreButton.addActionListener(e -> {
+            ExplorePage.getInstance().switchToDefaultMode();
+            switchPage("explore");
+        });
+        profileButton.addActionListener(e -> switchPage("profile"));
+
+        // 添加窗口关闭事件监听器
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                navigateBack();
+            }
+        });
+
+        // 添加窗口大小改变事件监听器
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension newSize = getSize();
+                updateButtonIcons(newSize.width, newSize.height);
+            }
+        });
     }
 
-    public static LibraryPage init() {
+    public static synchronized LibraryPage getInstance() {
         if (instance == null) {
             instance = new LibraryPage();
-            instance.setTitle("图书馆页面");
-            instance.setSize(800, 600);
-            instance.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            instance.setLocationRelativeTo(null); // 居中显示窗口
-            instance.setLayout(new BorderLayout());
-
-            // 调用login方法并存储返回的BookUser对象
-            login();
-
-            // 创建内容面板
-            contentPanel = new JPanel(new CardLayout());
-            contentPanel.add(MainApp.getHomePage(), "home");
-            contentPanel.add(new BookshelvesPage(), "bookshelves");
-            contentPanel.add(new ExplorePage(), "explore");
-            contentPanel.add(new ProfilePage(), "profile");
-
-            instance.add(contentPanel, BorderLayout.CENTER);
-
-            // 创建底部菜单栏
-            menuPanel = new JPanel(new GridLayout(1, 4));
-            menuPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
-
-            homeButton = createImageButton("首页", "/imgs/home.svg", 800, 600);
-            bookshelvesButton = createImageButton("书架", "/imgs/bookshelves.svg", 800, 600);
-            exploreButton = createImageButton("探索", "/imgs/explore.svg", 800, 600);
-            profileButton = createImageButton("个人主页", "/imgs/person.svg", 800, 600);
-
-            menuPanel.add(homeButton);
-            menuPanel.add(bookshelvesButton);
-            menuPanel.add(exploreButton);
-            menuPanel.add(profileButton);
-
-            instance.add(menuPanel, BorderLayout.SOUTH);
-
-            // 按钮点击事件
-            homeButton.addActionListener(e -> switchPage("home"));
-            bookshelvesButton.addActionListener(e -> switchPage("bookshelves"));
-            exploreButton.addActionListener(e -> switchPage("explore"));
-            profileButton.addActionListener(e -> switchPage("profile"));
-
-            // 添加窗口关闭事件监听器
-            instance.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    navigateBack();
-                }
-            });
-
-            // 添加窗口大小改变事件监听器
-            instance.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    Dimension newSize = instance.getSize();
-                    updateButtonIcons(newSize.width, newSize.height);
-                }
-            });
         }
         return instance;
     }
 
-    private static void login() {
+    private void login() {
         try {
             ObjectOutputStream out = MainApp.getOut();
             ObjectInputStream in = MainApp.getIn();
@@ -110,12 +114,12 @@ public class LibraryPage extends JFrame {
         }
     }
 
-    private static void switchPage(String pageName) {
+    private void switchPage(String pageName) {
         CardLayout cl = (CardLayout) (contentPanel.getLayout());
         cl.show(contentPanel, pageName);
     }
 
-    private static JButton createImageButton(String text, String imagePath, int windowWidth, int windowHeight) {
+    private JButton createImageButton(String text, String imagePath, int windowWidth, int windowHeight) {
         ImageIcon icon = IconUtils.loadSVGImage(imagePath, windowWidth, windowHeight);
         JButton button = new JButton(text, icon);
         button.setHorizontalTextPosition(SwingConstants.CENTER); // 文字在图片中心
@@ -128,7 +132,7 @@ public class LibraryPage extends JFrame {
         return button;
     }
 
-    private static void updateButtonIcons(int windowWidth, int windowHeight) {
+    private void updateButtonIcons(int windowWidth, int windowHeight) {
         IconUtils.updateButtonIcon(homeButton, "/imgs/home.svg", windowWidth, windowHeight);
         IconUtils.updateButtonIcon(bookshelvesButton, "/imgs/bookshelves.svg", windowWidth, windowHeight);
         IconUtils.updateButtonIcon(exploreButton, "/imgs/explore.svg", windowWidth, windowHeight);
@@ -146,7 +150,29 @@ public class LibraryPage extends JFrame {
         IconUtils.setButtonBorder(profileButton, scaleFactor);
     }
 
-    private static void navigateBack() {
+    private void navigateBack() {
         new NavigationPage().setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        // 设置当前用户
+        MainApp.setCurrentUser(
+                new User("213221715", "123456", 20, true, "ST", "213221715@seu.edu.cn", "213221715", false));
+
+        // 初始化Socket
+        MainApp.initializeSocket();
+
+        // 显示LibraryPage窗口
+        SwingUtilities.invokeLater(() -> {
+            LibraryPage libraryPage = LibraryPage.getInstance();
+            libraryPage.setVisible(true);
+            // 添加窗口监听器，在窗口关闭时调用 MainApp.close_source()
+            libraryPage.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    MainApp.close_source();
+                }
+            });
+        });
     }
 }

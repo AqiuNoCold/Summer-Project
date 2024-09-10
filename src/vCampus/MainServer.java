@@ -70,7 +70,7 @@ public class MainServer {
     private static void handleClient(Socket clientSocket) throws IOException {
         String userid = null;
         try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
+                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
@@ -191,8 +191,8 @@ public class MainServer {
                 break;
             case "getRandomBooks":
                 int count = (int) in.readObject();
-//                List<Book> randomBooks = libraryService.getRandomBooks(count);
-//                out.writeObject(randomBooks);
+                List<Book> randomBooks = libraryService.getRandomBooks(count);
+                out.writeObject(randomBooks);
                 break;
             default:
                 System.out.println("Unknown function: " + function);
@@ -212,14 +212,14 @@ public class MainServer {
                         // 如果用户已经在线，返回相应的消息
                         out.writeObject("用户已经登录");
                         out.flush();
-                        return;  // 终止登录处理
+                        return; // 终止登录处理
                     }
                     User user = IUserServerSrv.login(userId, password);
                     if (user != null) {
-                        userMap.put(userId, user);  // 将用户ID和User对象存入userMap
-                        out.writeObject(user);  // 返回用户对象
+                        userMap.put(userId, user); // 将用户ID和User对象存入userMap
+                        out.writeObject(user); // 返回用户对象
                     } else {
-                        out.writeObject("Invalid login credentials.");  // 登录失败信息
+                        out.writeObject("Invalid login credentials."); // 登录失败信息
                     }
                     out.flush();
                     break;
@@ -281,7 +281,7 @@ public class MainServer {
                     out.flush();
                     break;
 
-                case "search_course": //根据课程名称和相关限制搜索课程
+                case "search_course": // 根据课程名称和相关限制搜索课程
                     String name1 = (String) in.readObject();
                     String st1_id = (String) in.readObject();
                     int state = (Integer) in.readObject();
@@ -332,7 +332,7 @@ public class MainServer {
                     ArrayList<ArrayList<String>> csl = csv3.getAllCourse();
                     try {
                         out.writeObject(csl);
-                        out.flush();  // Ensure data is sent to the client
+                        out.flush(); // Ensure data is sent to the client
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -408,18 +408,18 @@ public class MainServer {
                 case "initialShopStudent":
                     User user = (User) in.readObject();
                     student = ShopServerSrv.initialShopStudent(user);
-                    ShopServerSrv.initialShop(8,student);
+                    ShopServerSrv.initialShop(8, student);
                     out.writeObject(student);
                     break;
                 case "refreshShop":
                     student = (ShopStudent) in.readObject();
-                    ShopServerSrv.initialShop(8,student);
+                    ShopServerSrv.initialShop(8, student);
                     out.writeObject(student);
                     break;
                 case "searchProduct":
                     student = (ShopStudent) in.readObject();
                     String searchName = (String) in.readObject();
-                    boolean success = ShopServerSrv.searchProduct(student,searchName);
+                    boolean success = ShopServerSrv.searchProduct(student, searchName);
                     out.writeObject(student);
                     out.writeObject(success);
                     break;
@@ -427,7 +427,7 @@ public class MainServer {
                     String productId = (String) in.readObject();
                     student = (ShopStudent) in.readObject();
                     boolean is = (boolean) in.readObject();
-                    ShopServerSrv.changeFavorites(productId,student,is);
+                    ShopServerSrv.changeFavorites(productId, student, is);
                     out.writeObject(student);
                     break;
                 case "purchaseProduct":
@@ -435,7 +435,7 @@ public class MainServer {
                     int buyNums = (int) in.readObject();
                     int password = (int) in.readObject();
                     student = (ShopStudent) in.readObject();
-                    int situation = ShopServerSrv.purchaseProduct(productId,buyNums,password,student);
+                    int situation = ShopServerSrv.purchaseProduct(productId, buyNums, password, student);
                     out.writeObject(student);
                     out.writeObject(situation);
                     break;
@@ -447,7 +447,7 @@ public class MainServer {
                 case "addNew":
                     Product newProduct = (Product) in.readObject();
                     student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.addNew(student,newProduct);
+                    success = ShopServerSrv.addNew(student, newProduct);
                     out.writeObject(success);
                     out.writeObject(newProduct);
                     out.writeObject(student);
@@ -455,7 +455,7 @@ public class MainServer {
                 case "updateProduct":
                     Product updateProduct = (Product) in.readObject();
                     student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.updateProduct(student,updateProduct);
+                    success = ShopServerSrv.updateProduct(student, updateProduct);
                     out.writeObject(updateProduct);
                     out.writeObject(student);
                     out.writeObject(success);
@@ -463,7 +463,7 @@ public class MainServer {
                 case "deleteProduct":
                     Product deletProduct = (Product) in.readObject();
                     student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.deleteProduct(student,deletProduct);
+                    success = ShopServerSrv.deleteProduct(student, deletProduct);
                     out.writeObject(student);
                     out.writeObject(success);
                     break;

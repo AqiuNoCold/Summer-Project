@@ -11,73 +11,175 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class HomePage extends JPanel {
     private static HomePage instance; // 唯一实例
-    private static JPanel bookDisplayPanel;
-    private static JPanel paginationPanel;
-    private static JButton prevButton;
-    private static JButton nextButton;
-    private static JTextField pageNumberField;
-    private static JDialog loadingDialog;
-    private static SearchBar searchBar; // 添加 SearchBar 实例
-    private static int currentPage = 1; // 当前页码
+    private JPanel bookDisplayPanel;
+    private JPanel paginationPanel;
+    private JButton prevButton;
+    private JButton nextButton;
+    private JTextField pageNumberField;
+    private JDialog loadingDialog;
+    private SearchBar searchBar; // 添加 SearchBar 实例
+    private int currentPage = 1; // 当前页码
+    private int totalBooks = 30859865; // 总书籍数
+    private Map<Integer, List<Book>> bookCache = new HashMap<>(); // 缓存每页的书籍列表
+
+    // 定义页面状态
+    private enum PageStatus {
+        NOT_LOADED,
+        LOADING,
+        LOADED
+    }
+
+    // 页面状态缓存
+    private Map<Integer, PageStatus> pageStatusCache = new HashMap<>();
 
     private HomePage() {
         // 私有构造函数，防止实例化
+        setLayout(new BorderLayout());
+
+        // 创建图书展示区域
+        bookDisplayPanel = new JPanel(new GridLayout(2, 4, 10, 10)); // 2行4列，间距为10
+        bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
+
+        // 创建搜索栏
+        searchBar = new SearchBar();
+        add(searchBar, BorderLayout.NORTH); // 将搜索栏添加到布局中
+
+        // 创建分页面板
+        paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        prevButton = IconUtils.createImageButton("/imgs/caret-left.svg", 800, 600);
+        pageNumberField = new JTextField(5);
+        pageNumberField.setHorizontalAlignment(JTextField.CENTER); // 设置水平对齐方式为居中
+        pageNumberField.setPreferredSize(new Dimension(50, 30)); // 调整宽度
+        nextButton = IconUtils.createImageButton("/imgs/caret-right.svg", 800, 600);
+
+        paginationPanel.add(prevButton);
+        paginationPanel.add(pageNumberField);
+        paginationPanel.add(nextButton);
+
+        // 添加页码输入框的事件监听器
+        pageNumberField.addActionListener(e -> handlePageNumberInput());
+        pageNumberField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                handlePageNumberInput();
+            }
+        });
+
+        // 添加窗口大小监听器
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeBookImages();
+            }
+        });
+
+        add(bookDisplayPanel, BorderLayout.CENTER);
+        add(paginationPanel, BorderLayout.SOUTH);
+
+        // 异步获取并显示8本随机书籍的封面
+        loadBooksForPage(currentPage);
+
+        // 预加载下一页的书籍
+        preloadNextPages(currentPage + 1, 2); // 预加载当前页之后的2页
+
+        // 添加鼠标事件监听器
+        addPaginationButtonListeners();
     }
 
-    public static HomePage init() {
+    public static synchronized HomePage getInstance() {
         if (instance == null) {
             instance = new HomePage();
-            instance.setLayout(new BorderLayout());
-
-            // 创建图书展示区域
-            bookDisplayPanel = new JPanel(new GridLayout(2, 4, 10, 10)); // 2行4列，间距为10
-            bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
-
-            // 创建搜索栏
-            searchBar = new SearchBar();
-            instance.add(searchBar, BorderLayout.NORTH); // 将搜索栏添加到布局中
-
-            // 创建分页面板
-            paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-            prevButton = IconUtils.createImageButton("/imgs/caret-left.svg", 800, 600);
-            pageNumberField = new JTextField(5);
-            nextButton = IconUtils.createImageButton("/imgs/caret-right.svg", 800, 600);
-
-            paginationPanel.add(prevButton);
-            paginationPanel.add(pageNumberField);
-            paginationPanel.add(nextButton);
-
-            // 添加窗口大小监听器
-            instance.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    instance.resizeBookImages();
-                }
-            });
-
-            instance.add(bookDisplayPanel, BorderLayout.CENTER);
-            instance.add(paginationPanel, BorderLayout.SOUTH);
-
-            // 异步获取并显示8本随机书籍的封面
-            new BookLoader().execute();
-
-            // 添加鼠标事件监听器
-            instance.addPaginationButtonListeners();
         }
         return instance;
     }
 
-    public static HomePage getInstance() {
-        if (instance == null) {
-            return init();
+    // 处理页码输入框的输入
+    private void handlePageNumberInput() {
+        String input = pageNumberField.getText();
+        try {
+            int page = Integer.parseInt(input);
+            if (page > 0 && page <= (totalBooks + 7) / 8) { // 假设每页显示8本书
+                switchPage(page);
+            } else {
+                pageNumberField.setText(String.valueOf(currentPage)); // 重置为当前页码
+            }
+        } catch (NumberFormatException e) {
+            pageNumberField.setText(String.valueOf(currentPage)); // 重置为当前页码
         }
-        return instance;
+    }
+
+    // 修改切换页面的方法，更新前后两页的状态
+    private void switchPage(int newPage) {
+        currentPage = newPage;
+        updatePageStatus(newPage);
+        loadBooksForPage(newPage);
+    }
+
+    public void updateBookDisplay(List<Book> books, int currentPage) {
+        this.currentPage = currentPage;
+
+        bookDisplayPanel.removeAll(); // 清空当前展示的书籍
+
+        Random random = new Random();
+        for (Book book : books) {
+            JLabel bookLabel = new JLabel();
+            String imagePath = book.getCachedImagePath();
+            if (imagePath == null) {
+                int randomIndex = random.nextInt(8) + 1; // 生成1到8之间的随机数
+                imagePath = "src/imgs/default_book_cover/" + randomIndex + ".jpg";
+            }
+            ImageIcon bookIcon = new ImageIcon(imagePath);
+            if (bookIcon.getIconWidth() == -1) {
+                System.out.println("Failed to load image: " + imagePath); // 调试信息
+            } else {
+                Image image = bookIcon.getImage();
+                int panelWidth = bookDisplayPanel.getWidth() / 4 - 20; // 4列，每列之间有10的间距
+                int panelHeight = bookDisplayPanel.getHeight() / 2 - 20;
+                int imageWidth = image.getWidth(null);
+                int imageHeight = image.getHeight(null);
+
+                double panelAspectRatio = (double) panelWidth / panelHeight;
+                double imageAspectRatio = (double) imageWidth / imageHeight;
+
+                int newWidth, newHeight;
+
+                if (panelAspectRatio > imageAspectRatio) {
+                    // 按高度对齐
+                    newHeight = panelHeight;
+                    newWidth = (int) (imageWidth * ((double) newHeight / imageHeight));
+                } else {
+                    // 按宽度对齐
+                    newWidth = panelWidth;
+                    newHeight = (int) (imageHeight * ((double) newWidth / imageWidth));
+                }
+                Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                ImageIcon scaledIcon = new ImageIcon(scaledImage);
+                scaledIcon.setDescription(imagePath); // 设置描述以便后续使用
+                bookLabel.setIcon(scaledIcon);
+                bookLabel.setHorizontalAlignment(JLabel.CENTER);
+                bookLabel.setVerticalAlignment(JLabel.CENTER);
+            }
+            bookLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // 添加灰色边框
+            bookDisplayPanel.add(bookLabel);
+        }
+
+        bookDisplayPanel.revalidate();
+        bookDisplayPanel.repaint();
+
+        // 更新分页按钮状态
+        updatePaginationButtons();
+
+        // 更新页码框的数字
+        pageNumberField.setText(String.valueOf(currentPage));
     }
 
     private void resizeBookImages() {
@@ -117,11 +219,60 @@ public class HomePage extends JPanel {
         }
     }
 
-    private static class BookLoader extends SwingWorker<List<Book>, Void> {
+    // 更新当前页和前后两页的状态
+    private void updatePageStatus(int page) {
+        for (int i = page - 2; i <= page + 2; i++) {
+            if (!pageStatusCache.containsKey(i)) {
+                pageStatusCache.put(i, PageStatus.NOT_LOADED);
+            }
+        }
+    }
+
+    // 修改 loadBooksForPage 方法，检查页面状态并执行相应操作
+    private void loadBooksForPage(int page) {
+        PageStatus status = pageStatusCache.getOrDefault(page, PageStatus.NOT_LOADED);
+
+        switch (status) {
+            case NOT_LOADED:
+                pageStatusCache.put(page, PageStatus.LOADING);
+                new BookLoader(page, true).execute();
+                break;
+            case LOADING:
+                // 显示加载框
+                showLoadingDialog();
+                break;
+            case LOADED:
+                List<Book> books = bookCache.get(page);
+                updateBookDisplay(books, page);
+                break;
+        }
+    }
+
+    // 添加预加载方法
+    private void preloadNextPages(int startPage, int numberOfPages) {
+        for (int i = startPage; i < startPage + numberOfPages; i++) {
+            if (!bookCache.containsKey(i)) {
+                new BookLoader(i, false).execute(); // 不显示加载框
+            }
+        }
+    }
+
+    // 修改 BookLoader 类，添加一个标志来判断是否显示加载框
+    private class BookLoader extends SwingWorker<List<Book>, Void> {
+        private int page;
+        private boolean showLoadingDialog;
+
+        public BookLoader(int page, boolean showLoadingDialog) {
+            this.page = page;
+            this.showLoadingDialog = showLoadingDialog;
+        }
+
         @Override
         protected List<Book> doInBackground() throws Exception {
-            // 显示加载对话框
-            SwingUtilities.invokeLater(() -> showLoadingDialog());
+            if (showLoadingDialog) {
+                // 显示加载对话框
+                SwingUtilities.invokeLater(() -> showLoadingDialog());
+            }
             return ClientUtils.getRandomBooksAndInitialize(8);
         }
 
@@ -129,61 +280,36 @@ public class HomePage extends JPanel {
         protected void done() {
             try {
                 List<Book> books = get();
-                Random random = new Random();
-                for (Book book : books) {
-                    JLabel bookLabel = new JLabel();
-                    String imagePath = book.getCachedImagePath();
-                    if (imagePath == null) {
-                        int randomIndex = random.nextInt(8) + 1; // 生成1到8之间的随机数
-                        imagePath = "src/imgs/default_book_cover/" + randomIndex + ".jpg";
+                if (books != null) {
+                    bookCache.put(page, books); // 将获取的书籍列表存入缓存
+                    pageStatusCache.put(page, PageStatus.LOADED); // 更新页面状态为已加载
+                    if (page == currentPage) {
+                        updateBookDisplay(books, page);
                     }
-                    ImageIcon bookIcon = new ImageIcon(imagePath);
-                    if (bookIcon.getIconWidth() == -1) {
-                        System.out.println("Failed to load image: " + imagePath); // 调试信息
-                    } else {
-                        Image image = bookIcon.getImage();
-                        int panelWidth = bookDisplayPanel.getWidth() / 4 - 20; // 4列，每列之间有10的间距
-                        int panelHeight = bookDisplayPanel.getHeight() / 2 - 20;
-                        int imageWidth = image.getWidth(null);
-                        int imageHeight = image.getHeight(null);
-
-                        double panelAspectRatio = (double) panelWidth / panelHeight;
-                        double imageAspectRatio = (double) imageWidth / imageHeight;
-
-                        int newWidth, newHeight;
-
-                        if (panelAspectRatio > imageAspectRatio) {
-                            // 按高度对齐
-                            newHeight = panelHeight;
-                            newWidth = (int) (imageWidth * ((double) newHeight / imageHeight));
-                        } else {
-                            // 按宽度对齐
-                            newWidth = panelWidth;
-                            newHeight = (int) (imageHeight * ((double) newWidth / imageWidth));
-                        }
-                        Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-                        scaledIcon.setDescription(imagePath); // 设置描述以便后续使用
-                        bookLabel.setIcon(scaledIcon);
-                        bookLabel.setIcon(scaledIcon);
-                        bookLabel.setHorizontalAlignment(JLabel.CENTER);
-                        bookLabel.setVerticalAlignment(JLabel.CENTER);
+                } else {
+                    // 处理 books 为 null 的情况
+                    pageStatusCache.put(page, PageStatus.NOT_LOADED); // 重置页面状态
+                    if (page == currentPage) {
+                        JOptionPane.showMessageDialog(HomePage.this, "无法加载图书信息，请稍后重试。", "加载失败",
+                                JOptionPane.ERROR_MESSAGE);
                     }
-                    bookLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // 添加灰色边框
-                    bookDisplayPanel.add(bookLabel);
                 }
-                bookDisplayPanel.revalidate();
-                bookDisplayPanel.repaint();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
+                pageStatusCache.put(page, PageStatus.NOT_LOADED); // 重置页面状态
+                if (page == currentPage) {
+                    JOptionPane.showMessageDialog(HomePage.this, "无法加载图书信息，请稍后重试。", "加载失败", JOptionPane.ERROR_MESSAGE);
+                }
             } finally {
-                // 关闭加载对话框
-                SwingUtilities.invokeLater(() -> hideLoadingDialog());
+                if (showLoadingDialog) {
+                    // 关闭加载对话框
+                    SwingUtilities.invokeLater(() -> hideLoadingDialog());
+                }
             }
         }
     }
 
-    private static void showLoadingDialog() {
+    private void showLoadingDialog() {
         if (loadingDialog == null) {
             loadingDialog = new JDialog(SwingUtilities.getWindowAncestor(bookDisplayPanel), "加载中",
                     Dialog.ModalityType.APPLICATION_MODAL);
@@ -195,7 +321,7 @@ public class HomePage extends JPanel {
         loadingDialog.setVisible(true);
     }
 
-    private static void hideLoadingDialog() {
+    private void hideLoadingDialog() {
         if (loadingDialog != null) {
             loadingDialog.dispose();
         }
@@ -213,7 +339,7 @@ public class HomePage extends JPanel {
                 prevButton.setIcon(IconUtils.loadSVGImage("/imgs/caret-left.svg", 800, 600));
                 if (currentPage > 1) {
                     currentPage--;
-                    new BookLoader().execute(); // 重新加载书籍
+                    loadBooksForPage(currentPage); // 重新加载书籍
                 }
             }
         });
@@ -228,7 +354,7 @@ public class HomePage extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 nextButton.setIcon(IconUtils.loadSVGImage("/imgs/caret-right.svg", 800, 600));
                 currentPage++;
-                new BookLoader().execute(); // 重新加载书籍
+                loadBooksForPage(currentPage); // 重新加载书籍
             }
         });
 
@@ -237,10 +363,10 @@ public class HomePage extends JPanel {
     }
 
     private void updatePaginationButtons() {
-        boolean needsPagination = bookDisplayPanel.getComponentCount() > 8; // 假设每页显示8本书
+        boolean needsPagination = totalBooks > 8; // 假设每页显示8本书
 
-        prevButton.setEnabled(needsPagination);
-        nextButton.setEnabled(needsPagination);
+        prevButton.setEnabled(currentPage > 1);
+        nextButton.setEnabled(currentPage * 8 < totalBooks);
         pageNumberField.setEnabled(needsPagination); // 启用或禁用翻页框
 
         if (!needsPagination) {
@@ -263,7 +389,11 @@ public class HomePage extends JPanel {
         frame.add(HomePage.getInstance());
         frame.setVisible(true);
 
-        // 关闭资源
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> MainApp.close_source()));
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                MainApp.close_source();
+            }
+        });
     }
 }

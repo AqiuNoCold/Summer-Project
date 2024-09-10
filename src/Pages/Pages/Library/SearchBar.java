@@ -33,6 +33,13 @@ public class SearchBar extends JPanel {
     private int currentPage = 1;
     private List<Book> books;
     private JDialog searchingDialog;
+    private BookSearchCriteria searchCriteria;
+    private BookSortCriteria sortCriteria;
+    private ExplorePage explorePage;
+
+    public void setExplorePage(ExplorePage explorePage) {
+        this.explorePage = explorePage;
+    }
 
     // 显示字段名到实际字段名的映射
     private static final Map<String, String> fieldMap = new HashMap<>();
@@ -164,8 +171,8 @@ public class SearchBar extends JPanel {
 
         // 创建一个新的线程来执行搜索操作
         new Thread(() -> {
-            BookSearchCriteria searchCriteria = new BookSearchCriteria();
-            BookSortCriteria sortCriteria = new BookSortCriteria();
+            searchCriteria = new BookSearchCriteria();
+            sortCriteria = new BookSortCriteria();
 
             if (isAdvancedSearchVisible) {
                 // 高级搜索逻辑
@@ -208,9 +215,11 @@ public class SearchBar extends JPanel {
             }
 
             // 输出搜索结果
-            System.out.println("符合条件的书籍总数：" + totalResults);
-            for (Book book : books) {
-                System.out.println(book);
+            if (explorePage != null) {
+                SwingUtilities.invokeLater(() -> {
+                    explorePage.updateBookDisplay(books, currentPage, totalResults);
+                    explorePage.switchToSearchMode();
+                });
             }
 
             // 隐藏“正在搜索”对话框
@@ -276,6 +285,15 @@ public class SearchBar extends JPanel {
             add(addButton);
             add(removeButton);
         }
+    }
+
+    // 添加 getSearchCriteria 和 getSortCriteria 方法
+    public BookSearchCriteria getSearchCriteria() {
+        return searchCriteria;
+    }
+
+    public BookSortCriteria getSortCriteria() {
+        return sortCriteria;
     }
 
     public static void main(String[] args) {

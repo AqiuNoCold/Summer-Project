@@ -106,7 +106,7 @@ public class User implements Serializable {
     }
 
     public void setEmail(String email) {
-        if (!email.matches(".*@.*\\.com")) {
+        if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
             throw new IllegalArgumentException("邮箱格式不正确");
         }
         this.email = email;
