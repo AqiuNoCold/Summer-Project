@@ -62,7 +62,7 @@ public class TeacherGrade {
         headerPanel.add(textLabel);
         headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        tableModel = new DefaultTableModel(new Object[]{"一卡通号", "课程编号", "最终成绩", "详情", "修改", "删除"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"课程编号", "一卡通号", "最终成绩", "详情", "修改", "删除"}, 0);
         table = new JTable(tableModel) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -109,7 +109,21 @@ public class TeacherGrade {
         }
         data = new ArrayList<>();
         for (Grade grade : grades) {
-            data.add(new Object[]{grade.getCourseId(), grade.getCardId(), grade.getTotal(), "Action 1", "Action 2", "Action 3",grade.getPoint(),grade.getUsual(),grade.getMid(),grade.getFinal(),grade.isFirst()});
+            data.add(new Object[]{
+                    grade.getCourseId(),
+                    grade.getCardId(),
+                    grade.getTotal()==0?"未录入":grade.getTotal(),
+                    "Action 1",
+                    "Action 2",
+                    "Action 3",
+                    grade.getPoint(),
+                    grade.getUsual(),
+                    grade.getMid(),
+                    grade.getFinal(),
+                    grade.isFirst(),
+                    grade.getCourseName(),
+                    grade.getTerm()
+            });
         }
 
         // 创建 filteredData 列表，只包含 data 的前6列数据
@@ -266,16 +280,10 @@ public class TeacherGrade {
     private static void performSearch() {
         String searchType = (String) searchComboBox.getSelectedItem();
         String searchTerm = searchField.getText().trim();
-//        System.out.println("search by cardId111");
-//        System.out.println(searchTerm);
-//        System.out.println(searchType);
         if (searchType != null && !searchTerm.isEmpty()) {
             try {if (searchType.equals("一卡通号")) {
-//                System.out.println("search by cardId222");
-//                System.out.println(searchTerm);
-//                System.out.println(searchType);
                 filteredData = data.stream()
-                        .filter(row -> row[0].equals(searchTerm))
+                        .filter(row -> row[1].equals(searchTerm))
                         .collect(Collectors.toList());
                 currentPage = 0; // 重置到第一页
                 updateTableData();
@@ -286,7 +294,7 @@ public class TeacherGrade {
 //                System.out.println(searchTerm);
 //                System.out.println(searchType);
                 filteredData = data.stream()
-                            .filter(row -> row[1].equals(searchTerm))
+                            .filter(row -> row[0].equals(searchTerm))
                             .collect(Collectors.toList());
                     currentPage = 0; // 重置到第一页
                     updateTableData();
@@ -358,6 +366,7 @@ public class TeacherGrade {
                     if (dataIndex != -1 && dataIndex < data.size()) {
                         Object[] rowData = data.get(dataIndex);
                         JOptionPane.showMessageDialog(button, "详细信息:\n课程编号: " + rowData[0] +
+                                "\n课程名称: "+ rowData[11] +"\n学期: "+ rowData[12] +
                                 "\n一卡通号: " + rowData[1] +"\n最终成绩: " + rowData[2] + "\n学分: " + rowData[6] +
                                 "\n平时成绩: " + rowData[7] + "\n期中成绩: " + rowData[8] + "\n期末成绩: " +
                                 rowData[9]+"\n是否为首修: " + (rowData[10].equals(false)?"是":"否"));
@@ -366,13 +375,98 @@ public class TeacherGrade {
                     }
                 } else if (column == 4) {
                     // 修改按钮操作
+                    int dataIndex = getDataIndex(row);
+                    if (dataIndex != -1) {
+                        Object[] rowData = data.get(dataIndex);
+                        JTextField totalField = new JTextField(rowData[2].toString());
+                        JTextField usualField = new JTextField(rowData[7].toString());
+                        JTextField midField = new JTextField(rowData[8].toString());
+                        JTextField finalField = new JTextField(rowData[9].toString());
+
+                        JPanel panel = new JPanel(new GridLayout(4, 2));
+                        panel.add(new JLabel("最终成绩:"));
+                        panel.add(totalField);
+                        panel.add(new JLabel("平时成绩:"));
+                        panel.add(usualField);
+                        panel.add(new JLabel("期中成绩:"));
+                        panel.add(midField);
+                        panel.add(new JLabel("期末成绩:"));
+                        panel.add(finalField);
+
+                        int result = JOptionPane.showConfirmDialog(button, panel, "修改成绩", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        boolean success = false;
+                        if (result == JOptionPane.OK_OPTION) {
+                            ObjectInputStream in = MainApp.getIn();
+                            ObjectOutputStream out = MainApp.getOut();
+                            try {
+                                out.writeObject("6");
+                                out.writeObject("teacherModifyGrade");
+                                Grade grade = new Grade(
+                                        "1",
+                                        rowData[1].toString(),
+                                        rowData[11].toString(),
+                                        rowData[0].toString(),
+                                        Double.parseDouble(usualField.getText()),
+                                        Double.parseDouble(midField.getText()),
+                                        Double.parseDouble(finalField.getText()),
+                                        Double.parseDouble(totalField.getText()),
+                                        (Double) rowData[6],
+                                        rowData[10].equals(true),
+                                        rowData[12].toString()
+                                );
+                                out.writeObject(grade);
+                                success = (boolean) in.readObject();
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (ClassNotFoundException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                        if (success && result == JOptionPane.OK_OPTION) {
+                            try {
+                                rowData[2] = Double.parseDouble(totalField.getText());
+                                rowData[7] = Double.parseDouble(usualField.getText());
+                                rowData[8] = Double.parseDouble(midField.getText());
+                                rowData[9] = Double.parseDouble(finalField.getText());
+                                data.set(dataIndex, rowData);
+                                updateFilteredData();
+                                updateTableData();
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(button, "请输入有效的数字", "错误", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        if(!success){
+                            JOptionPane.showMessageDialog(button, "修改失败", "错误", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }else {
+                        JOptionPane.showMessageDialog(button, "未找到修改数据", "错误", JOptionPane.ERROR_MESSAGE);
+                    }
 
                 } else if (column == 5) {
                     // 删除按钮操作
+                    int dataIndex = getDataIndex(row);
+                    Object[] rowData = data.get(dataIndex);
                     int result = JOptionPane.showConfirmDialog(button, "确定要删除这一行吗？", "确认", JOptionPane.YES_NO_OPTION);
                     if (result == JOptionPane.YES_OPTION) {
-                        int dataIndex = getDataIndex(row);
-                        if (dataIndex != -1) {
+                        ObjectInputStream in = MainApp.getIn();
+                        ObjectOutputStream out = MainApp.getOut();
+                        boolean success;
+                        try {
+                            out.writeObject("6");
+                            out.writeObject("teacherDeleteGrade");
+                            out.writeObject(rowData[1].toString());
+                            out.writeObject(rowData[0].toString());
+                            out.writeObject(rowData[10]);
+                            success = (boolean) in.readObject();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        } catch (ClassNotFoundException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        if (!success) {
+                            JOptionPane.showMessageDialog(button, "删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                        }
+                        if (success && dataIndex != -1) {
                             // 从 data 和 filteredData 中删除对应的行
                             data.remove(dataIndex);
                             filteredData.remove(row); // 同步更新 filteredData
@@ -381,7 +475,9 @@ public class TeacherGrade {
                     }
                 }
             });
+
         }
+
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -447,6 +543,18 @@ public class TeacherGrade {
                     table.getValueAt(row, 5)
             };
         }
+
+        private void updateFilteredData() {
+            filteredData = new ArrayList<>();
+            for (Object[] row : data) {
+                if (row.length >= 6) {
+                    Object[] filteredRow = new Object[6];
+                    System.arraycopy(row, 0, filteredRow, 0, 6);
+                    filteredData.add(filteredRow);
+                }
+            }
+        }
+
     }
 
 }

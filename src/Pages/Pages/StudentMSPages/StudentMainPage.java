@@ -46,7 +46,7 @@ public class StudentMainPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
 
         // 初始化带图片的按钮
-        personButton = createImageButton("一卡通号："+userTest.getCard(),  "/imgs/man.png",90,110,16,new Color(76, 138, 77));
+        personButton = createImageButton("一卡通号："+user.getCard(),  "/imgs/man.png",90,110,16,new Color(76, 138, 77));
         infoAllButton = createImageButton("个人信息查询", "/imgs/info.png",80,80,16,new Color(0, 0, 0));
         DNDXButton = createImageButton("学生基本信息", "/imgs/logoDNDX.png",250,80,16,new Color(101, 93, 93));
         gradeButton = createImageButton("个人成绩查询", "/imgs/grade.png",80,80,16,new Color(0, 0, 0));
