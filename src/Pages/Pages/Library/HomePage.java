@@ -7,8 +7,6 @@ import vCampus.Entity.Books.Book;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -18,115 +16,68 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class HomePage extends JPanel {
-    private JTextField searchField;
-    private JPanel advancedSearchPanel;
-    private boolean isAdvancedSearchVisible = false;
-    private JButton settingsButton;
-    private JButton searchButton;
-    private JPanel bookDisplayPanel;
-    private JPanel paginationPanel;
-    private JButton prevButton;
-    private JButton nextButton;
-    private JDialog loadingDialog;
-    private JLayeredPane layeredPane;
-    private JPanel advancedSearchOverlay;
+    private static HomePage instance; // 唯一实例
+    private static JPanel bookDisplayPanel;
+    private static JPanel paginationPanel;
+    private static JButton prevButton;
+    private static JButton nextButton;
+    private static JTextField pageNumberField;
+    private static JDialog loadingDialog;
+    private static SearchBar searchBar; // 添加 SearchBar 实例
+    private static int currentPage = 1; // 当前页码
 
-    public HomePage() {
-        setLayout(new BorderLayout());
+    private HomePage() {
+        // 私有构造函数，防止实例化
+    }
 
-        // 创建顶部搜索栏面板
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setPreferredSize(new Dimension(800, 50)); // 设置宽度为800，高度为50
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    public static HomePage init() {
+        if (instance == null) {
+            instance = new HomePage();
+            instance.setLayout(new BorderLayout());
 
-        // 创建设置按钮
-        settingsButton = createImageButton("/imgs/setting.svg", 800, 600);
-        settingsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleAdvancedSearch();
-            }
-        });
-        topPanel.add(settingsButton, BorderLayout.WEST);
+            // 创建图书展示区域
+            bookDisplayPanel = new JPanel(new GridLayout(2, 4, 10, 10)); // 2行4列，间距为10
+            bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
 
-        // 创建搜索输入框
-        searchField = new JTextField();
-        topPanel.add(searchField, BorderLayout.CENTER);
+            // 创建搜索栏
+            searchBar = new SearchBar();
+            instance.add(searchBar, BorderLayout.NORTH); // 将搜索栏添加到布局中
 
-        // 创建搜索按钮
-        searchButton = createImageButton("/imgs/search.svg", 800, 600);
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                performSearch();
-            }
-        });
-        topPanel.add(searchButton, BorderLayout.EAST);
+            // 创建分页面板
+            paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            prevButton = IconUtils.createImageButton("/imgs/caret-left.svg", 800, 600);
+            pageNumberField = new JTextField(5);
+            nextButton = IconUtils.createImageButton("/imgs/caret-right.svg", 800, 600);
 
-        // 创建图书展示区域
-        bookDisplayPanel = new JPanel(new GridLayout(2, 4, 10, 10)); // 2行4列，间距为10
-        bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
+            paginationPanel.add(prevButton);
+            paginationPanel.add(pageNumberField);
+            paginationPanel.add(nextButton);
 
-        // 创建分页面板
-        paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        prevButton = createImageButton("/imgs/caret-left.svg", 800, 600);
-        JTextField pageNumberField = new JTextField(5);
-        nextButton = createImageButton("/imgs/caret-right.svg", 800, 600);
+            // 添加窗口大小监听器
+            instance.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    instance.resizeBookImages();
+                }
+            });
 
-        paginationPanel.add(prevButton);
-        paginationPanel.add(pageNumberField);
-        paginationPanel.add(nextButton);
+            instance.add(bookDisplayPanel, BorderLayout.CENTER);
+            instance.add(paginationPanel, BorderLayout.SOUTH);
 
-        // 创建并隐藏高级搜索面板
-        advancedSearchPanel = new JPanel();
-        advancedSearchPanel.setLayout(new BoxLayout(advancedSearchPanel, BoxLayout.Y_AXIS));
-        advancedSearchPanel.setVisible(false);
-        advancedSearchPanel.setPreferredSize(new Dimension(topPanel.getWidth(), 50)); // 固定高度
-        advancedSearchOverlay = new JPanel(new BorderLayout());
-        advancedSearchOverlay.add(advancedSearchPanel, BorderLayout.CENTER);
-        advancedSearchOverlay.setVisible(false);
+            // 异步获取并显示8本随机书籍的封面
+            new BookLoader().execute();
 
-        // 使用 JLayeredPane 以便高级搜索框覆盖在其他元素上方
-        layeredPane = new JLayeredPane();
-        layeredPane.setLayout(null); // 使用绝对布局
-        layeredPane.setPreferredSize(new Dimension(800, 600)); // 设置首选大小
+            // 添加鼠标事件监听器
+            instance.addPaginationButtonListeners();
+        }
+        return instance;
+    }
 
-        // 将当前面板添加到 JLayeredPane 的默认层
-        this.setBounds(0, 0, 800, 600);
-        layeredPane.add(this, JLayeredPane.DEFAULT_LAYER);
-
-        // 将高级搜索覆盖面板添加到 JLayeredPane 的调色板层
-        advancedSearchOverlay.setBounds(0, 50, 800, 50); // 设置位置和大小
-        layeredPane.add(advancedSearchOverlay, JLayeredPane.PALETTE_LAYER);
-
-        // 添加初始的高级搜索行
-        addAdvancedSearchRow();
-
-        // 添加窗口大小监听器
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                resizeBookImages();
-            }
-        });
-
-        // 将 JLayeredPane 添加到 JFrame
-        JFrame frame = new JFrame("Library Home Page");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.add(layeredPane);
-        frame.setVisible(true);
-
-        // 添加组件到主面板
-        add(topPanel, BorderLayout.NORTH);
-        add(bookDisplayPanel, BorderLayout.CENTER);
-        add(paginationPanel, BorderLayout.SOUTH);
-
-        // 异步获取并显示8本随机书籍的封面
-        new BookLoader().execute();
-
-        // 添加鼠标事件监听器
-        addPaginationButtonListeners();
+    public static HomePage getInstance() {
+        if (instance == null) {
+            return init();
+        }
+        return instance;
     }
 
     private void resizeBookImages() {
@@ -166,7 +117,7 @@ public class HomePage extends JPanel {
         }
     }
 
-    private class BookLoader extends SwingWorker<List<Book>, Void> {
+    private static class BookLoader extends SwingWorker<List<Book>, Void> {
         @Override
         protected List<Book> doInBackground() throws Exception {
             // 显示加载对话框
@@ -232,112 +183,22 @@ public class HomePage extends JPanel {
         }
     }
 
-    private void showLoadingDialog() {
+    private static void showLoadingDialog() {
         if (loadingDialog == null) {
-            loadingDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "加载中",
+            loadingDialog = new JDialog(SwingUtilities.getWindowAncestor(bookDisplayPanel), "加载中",
                     Dialog.ModalityType.APPLICATION_MODAL);
             JLabel loadingLabel = new JLabel("图书信息正在加载中，请稍候...", JLabel.CENTER);
             loadingDialog.add(loadingLabel);
             loadingDialog.setSize(300, 150);
-            loadingDialog.setLocationRelativeTo(this);
+            loadingDialog.setLocationRelativeTo(bookDisplayPanel);
         }
         loadingDialog.setVisible(true);
     }
 
-    private void hideLoadingDialog() {
+    private static void hideLoadingDialog() {
         if (loadingDialog != null) {
             loadingDialog.dispose();
         }
-    }
-
-    private void toggleAdvancedSearch() {
-        isAdvancedSearchVisible = !isAdvancedSearchVisible;
-        advancedSearchOverlay.setVisible(isAdvancedSearchVisible);
-        searchField.setEditable(!isAdvancedSearchVisible);
-
-        // 调试信息
-        System.out.println("高级搜索面板可见性: " + isAdvancedSearchVisible);
-
-        // 重新布局 JLayeredPane
-        layeredPane.revalidate();
-        layeredPane.repaint();
-    }
-
-    private void addAdvancedSearchRow() {
-        JPanel rowPanel = new JPanel(new BorderLayout());
-        rowPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-
-        // 创建逻辑运算符下拉框
-        JComboBox<String> logicComboBox = new JComboBox<>(new String[] { "AND", "OR" });
-        rowPanel.add(logicComboBox, BorderLayout.WEST);
-
-        // 创建搜索输入框
-        JTextField advancedSearchField = new JTextField();
-        rowPanel.add(advancedSearchField, BorderLayout.CENTER);
-
-        // 创建字段选择下拉框
-        JComboBox<String> fieldComboBox = new JComboBox<>(new String[] { "标题", "作者", "简介", "关键词", "ISBN", "ISBN13" });
-        rowPanel.add(fieldComboBox, BorderLayout.EAST);
-
-        // 创建增加按钮
-        JButton addButton = createImageButton("/imgs/add.svg", 800, 600);
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addAdvancedSearchRow();
-            }
-        });
-        rowPanel.add(addButton, BorderLayout.EAST); // 将按钮放在最右侧
-
-        advancedSearchPanel.add(rowPanel);
-        advancedSearchPanel.revalidate();
-        advancedSearchPanel.repaint();
-    }
-
-    private void performSearch() {
-        // 实现搜索逻辑
-        String searchText = searchField.getText();
-        System.out.println("搜索内容: " + searchText);
-
-        // 检查高级搜索字段
-        for (Component component : advancedSearchPanel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel rowPanel = (JPanel) component;
-                JComboBox<String> fieldComboBox = (JComboBox<String>) rowPanel.getComponent(2);
-                JTextField advancedSearchField = (JTextField) rowPanel.getComponent(1);
-
-                String selectedField = (String) fieldComboBox.getSelectedItem();
-                String fieldValue = advancedSearchField.getText();
-
-                if ("ISBN".equals(selectedField) && fieldValue.length() != 10) {
-                    JOptionPane.showMessageDialog(this, "ISBN长度必须为10位", "错误", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if ("ISBN13".equals(selectedField) && fieldValue.length() != 13) {
-                    JOptionPane.showMessageDialog(this, "ISBN13长度必须为13位", "错误", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                // 构建搜索准则
-                System.out.println("高级搜索字段: " + selectedField + " 值: " + fieldValue);
-            }
-        }
-
-        // 创建排序对象
-        // 默认排序准则
-        String sortOrder = "无";
-        System.out.println("排序准则: " + sortOrder);
-    }
-
-    private JButton createImageButton(String imagePath, int windowWidth, int windowHeight) {
-        ImageIcon icon = IconUtils.loadSVGImage(imagePath, windowWidth, windowHeight);
-        JButton button = new JButton(icon);
-        button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
-        button.setFocusPainted(false);
-        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
-        IconUtils.setButtonBorder(button, scaleFactor); // 设置按钮边框
-        return button;
     }
 
     private void addPaginationButtonListeners() {
@@ -350,6 +211,10 @@ public class HomePage extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 prevButton.setIcon(IconUtils.loadSVGImage("/imgs/caret-left.svg", 800, 600));
+                if (currentPage > 1) {
+                    currentPage--;
+                    new BookLoader().execute(); // 重新加载书籍
+                }
             }
         });
 
@@ -362,6 +227,8 @@ public class HomePage extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 nextButton.setIcon(IconUtils.loadSVGImage("/imgs/caret-right.svg", 800, 600));
+                currentPage++;
+                new BookLoader().execute(); // 重新加载书籍
             }
         });
 
@@ -374,6 +241,7 @@ public class HomePage extends JPanel {
 
         prevButton.setEnabled(needsPagination);
         nextButton.setEnabled(needsPagination);
+        pageNumberField.setEnabled(needsPagination); // 启用或禁用翻页框
 
         if (!needsPagination) {
             prevButton.setIcon(IconUtils.loadSVGImage("/imgs/caret-left-fill.svg", 800, 600));
@@ -384,17 +252,16 @@ public class HomePage extends JPanel {
         }
     }
 
-    public void updateButtonIcons(int windowWidth, int windowHeight) {
-        IconUtils.updateButtonIcon(settingsButton, "/imgs/setting.svg", windowWidth, windowHeight);
-        IconUtils.updateButtonIcon(searchButton, "/imgs/search.svg", windowWidth, windowHeight);
-    }
-
     public static void main(String[] args) {
         // 初始化Socket
         MainApp.initializeSocket();
 
         // 创建并显示HomePage
-        new HomePage();
+        JFrame frame = new JFrame("Library Home Page");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.add(HomePage.getInstance());
+        frame.setVisible(true);
 
         // 关闭资源
         Runtime.getRuntime().addShutdownHook(new Thread(() -> MainApp.close_source()));

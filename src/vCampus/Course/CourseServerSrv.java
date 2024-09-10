@@ -6,6 +6,8 @@ import vCampus.Entity.Teacher;
 import vCampus.Dao.TeacherDao;
 import vCampus.Dao.GradeDao;
 import vCampus.Entity.Grade;
+import vCampus.Entity.Student;
+import vCampus.Dao.StuDao;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -73,7 +75,7 @@ public class CourseServerSrv {
         }
     }
     /**
-     * 用于修改用户再数据库中的信息
+     * 用于修改用户在数据库中的信息
      *
      * @param args 课程的所有信息(0：课程id，1：课程名称，2：老师名字，3：星期几，4：起始时间，5：结束时间，6：状态，7：现选人数，8：最大人数，9：教室，10：几节课)；
      *             其中，在状态中，1代表必修，2代表选修；
@@ -312,7 +314,90 @@ public class CourseServerSrv {
             return null;
         }
     }
-    /**/
+
+    /**
+     * 得到教授某门课(course_id)的老师
+     *
+     * @param course_id
+     * @return teacher_id
+     */
+    public String searchTeacherbyCourse(String course_id) {
+        try{
+            TeacherDao newDao = new TeacherDao();
+            Teacher tc = newDao.find(course_id);
+            return tc.getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 根据学生一卡通号得到学生email
+     * @param stu_id
+     * @return stu_email
+     */
+    public String getEmailFromId(String stu_id) {
+        try{
+            StuDao newDao = new StuDao();
+            Student stu = newDao.find(stu_id);
+            return stu.getEmail();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 根据学生一卡通号得到学生姓名
+     * @param stu_id
+     * @return stu_name
+     */
+    public String getNameFromId(String stu_id) {
+        try{
+            StuDao newDao = new StuDao();
+            Student stu = newDao.find(stu_id);
+            return stu.getName();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 根据学生id，学生课程id, 得到学生分数
+     * @param stu_id
+     * @param cou_id
+     * @return score
+     */
+    public Double getGradeFromId(String stu_id, String cou_id) {
+        try{
+            GradeDao newDao = new GradeDao();
+            Grade gd = newDao.findFromCardandCourse(stu_id, cou_id);
+            return gd.getTotal();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * 查找数据库中的所有课程信息
+     *
+     * @return ArrayList<Grade> </Grade>
+     */
+    public ArrayList<ArrayList<String>> getAllCourse() {
+        ArrayList<ArrayList<String>> cs = new ArrayList<>();
+        try{
+            CourseDao newDao = new CourseDao();
+            cs = newDao.getALL();
+            System.out.println("In CourseServe");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return cs;
+    }
     public static void main(String[] args) {
         CourseServerSrv cSS= new CourseServerSrv();
         String[] courseInfo = {
@@ -354,11 +439,11 @@ public class CourseServerSrv {
                 "Room 408",           // classroom
                 "1"               // num (possibly a unique identifier or a section number)
         };
-        cSS.deleteUser(courseInfo2[0]);
-        cSS.deleteUser(courseInfo3[0]);
-        cSS.addUser(courseInfo2);
-        cSS.addUser(courseInfo3);
-        cSS.addUser(courseInfo);
+        //cSS.deleteUser(courseInfo2[0]);
+        //cSS.deleteUser(courseInfo3[0]);
+        //cSS.addUser(courseInfo2);
+        //cSS.addUser(courseInfo3);
+        //cSS.addUser(courseInfo);
         //cSS.updateUser(courseInfo2);
         //System.out.println(cSS.searchOneUser("course_ID", courseInfo2[0]));
         //System.out.println(cSS.searchOneUser(courseInfo2[1], "0","0"));
@@ -372,6 +457,9 @@ public class CourseServerSrv {
         //String[] idsOfCou = {"CS101", "CS192"};
         //System.out.println(cSS.searchCourse(idsOfCou));
         //System.out.println(cSS.searchPrivateCourse("card_id", "213222801"));
+        //System.out.println(cSS.searchTeacherbyCourse("CS101"));
+        //System.out.println(cSS.getNameFromId("213222801"));
+        //System.out.println(cSS.getGradeFromId("213222801","CS192"));
+        //System.out.println(cSS.getAllCourse());
     }
-
 }

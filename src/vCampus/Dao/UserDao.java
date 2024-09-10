@@ -145,6 +145,40 @@ public class UserDao implements BaseDao<User> {
     }
 
 
+    public User findByCard(String card) {
+        User user = null;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblUser WHERE card = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, card);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                // String coursesStr = rs.getString("courses");
+                // ArrayList<String> courses = new
+                // ArrayList<>(Arrays.asList(coursesStr.split(",")));
+                user = new User(
+                        rs.getString("id"),
+                        rs.getString("pwd"),
+                        rs.getInt("age"),
+                        rs.getBoolean("gender"),
+                        rs.getString("role"),
+                        rs.getString("email"),
+                        rs.getString("card"),
+                        // rs.getFloat("remain"),
+                        // rs.getInt("password"),
+                        rs.getBoolean("lost")
+                        // courses
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return user;
+    }
+
     public static void main(String[] args) {
         UserDao dao = new UserDao();
         User user = new User(

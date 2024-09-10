@@ -282,4 +282,28 @@ public class CourseDao implements BaseDao<Course> {
             DbConnection.closeConnection(conn);
         }
     }
+
+    public ArrayList<ArrayList<String>> getALL() {
+        ArrayList<ArrayList<String>> al = new ArrayList<ArrayList<String>>();
+        Course c = null;
+        ArrayList<String> temp = null;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblCourse";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                temp = new ArrayList<String>();
+                for (int i=1; i<=11; i++){
+                    temp.add(rs.getString(i));
+                }
+                al.add(temp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return al;
+    }
 }

@@ -20,7 +20,7 @@ public class CourseCientSrv implements Serializable{
      * @param full     是否已满 0无约束 1未满 2已满
      * @param conflict 是否冲突 0无约束 1不冲 2冲突
      * @return
-
+     */
     public ArrayList<Course> search_course(String name, String s_id, int state, int full, int conflict){
         ArrayList<Course> C = new ArrayList<Course>();
         ArrayList<ArrayList<String>> B = new ArrayList<ArrayList<String>>();
@@ -89,7 +89,8 @@ public class CourseCientSrv implements Serializable{
         }
         // 根据课程id 拿到学生课程表-》周几 开始时间 结束时间
         //X = (ArrayList<ArrayList<String>>) a.request(522, true, temp);
-        X = (ArrayList<ArrayList<String>>)aCss.searchCourse(temp);
+        String[] tmp = temp.split("\n");
+        X = (ArrayList<ArrayList<String>>)aCss.searchCourse(tmp);
         ArrayList<ArrayList<String>> D = new ArrayList<ArrayList<String>>();
         for (int i = 0; i < X.size(); i++) {
             ArrayList<String> t = new ArrayList<String>();
@@ -135,7 +136,7 @@ public class CourseCientSrv implements Serializable{
                         // 冲突 则删除
                         if ((a > c && a < d) || (b < d && b > c)) {
                             for (int k = 0; k < C.size(); k++) {
-                                if (C.get(i).getCourseID() == E.get(i).get(3)) {
+                                if (C.get(i).getCourseId() == E.get(i).get(3)) {
                                     C.remove(i);
                                 }
                             }
@@ -154,7 +155,7 @@ public class CourseCientSrv implements Serializable{
                         // 不冲突 则删除
                         if (!((a > c && a < d) || (b < d && b > c))) {
                             for (int k = 0; k < C.size(); k++) {
-                                if (C.get(i).getCourseID() == E.get(i).get(3)) {
+                                if (C.get(i).getCourseId() == E.get(i).get(3)) {
                                     C.remove(i);
                                 }
                             }
@@ -164,10 +165,9 @@ public class CourseCientSrv implements Serializable{
             }
 
         }
-
         return C;
     }
-     */
+
     /**
      * 查看当前学生的所选课程
      *
@@ -175,7 +175,6 @@ public class CourseCientSrv implements Serializable{
      * @return 当前学生所选课程的列表
      */
     public ArrayList<Course> all_course(String s_id) {
-        //
         ArrayList<ArrayList<String>> B = (ArrayList<ArrayList<String>>)aCss.searchPrivateCourse("card_id", s_id);
         //System.out.println(B);
         String course_list = "";
@@ -340,7 +339,8 @@ public class CourseCientSrv implements Serializable{
 
         // 根据课程号拿到一卡通号
         //ArrayList<ArrayList<String>> B = (ArrayList<ArrayList<String>>) a.request(523, true, "course_id" + "\n" + c_id);
-        ArrayList<ArrayList<String>> B = (ArrayList<ArrayList<String>>) aCss.searchPrivateCourse( "course_id", c_id);
+        ArrayList<ArrayList<String>> B = (ArrayList<ArrayList<String>>)
+                aCss.searchPrivateCourse( "course_id", c_id);
         System.out.println(B);
         //Object[][] C = new Object[B.size()][2];
 
@@ -359,5 +359,7 @@ public class CourseCientSrv implements Serializable{
         //System.out.println(ccs.choose_course("CS144", "213222801"));
         //System.out.println(ccs.quit_course("213222801", "CS144"));
         //System.out.println(ccs.show_list("CS101"));
+        System.out.println(ccs.show_list("CS101"));
     }
+
 }

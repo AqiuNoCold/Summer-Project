@@ -9,6 +9,9 @@ import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
 
 import javax.swing.*;
+
+import org.apache.batik.apps.rasterizer.Main;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -121,13 +124,14 @@ public class NavigationPage extends JFrame {
         libraryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new LibraryPage());
+                openPage(MainApp.getLibraryPage());
             }
         });
         courseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new CoursePage());
+                new CoursePage();
+                //openPage(new CoursePage());
             }
         });
     }
