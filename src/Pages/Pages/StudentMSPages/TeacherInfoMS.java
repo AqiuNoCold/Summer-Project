@@ -1,6 +1,7 @@
 package Pages.Pages.StudentMSPages;
 
 import Pages.MainApp;
+import vCampus.Entity.Grade;
 import vCampus.Entity.Student;
 import vCampus.Entity.User;
 
@@ -12,6 +13,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,13 +110,10 @@ public class TeacherInfoMS {
             out.writeObject("6");
             out.writeObject("teacherFindAllInfo");
             out.flush();
-//            Object response = in.readObject();
             students = (List<Student>) in.readObject();
             System.out.println(students.size());
             for (Student student : students) {
                 System.out.println(student);
-//                Object[] row = new Object[]{student.getCardId(), student.getName(), student.getGender(), "详情", "修改", "删除"};
-//                tableModel.addRow(row);
             }
 
         } catch (IOException e) {
@@ -123,13 +122,35 @@ public class TeacherInfoMS {
             throw new RuntimeException(e);
         }
         data = new ArrayList<>();
-//        for (int i = 1; i <= 20; i++) {
-//            data.add(new Object[]{i, "Person " + i, 20 + i, "Action 1", "Action 2", "Action 3"});
-//        }
         for (Student student : students) {
-            data.add(new Object[]{student.getCardId(), student.getName(), student.getGender(),  "Action 1", "Action 2", "Action 3"});
+            data.add(new Object[]{
+                    student.getCardId(),
+                    student.getName(),
+                    student.getGender(),
+                    "Action 1",
+                    "Action 2",
+                    "Action 3",
+                    student.getBirth(),
+                    student.getCollege(),
+                    student.getGrade(),
+                    student.getMajor(),
+                    student.getEmail(),
+                    student.getStage(),
+                    student.getHonor(),
+                    student.getPunish(),
+                    student.getStuCode()
+
+            });
         }
-        filteredData = new ArrayList<>(data); // 初始化为全数据
+        // 创建 filteredData 列表，只包含 data 的前6列数据
+        filteredData = new ArrayList<>();
+        for (Object[] row : data) {
+            if (row.length >= 6) {  // 确保每行至少有6列数据
+                Object[] filteredRow = new Object[6];
+                System.arraycopy(row, 0, filteredRow, 0, 6);
+                filteredData.add(filteredRow);
+            }
+        }
 
         // 填充第一页数据
         updateTableData();
@@ -145,10 +166,10 @@ public class TeacherInfoMS {
         JButton searchButton = new JButton("搜索");
         pageNumberField = new JTextField(3); // 输入框用于输入页码
         pageNumberField.setText(String.valueOf(currentPage + 1));
-        searchField = new JTextField(6); // 搜索框
+        searchField = new JTextField(8); // 搜索框
         // 创建“新建”按钮
         JButton newButton = new JButton("新建");
-// 设置按钮的大小
+        // 设置按钮的大小
         newButton.setPreferredSize(new Dimension(80, 25));
 
         // 设置按钮的大小相同
@@ -194,9 +215,8 @@ public class TeacherInfoMS {
             String searchText = searchField.getText().trim();
             if (!searchText.isEmpty()) {
                 try {
-                    int searchId = Integer.parseInt(searchText);
                     filteredData = data.stream()
-                            .filter(row -> row[0].equals(searchId))
+                            .filter(row -> row[0].equals(searchText))
                             .collect(Collectors.toList());
                     currentPage = 0; // 重置到第一页
                     updateTableData();
@@ -213,7 +233,7 @@ public class TeacherInfoMS {
         // 添加“新建”按钮的动作监听器，调用 NewStudent 方法
         newButton.addActionListener(e -> NewStudent());
 
-        paginationPanel.add(newButton); // 添加“新建”按钮
+//        paginationPanel.add(newButton); // 添加“新建”按钮
         paginationPanel.add(previousButton);
         paginationPanel.add(nextButton);
         paginationPanel.add(new JLabel("Page:"));
@@ -282,11 +302,22 @@ public class TeacherInfoMS {
     }
     // 封装“新建”功能的函数
     private void NewStudent() {
+
         // 弹出对话框以输入新数据
-        JPanel inputPanel = new JPanel(new GridLayout(3, 2));
+        JPanel inputPanel = new JPanel(new GridLayout(12, 2));
         JTextField cardIdField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField genderField = new JTextField();
+        JTextField birthField = new JTextField();
+        JTextField collegeField = new JTextField();
+        JTextField gradeField = new JTextField();
+        JTextField majorField = new JTextField();
+        JTextField emailField = new JTextField();
+        JTextField stageField = new JTextField();
+        JTextField honorField = new JTextField();
+        JTextField punishField = new JTextField();
+        JTextField stuCodeField = new JTextField();
+
 
         inputPanel.add(new JLabel("一卡通号:"));
         inputPanel.add(cardIdField);
@@ -294,21 +325,86 @@ public class TeacherInfoMS {
         inputPanel.add(nameField);
         inputPanel.add(new JLabel("性别:"));
         inputPanel.add(genderField);
+        inputPanel.add(new JLabel("出生日期:"));
+        inputPanel.add(birthField);
+        inputPanel.add(new JLabel("所属学院:"));
+        inputPanel.add(collegeField);
+        inputPanel.add(new JLabel("年级:"));
+        inputPanel.add(gradeField);
+        inputPanel.add(new JLabel("专业:"));
+        inputPanel.add(majorField);
+        inputPanel.add(new JLabel("邮箱:"));
+        inputPanel.add(emailField);
+        inputPanel.add(new JLabel("培养阶段:"));
+        inputPanel.add(stageField);
+        inputPanel.add(new JLabel("荣誉奖项:"));
+        inputPanel.add(honorField);
+        inputPanel.add(new JLabel("奖惩信息:"));
+        inputPanel.add(punishField);
+        inputPanel.add(new JLabel("学籍:"));
+        inputPanel.add(stuCodeField);
 
         int result = JOptionPane.showConfirmDialog(frame, inputPanel, "新建记录", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                int cardId = Integer.parseInt(cardIdField.getText().trim());
+                String cardId = cardIdField.getText().trim();
                 String name = nameField.getText().trim();
                 String gender = genderField.getText().trim();
+                String birth = birthField.getText().trim();
+                String college = collegeField.getText().trim();
+                String grade = gradeField.getText().trim();
+                String major = majorField.getText().trim();
+                String email = emailField.getText().trim();
+                String stage = stageField.getText().trim();
+                String honor = honorField.getText().trim();
+                String punish = punishField.getText().trim();
+                String stuCode = stuCodeField.getText().trim();
 
-                // 添加新数据到 data 和 filteredData 中
-                Object[] newRow = {cardId, name, gender, "Action 1", "Action 2", "Action 3"};
-                data.add(newRow);
-                filteredData = new ArrayList<>(data); // 确保 filteredData 包含新数据
+                boolean success;
+                try {
+                    ObjectInputStream in = MainApp.getIn();
+                    ObjectOutputStream out = MainApp.getOut();
+                    out.writeObject("6");
+                    out.writeObject("teacherAddInfo");
+                    Student student = new Student();
+                    student.setId("12");
+                    student.setCardId(cardId);
+                    student.setName(name);
+                    student.setGender(gender);
+                    student.setBirth(Date.valueOf(birth));
+                    student.setCollege(college);
+                    student.setGrade(grade);
+                    student.setMajor(major);
+                    student.setEmail(email);
+                    student.setStage(stage);
+                    student.setHonor(honor);
+                    student.setPunish(punish);
+                    student.setStuCode(stuCode);
+                    out.writeObject(student);
+                    out.flush();
+                    success = (boolean) in.readObject();
+                    System.out.println(success);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
 
-                // 更新表格数据
-                updateTableData();
+                if (success) {
+                    // 添加新数据到 data 和 filteredData 中
+                    Object[] newRow1 = {cardId, name, gender, "Action 1", "Action 2", "Action 3", birth, college, grade, major, email, stage, honor, punish, stuCode};
+                    data.add(newRow1);
+                    Object[] newRow2 = {cardId, name, gender, "Action 1", "Action 2", "Action 3"};
+                    filteredData.add(newRow2); // 确保 filteredData 包含新数据
+
+                    // 更新表格数据
+                    updateTableData();
+                }
+                if (success) {
+                    JOptionPane.showMessageDialog(frame, "新建成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "新建失败", "错误", JOptionPane.ERROR_MESSAGE);
+                }
+
+
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(frame, "一卡通号错误", "错误", JOptionPane.ERROR_MESSAGE);
             }
@@ -383,31 +479,152 @@ public class TeacherInfoMS {
                 int column = table.getSelectedColumn();
                 if (column == 3) {
                     // 详情按钮操作
-                    Object[] rowData = getRowData(row);
-                    JOptionPane.showMessageDialog(button, "详细信息:\nCardId: " + rowData[0] + "\nName: " + rowData[1] + "\nGender: " + rowData[2]);
+                    int dataIndex = getDataIndex(row);
+                    if (dataIndex != -1 && dataIndex < data.size()) {
+                        Object[] rowData = data.get(dataIndex);
+                        JOptionPane.showMessageDialog(button,
+                                "详细信息:\n一卡通号: " + rowData[0] +
+                                "\n姓名: "+ rowData[1] +
+                                  "\n性别: "+ rowData[2] +
+                                "\n出生日期: " + rowData[6] +
+                                "\n所属学院: " + rowData[7] + "\n年级: " + rowData[8] +
+                                "\n专业: " + rowData[9] + "\n邮箱: " + rowData[10] + "\n培养阶段: " +
+                                rowData[11]+"\n荣誉情况: " + rowData[12]
+                                +"\n奖惩信息: " + rowData[13] + "\n学籍号: " + rowData[14]
+                        );
+                    } else {
+                        JOptionPane.showMessageDialog(button, "未找到详细信息", "错误", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else if (column == 4) {
                     // 修改按钮操作
-                    Object[] rowData = getRowData(row);
-                    JTextField nameField = new JTextField((String) rowData[1]);
-                    JTextField genderField = new JTextField(rowData[2].toString());
-                    JPanel panel = new JPanel(new GridLayout(2, 2));
-                    panel.add(new JLabel("Name:"));
-                    panel.add(nameField);
-                    panel.add(new JLabel("Gender:"));
-                    panel.add(genderField);
-                    int result = JOptionPane.showConfirmDialog(button, panel, "修改信息", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    if (result == JOptionPane.OK_OPTION) {
-                        filteredData.set(row, new Object[]{rowData[0], nameField.getText(), genderField.getText(), "Action 1", "Action 2", "Action 3"});
-                        data = new ArrayList<>(filteredData); // 同步原始数据
-                        updateTableData();
+                    int dataIndex = getDataIndex(row);
+                    if (dataIndex != -1) {
+                        Object[] rowData = data.get(dataIndex);
+
+                        JTextField nameField = new JTextField(rowData[1].toString());
+                        JTextField genderField = new JTextField(rowData[2].toString());
+                        JTextField birthField = new JTextField(rowData[6].toString());
+                        JTextField collegeField = new JTextField(rowData[7].toString());
+                        JTextField gradeField = new JTextField(rowData[8].toString());
+                        JTextField majorField = new JTextField(rowData[9].toString());
+                        JTextField emailField = new JTextField(rowData[10].toString());
+                        JTextField stageField = new JTextField(rowData[11].toString());
+                        JTextField honorField = new JTextField(rowData[12].toString());
+                        JTextField punishField = new JTextField(rowData[13].toString());
+                        JTextField stuCodeField = new JTextField(rowData[14].toString());
+
+                        JPanel panel = new JPanel(new GridLayout(12, 2));
+                        panel.add(new JLabel("姓名:"));
+                        panel.add(nameField);
+                        panel.add(new JLabel("性别:"));
+                        panel.add(genderField);
+                        panel.add(new JLabel("出生日期:"));
+                        panel.add(birthField);
+                        panel.add(new JLabel("所属学院:"));
+                        panel.add(collegeField);
+                        panel.add(new JLabel("年级:"));
+                        panel.add(gradeField);
+                        panel.add(new JLabel("专业:"));
+                        panel.add(majorField);
+                        panel.add(new JLabel("邮箱:"));
+                        panel.add(emailField);
+                        panel.add(new JLabel("培养阶段:"));
+                        panel.add(stageField);
+                        panel.add(new JLabel("荣誉奖项:"));
+                        panel.add(honorField);
+                        panel.add(new JLabel("奖惩信息:"));
+                        panel.add(punishField);
+                        panel.add(new JLabel("学籍号:"));
+                        panel.add(stuCodeField);
+
+                        int result = JOptionPane.showConfirmDialog(button, panel, "修改成绩", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        boolean success = false;
+                        if (result == JOptionPane.OK_OPTION) {
+                            ObjectInputStream in = MainApp.getIn();
+                            ObjectOutputStream out = MainApp.getOut();
+                            try {
+                                out.writeObject("6");
+                                out.writeObject("teaccherModifyInfo");
+                                Student student = new Student();
+                                student.setCardId(String.valueOf(rowData[0]));
+                                student.setName(nameField.getText().trim());
+                                student.setGender(genderField.getText().trim());
+                                student.setBirth(Date.valueOf(birthField.getText().trim()));
+                                student.setCollege(collegeField.getText().trim());
+                                student.setGrade(gradeField.getText().trim());
+                                student.setMajor(majorField.getText().trim());
+                                student.setEmail(emailField.getText().trim());
+                                student.setStage(stageField.getText().trim());
+                                student.setHonor(honorField.getText().trim());
+                                student.setPunish(punishField.getText().trim());
+                                student.setStuCode(stuCodeField.getText().trim());
+                                out.writeObject(student);
+                                out.flush();
+                                success = (boolean) in.readObject();
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (ClassNotFoundException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                        if (success && result == JOptionPane.OK_OPTION) {
+                            try {
+                                // 更新表格数据
+                                rowData[1] = nameField.getText().trim();
+                                rowData[2] = genderField.getText().trim();
+                                rowData[6] = birthField.getText().trim();
+                                rowData[7] = collegeField.getText().trim();
+                                rowData[8] = gradeField.getText().trim();
+                                rowData[9] = majorField.getText().trim();
+                                rowData[10] = emailField.getText().trim();
+                                rowData[11] = stageField.getText().trim();
+                                rowData[12] = honorField.getText().trim();
+                                rowData[13] = punishField.getText().trim();
+                                rowData[14] = stuCodeField.getText().trim();
+                                data.set(dataIndex, rowData);
+                                updateFilteredData();
+                                updateTableData();
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(button, "请输入有效的数字", "错误", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        if (success) {
+                            JOptionPane.showMessageDialog(button, "修改成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(button, "修改失败", "错误", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }else {
+                        JOptionPane.showMessageDialog(button, "未找到修改数据", "错误", JOptionPane.ERROR_MESSAGE);
                     }
                 } else if (column == 5) {
                     // 删除按钮操作
+                    int dataIndex = getDataIndex(row);
+                    Object[] rowData = data.get(dataIndex);
                     int result = JOptionPane.showConfirmDialog(button, "确定要删除这一行吗？", "确认", JOptionPane.YES_NO_OPTION);
                     if (result == JOptionPane.YES_OPTION) {
-                        filteredData.remove(row);
-                        data = new ArrayList<>(filteredData); // 同步原始数据
-                        updateTableData();
+                        ObjectInputStream in = MainApp.getIn();
+                        ObjectOutputStream out = MainApp.getOut();
+                        boolean success;
+                        try {
+                            out.writeObject("6");
+                            out.writeObject("teacherDeleteInfo");
+                            out.writeObject(rowData[0]);
+                            out.flush();
+                            success = (boolean) in.readObject();
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        if (success) {
+                            JOptionPane.showMessageDialog(button, "删除成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(button, "删除失败", "错误", JOptionPane.ERROR_MESSAGE);
+                        }
+                        if (success && dataIndex != -1) {
+                            // 从 data 和 filteredData 中删除对应的行
+                            data.remove(dataIndex);
+                            filteredData.remove(row); // 同步更新 filteredData
+                            updateTableData(); // 刷新表格
+                        }
                     }
                 }
             });
@@ -465,6 +682,27 @@ public class TeacherInfoMS {
                     table.getValueAt(row, 4),
                     table.getValueAt(row, 5)
             };
+        }
+        private int getDataIndex(int filteredRowIndex) {
+            // 查找 filteredData 在原始数据中的索引
+            Object[] filteredRow = filteredData.get(filteredRowIndex);
+            for (int i = 0; i < data.size(); i++) {
+                Object[] row = data.get(i);
+                if (java.util.Arrays.equals(filteredRow, java.util.Arrays.copyOfRange(row, 0, 6))) {
+                    return i;
+                }
+            }
+            return -1; // 如果没有找到匹配项，则返回 -1
+        }
+        private void updateFilteredData() {
+            filteredData = new ArrayList<>();
+            for (Object[] row : data) {
+                if (row.length >= 6) {
+                    Object[] filteredRow = new Object[6];
+                    System.arraycopy(row, 0, filteredRow, 0, 6);
+                    filteredData.add(filteredRow);
+                }
+            }
         }
     }
 }
