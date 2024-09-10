@@ -2,8 +2,9 @@ package vCampus.Dao.Criteria;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.io.Serializable;
 
-public abstract class SearchCriteria {
+public abstract class SearchCriteria implements Serializable {
     protected Map<String, String> criteria = new HashMap<>();
     protected Map<String, String> operators = new HashMap<>(); // 新增：存储每个准则的逻辑运算符
 

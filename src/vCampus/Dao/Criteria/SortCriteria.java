@@ -3,7 +3,9 @@ package vCampus.Dao.Criteria;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SortCriteria {
+import java.io.Serializable;
+
+public abstract class SortCriteria implements Serializable {
     public enum SortOrder {
         ASC, DESC
     }
