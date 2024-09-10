@@ -17,7 +17,7 @@ import java.net.Socket;
 import java.util.Objects;
 
 public class NavigationPage extends JFrame {
-    User user=MainApp.getCurrentUser();
+    User user = MainApp.getCurrentUser();
 
     private JButton storeButton;
     private JButton eCardButton;
@@ -37,6 +37,7 @@ public class NavigationPage extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 增加边距
         mainPanel.setBackground(new Color(245, 245, 245)); // 设置背景颜色
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 5)); // 浅绿色边框，宽度为5像素
+
         // 初始化带图片的按钮
         storeButton = createImageButton("商店页面", "/imgs/store_icon.png");
         eCardButton = createImageButton("一卡通页面", "/imgs/ecard_icon.png");
@@ -57,7 +58,18 @@ public class NavigationPage extends JFrame {
         storeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new StorePage());
+                ObjectInputStream in = MainApp.getIn();
+                ObjectOutputStream out = MainApp.getOut();
+                try {
+                    out.writeObject("5");
+                    out.writeObject("initialShopStudent");
+                    out.writeObject(user);
+                    out.flush();
+//                    ShopStudent response = (ShopStudent) in.readObject();
+//                    openPage(new StorePage(response));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         eCardButton.addActionListener(new ActionListener() {
@@ -70,8 +82,8 @@ public class NavigationPage extends JFrame {
                     out.writeObject("cardIni");
                     out.writeObject(user.getId());
                     out.flush();
-                    ECard response=(ECard) in.readObject();
-                    user= response;
+                    ECard response = (ECard) in.readObject();
+                    user = response;
                     MainApp.setCurrentUser(user);
                     openPage(new ECardPage(response));
                 } catch (Exception ex) {
@@ -108,7 +120,7 @@ public class NavigationPage extends JFrame {
         libraryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                openPage(new LibraryPage());
+                openPage(new LibraryPage());
             }
         });
         courseButton.addActionListener(new ActionListener() {
@@ -145,6 +157,7 @@ public class NavigationPage extends JFrame {
         page.setVisible(true);
         dispose(); // 关闭导航页面
     }
+
     public static void main(String[] args) {
         new NavigationPage().setVisible(true);
     }

@@ -2,18 +2,21 @@ package vCampus;
 
 import vCampus.Dao.Criteria.*;
 import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.Shop.Product;
+import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.Books.*;
 import vCampus.Service.*;
 import vCampus.User.IUserServerSrv;
 import vCampus.ECard.ECardServerSrv;
-
+import vCampus.Shop.ShopServerSrv;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,7 +66,11 @@ public class MainServer {
             while (true) {
                 String model = (String) in.readObject();
                 if (model.equals("exit")) {
-                    userid = (String) in.readObject();
+                    try {
+                        userid = (String) in.readObject();
+                    } catch (IOException e) {
+                        System.out.println("客户端未进行登录操作");
+                    }
                     in.close();
                     out.flush();
                     out.close();
@@ -96,7 +103,9 @@ public class MainServer {
             e.printStackTrace();
         } finally {
             socketMap.remove(clientSocket);
-            userMap.remove(userid);
+            if (userid != null) {
+                userMap.remove(userid);
+            }
             clientSocket.close();
             System.out.println("Connection closed with " + clientSocket.getRemoteSocketAddress());
         }
@@ -170,6 +179,11 @@ public class MainServer {
                 BookUser updatedRemoveUser = libraryService.removeBookFromShelfById(removeUser, removeShelfId,
                         removeBookId);
                 out.writeObject(updatedRemoveUser);
+                break;
+            case "getRandomBooks":
+                int count = (int) in.readObject();
+                List<Book> randomBooks = libraryService.getRandomBooks(count);
+                out.writeObject(randomBooks);
                 break;
             default:
                 System.out.println("Unknown function: " + function);
@@ -252,15 +266,15 @@ public class MainServer {
                     charge(eCard, amount);
                     break;
                 case "History":
-                    String card=(String) in.readObject();
-                    String response=getTransactionHistory(card);
+                    String card = (String) in.readObject();
+                    String response = getTransactionHistory(card);
                     out.writeObject(response);
                     out.flush();
                     break;
                 case "comparePassword":
                     eCard = (String) in.readObject();
-                    Integer enteredPassword=(Integer) in.readObject();
-                    out.writeObject(comparePassword(eCard,enteredPassword));
+                    Integer enteredPassword = (Integer) in.readObject();
+                    out.writeObject(comparePassword(eCard, enteredPassword));
                     out.flush();
                     break;
                 case "newPassword":
@@ -269,22 +283,22 @@ public class MainServer {
                     newPassword(eCard, newEnPassword);
                     break;
                 case "LostSettings":
-                    String id=(String) in.readObject();
-                    boolean isLost=(boolean) in.readObject();
-                    LostSettings(id,isLost);
+                    String id = (String) in.readObject();
+                    boolean isLost = (boolean) in.readObject();
+                    LostSettings(id, isLost);
                     break;
                 case "Status":
-                    eCard=(String) in.readObject();
+                    eCard = (String) in.readObject();
                     out.writeObject(showStatus(eCard));
                     out.flush();
                     break;
                 case "Pay":
-                    String payid=(String) in.readObject();
-                    eCard=(String) in.readObject();
+                    String payid = (String) in.readObject();
+                    eCard = (String) in.readObject();
 
-                    float payamount=(float) in.readObject();
-                    String reason=(String) in.readObject();
-                    out.writeObject(pay(payid,eCard,payamount,reason));
+                    float payamount = (float) in.readObject();
+                    String reason = (String) in.readObject();
+                    out.writeObject(pay(payid, eCard, payamount, reason));
                     out.flush();
             }
         } else {
@@ -294,9 +308,71 @@ public class MainServer {
 
     private static void StorePage(String function, ObjectInputStream in, ObjectOutputStream out)
             throws IOException, ClassNotFoundException {
+        ShopStudent student;
         if (function != null) {
             switch (function) {
-                case "Course":
+                case "initialShopStudent":
+                    User user = (User) in.readObject();
+                    student = ShopServerSrv.initialShopStudent(user);
+                    ShopServerSrv.initialShop(8,student);
+                    out.writeObject(student);
+                    break;
+                case "refreshShop":
+                    student = (ShopStudent) in.readObject();
+                    ShopServerSrv.initialShop(8,student);
+                    out.writeObject(student);
+                    break;
+                case "searchProduct":
+                    student = (ShopStudent) in.readObject();
+                    String searchName = (String) in.readObject();
+                    boolean success = ShopServerSrv.searchProduct(student,searchName);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
+                case "changeFavorites":
+                    String productId = (String) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    boolean is = (boolean) in.readObject();
+                    ShopServerSrv.changeFavorites(productId,student,is);
+                    out.writeObject(student);
+                    break;
+                case "purchaseProduct":
+                    productId = (String) in.readObject();
+                    int buyNums = (int) in.readObject();
+                    int password = (int) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    int situation = ShopServerSrv.purchaseProduct(productId,buyNums,password,student);
+                    out.writeObject(student);
+                    out.writeObject(situation);
+                    break;
+                case "getRecordCount":
+                    String tablename = (String) in.readObject();
+                    String Id = ShopServerSrv.getRecordCount(tablename);
+                    out.writeObject(Id);
+                    break;
+                case "addNew":
+                    Product newProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.addNew(student,newProduct);
+                    out.writeObject(success);
+                    out.writeObject(newProduct);
+                    out.writeObject(student);
+                    break;
+                case "updateProduct":
+                    Product updateProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.updateProduct(student,updateProduct);
+                    out.writeObject(updateProduct);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
+                case "deleteProduct":
+                    Product deletProduct = (Product) in.readObject();
+                    student = (ShopStudent) in.readObject();
+                    success = ShopServerSrv.deleteProduct(student,deletProduct);
+                    out.writeObject(student);
+                    out.writeObject(success);
+                    break;
             }
         } else {
             System.out.println("Unknown function: " + function);

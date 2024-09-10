@@ -46,12 +46,12 @@ public class LoginPage extends JFrame {
 
         // 用户名输入框
         gbc.gridy = 1;
-        usernameField = createPlaceholderTextField("用户名");
+        usernameField = createPlaceholderTextField("213221798");
         panel.add(usernameField, gbc);
 
         // 密码输入框
         gbc.gridy = 2;
-        passwordField = createPasswordPlaceholderTextField("密码");
+        passwordField = createPasswordPlaceholderTextField("123456");
         panel.add(passwordField, gbc);
 
         // 登录按钮

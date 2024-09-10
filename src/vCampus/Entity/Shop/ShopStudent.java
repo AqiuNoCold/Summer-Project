@@ -23,9 +23,12 @@ public class ShopStudent extends ECard {
         //初始化商店用户
         ShopStudentDao dao = new ShopStudentDao();
         ShopStudentDao.ShopStudentData data = dao.find(id);
-        turnFavorites(data.getFavorites());
-        turnBelongs(data.getBelongs());
-        turnBill(data.getBill());
+        if(data.getFavorites() != null)
+            turnFavorites(data.getFavorites());
+        if(data.getBelongs() != null)
+            turnBelongs(data.getBelongs());
+        if(data.getBill() != null)
+            turnBill(data.getBill());
     }
 
     public ShopStudent(ECard eCard){
@@ -50,9 +53,31 @@ public class ShopStudent extends ECard {
     public List<Product> getBelongs(){
         return belongs;
     }
+    public List<Product> getProducts(){
+        int shopSize = this.products.size();
+        Set<String> shopSet = new HashSet<String>();
+        while((shopSet.size()) < 8 && (shopSet.size()<shopSize)) {
+            String[] keys = this.products.keySet().toArray(new String[0]);
+            Random random = new Random();
+            String randomKey = keys[random.nextInt(keys.length)];
+
+            Product randomProduct = this.products.get(randomKey);
+            if(!Objects.equals(randomProduct.getName(), "该商品已失效"))
+                shopSet.add(randomKey);
+        }
+
+        List<Product> shopList = new ArrayList<>();
+        for (String Element : shopSet) {
+            Product randomProduct = this.products.get(Element);
+            if(!Objects.equals(randomProduct.getName(), "该商品已失效"))
+                shopList.add(randomProduct);
+        }
+        return shopList;
+    }
     public List<String> getBill() {
         return bill;
     }
+
 
     /*
     用于数据库操作，存放productid
@@ -82,20 +107,24 @@ public class ShopStudent extends ECard {
     }
 
     public void turnFavorites(String favoritesId){
-        String[] productIds = favoritesId.split(",");
-        ProductDao dao = new ProductDao();
-        for(String id : productIds) {
+        if(!Objects.equals(favoritesId, null)){
+            String[] productIds = favoritesId.split(",");
+            ProductDao dao = new ProductDao();
+            for(String id : productIds) {
             Product product = dao.find(id);
             favorites.add(product);
+            }
         }
     }
 
     public void turnBelongs(String belongsId){
-        String[] productIds = belongsId.split(",");
-        ProductDao dao = new ProductDao();
-        for(String id : productIds) {
-            Product product = dao.find(id);
-            belongs.add(product);
+        if(!Objects.equals(belongsId, null)){
+            String[] productIds = belongsId.split(",");
+            ProductDao dao = new ProductDao();
+            for (String id : productIds) {
+                Product product = dao.find(id);
+                belongs.add(product);
+            }
         }
     }
 
@@ -103,7 +132,10 @@ public class ShopStudent extends ECard {
         String[] billIds;
         if(billId != null) {
             billIds = billId.split(";");
-            bill.addAll(Arrays.asList(billIds));
+            for(String his : billIds)
+            {
+                bill.add(his+";");
+            }
         }
     }
 
