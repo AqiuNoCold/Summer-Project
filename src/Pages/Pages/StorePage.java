@@ -1387,7 +1387,7 @@ public class StorePage extends JFrame {
 
         // Play the WAV file
         String projectRoot = System.getProperty("user.dir");
-        playWav(projectRoot+"/imgs/shop/searchfail.wav");
+        playWav(projectRoot+"/searchfail.wav");
 
         errorFrame.setVisible(true);
         errorFrame.setResizable(false);
