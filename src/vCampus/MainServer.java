@@ -1,7 +1,6 @@
 package vCampus;
 
 import vCampus.Dao.Criteria.*;
-import vCampus.Entity.ECard.ECard;
 import vCampus.Entity.Grade;
 import vCampus.Entity.Student;
 import vCampus.Entity.Shop.Product;

@@ -134,6 +134,7 @@ public class HomePage extends JPanel {
 
         Random random = new Random();
         for (Book book : books) {
+            JPanel bookPanel = new JPanel(new BorderLayout());
             JLabel bookLabel = new JLabel();
             String imagePath = book.getCachedImagePath();
             if (imagePath == null) {
@@ -172,7 +173,19 @@ public class HomePage extends JPanel {
                 bookLabel.setVerticalAlignment(JLabel.CENTER);
             }
             bookLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // 添加灰色边框
-            bookDisplayPanel.add(bookLabel);
+            JLabel titleLabel = new JLabel(book.getTitle(), JLabel.CENTER);
+            bookPanel.add(bookLabel, BorderLayout.CENTER);
+            bookPanel.add(titleLabel, BorderLayout.SOUTH);
+
+            // 添加点击事件监听器
+            bookPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    BookDetailPage.getInstance().showBookDetails(book);
+                }
+            });
+
+            bookDisplayPanel.add(bookPanel);
         }
 
         bookDisplayPanel.revalidate();

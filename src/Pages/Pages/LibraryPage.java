@@ -106,8 +106,7 @@ public class LibraryPage extends JFrame {
             // 接收响应
             bookUser = (BookUser) in.readObject();
 
-            // 打印当前用户信息到命令行
-            System.out.println("当前图书馆用户: " + bookUser);
+            BookUser.setCurrentUser(bookUser);
 
         } catch (Exception e) {
             e.printStackTrace();

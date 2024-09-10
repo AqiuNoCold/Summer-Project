@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class ExplorePage extends JPanel {
@@ -145,12 +146,14 @@ public class ExplorePage extends JPanel {
 
         bookDisplayPanel.removeAll(); // 清空当前展示的书籍
 
+        Random random = new Random();
         for (Book book : books) {
             JPanel bookPanel = new JPanel(new BorderLayout());
             JLabel bookLabel = new JLabel();
             String imagePath = book.getCachedImagePath();
             if (imagePath == null) {
-                imagePath = "src/imgs/default_book_cover/1.jpg"; // 默认封面
+                int randomIndex = random.nextInt(8) + 1; // 生成1到8之间的随机数
+                imagePath = "src/imgs/default_book_cover/" + randomIndex + ".jpg";
             }
             ImageIcon bookIcon = new ImageIcon(imagePath);
             if (bookIcon.getIconWidth() == -1) {
@@ -215,10 +218,22 @@ public class ExplorePage extends JPanel {
             revalidate();
             repaint();
             isSearchMode = true;
+
+            // 预加载下一页的书籍
+            preloadNextPages(currentPage + 1, 2);
         }
     }
 
     public void switchToDefaultMode() {
+        // 清除缓存
+        bookCache.clear();
+        pageStatusCache.clear();
+
+        // 终止任务
+        for (BookLoader loader : bookLoaderQueue) {
+            loader.cancel(true);
+        }
+        bookLoaderQueue.clear();
         if (isSearchMode) {
             remove(topPanel);
             remove(bookDisplayPanel);
@@ -290,7 +305,7 @@ public class ExplorePage extends JPanel {
                 pageStatusCache.put(page, PageStatus.LOADING);
                 bookLoaderQueue.add(new BookLoader(page, true));
                 if (bookLoaderQueue.size() == 1) {
-                    bookLoaderQueue.peek().execute(); // 启动第一个任务
+                    bookLoaderQueue.peek().execute();
                 }
                 break;
             case LOADING:
@@ -309,10 +324,10 @@ public class ExplorePage extends JPanel {
         for (int i = startPage; i < startPage + numberOfPages; i++) {
             if (!bookCache.containsKey(i)) {
                 bookLoaderQueue.add(new BookLoader(i, false));
+                if (bookLoaderQueue.size() == 1) {
+                    bookLoaderQueue.peek().execute(); // 启动第一个任务
+                }
             }
-        }
-        if (bookLoaderQueue.size() == 1) {
-            bookLoaderQueue.peek().execute(); // 启动第一个任务
         }
     }
 
@@ -369,22 +384,29 @@ public class ExplorePage extends JPanel {
                 List<Book> books = get();
                 if (books != null) {
                     bookCache.put(page, books); // 将获取的书籍列表存入缓存
-                    pageStatusCache.put(page, PageStatus.LOADED); // 更新页面状态
+                    pageStatusCache.put(page, PageStatus.LOADED); // 更新页面状态为已加载
                     if (page == currentPage) {
                         updateBookDisplay(books, page, totalBooks);
                     }
                 } else {
+                    // 处理 books 为 null 的情况
                     pageStatusCache.put(page, PageStatus.NOT_LOADED); // 重置页面状态
+                    if (page == currentPage) {
+                        JOptionPane.showMessageDialog(ExplorePage.this, "无法加载图书信息，请稍后重试。", "加载失败",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 pageStatusCache.put(page, PageStatus.NOT_LOADED); // 重置页面状态
                 if (page == currentPage) {
-                    showLoadingDialog();
+                    JOptionPane.showMessageDialog(ExplorePage.this, "无法加载图书信息，请稍后重试。", "加载失败",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } finally {
                 if (showLoadingDialog) {
-                    hideLoadingDialog();
+                    // 关闭加载对话框
+                    SwingUtilities.invokeLater(() -> hideLoadingDialog());
                 }
                 // 启动下一个任务
                 startNextBookLoader();
