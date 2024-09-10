@@ -2,14 +2,17 @@ package vCampus;
 
 import vCampus.Dao.Criteria.*;
 import vCampus.Entity.ECard.ECard;
+import vCampus.Entity.Grade;
+import vCampus.Entity.Student;
 import vCampus.Entity.Shop.Product;
 import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.Books.*;
 import vCampus.Service.*;
+import vCampus.StuMS.StuMSServerSrv;
 import vCampus.User.IUserServerSrv;
 import vCampus.ECard.ECardServerSrv;
-import vCampus.Shop.ShopServerSrv;
+//import vCampus.Shop.ShopServerSrv;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -182,8 +185,8 @@ public class MainServer {
                 break;
             case "getRandomBooks":
                 int count = (int) in.readObject();
-                List<Book> randomBooks = libraryService.getRandomBooks(count);
-                out.writeObject(randomBooks);
+//                List<Book> randomBooks = libraryService.getRandomBooks(count);
+//                out.writeObject(randomBooks);
                 break;
             default:
                 System.out.println("Unknown function: " + function);
@@ -312,66 +315,66 @@ public class MainServer {
         if (function != null) {
             switch (function) {
                 case "initialShopStudent":
-                    User user = (User) in.readObject();
-                    student = ShopServerSrv.initialShopStudent(user);
-                    ShopServerSrv.initialShop(8,student);
-                    out.writeObject(student);
-                    break;
-                case "refreshShop":
-                    student = (ShopStudent) in.readObject();
-                    ShopServerSrv.initialShop(8,student);
-                    out.writeObject(student);
-                    break;
-                case "searchProduct":
-                    student = (ShopStudent) in.readObject();
-                    String searchName = (String) in.readObject();
-                    boolean success = ShopServerSrv.searchProduct(student,searchName);
-                    out.writeObject(student);
-                    out.writeObject(success);
-                    break;
-                case "changeFavorites":
-                    String productId = (String) in.readObject();
-                    student = (ShopStudent) in.readObject();
-                    boolean is = (boolean) in.readObject();
-                    ShopServerSrv.changeFavorites(productId,student,is);
-                    out.writeObject(student);
-                    break;
-                case "purchaseProduct":
-                    productId = (String) in.readObject();
-                    int buyNums = (int) in.readObject();
-                    int password = (int) in.readObject();
-                    student = (ShopStudent) in.readObject();
-                    int situation = ShopServerSrv.purchaseProduct(productId,buyNums,password,student);
-                    out.writeObject(student);
-                    out.writeObject(situation);
-                    break;
-                case "getRecordCount":
-                    String tablename = (String) in.readObject();
-                    String Id = ShopServerSrv.getRecordCount(tablename);
-                    out.writeObject(Id);
-                    break;
-                case "addNew":
-                    Product newProduct = (Product) in.readObject();
-                    student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.addNew(student,newProduct);
-                    out.writeObject(success);
-                    out.writeObject(newProduct);
-                    out.writeObject(student);
-                    break;
-                case "updateProduct":
-                    Product updateProduct = (Product) in.readObject();
-                    student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.updateProduct(student,updateProduct);
-                    out.writeObject(updateProduct);
-                    out.writeObject(student);
-                    out.writeObject(success);
-                    break;
-                case "deleteProduct":
-                    Product deletProduct = (Product) in.readObject();
-                    student = (ShopStudent) in.readObject();
-                    success = ShopServerSrv.deleteProduct(student,deletProduct);
-                    out.writeObject(student);
-                    out.writeObject(success);
+//                    User user = (User) in.readObject();
+//                    student = ShopServerSrv.initialShopStudent(user);
+//                    ShopServerSrv.initialShop(8,student);
+//                    out.writeObject(student);
+//                    break;
+//                case "refreshShop":
+//                    student = (ShopStudent) in.readObject();
+//                    ShopServerSrv.initialShop(8,student);
+//                    out.writeObject(student);
+//                    break;
+//                case "searchProduct":
+//                    student = (ShopStudent) in.readObject();
+//                    String searchName = (String) in.readObject();
+//                    boolean success = ShopServerSrv.searchProduct(student,searchName);
+//                    out.writeObject(student);
+//                    out.writeObject(success);
+//                    break;
+//                case "changeFavorites":
+//                    String productId = (String) in.readObject();
+//                    student = (ShopStudent) in.readObject();
+//                    boolean is = (boolean) in.readObject();
+//                    ShopServerSrv.changeFavorites(productId,student,is);
+//                    out.writeObject(student);
+//                    break;
+//                case "purchaseProduct":
+//                    productId = (String) in.readObject();
+//                    int buyNums = (int) in.readObject();
+//                    int password = (int) in.readObject();
+//                    student = (ShopStudent) in.readObject();
+//                    int situation = ShopServerSrv.purchaseProduct(productId,buyNums,password,student);
+//                    out.writeObject(student);
+//                    out.writeObject(situation);
+//                    break;
+//                case "getRecordCount":
+//                    String tablename = (String) in.readObject();
+//                    String Id = ShopServerSrv.getRecordCount(tablename);
+//                    out.writeObject(Id);
+//                    break;
+//                case "addNew":
+//                    Product newProduct = (Product) in.readObject();
+//                    student = (ShopStudent) in.readObject();
+//                    success = ShopServerSrv.addNew(student,newProduct);
+//                    out.writeObject(success);
+//                    out.writeObject(newProduct);
+//                    out.writeObject(student);
+//                    break;
+//                case "updateProduct":
+//                    Product updateProduct = (Product) in.readObject();
+//                    student = (ShopStudent) in.readObject();
+//                    success = ShopServerSrv.updateProduct(student,updateProduct);
+//                    out.writeObject(updateProduct);
+//                    out.writeObject(student);
+//                    out.writeObject(success);
+//                    break;
+//                case "deleteProduct":
+//                    Product deletProduct = (Product) in.readObject();
+//                    student = (ShopStudent) in.readObject();
+//                    success = ShopServerSrv.deleteProduct(student,deletProduct);
+//                    out.writeObject(student);
+//                    out.writeObject(success);
                     break;
             }
         } else {
@@ -383,7 +386,52 @@ public class MainServer {
             throws IOException, ClassNotFoundException {
         if (function != null) {
             switch (function) {
-                case "Course":
+                case "studentFindInfo":
+                    String studentId = (String) in.readObject();
+                    Student student1 = StuMSServerSrv.studentFindInfo(studentId);
+                    out.writeObject(student1);
+                    out.flush();
+                    break;
+                case "studentFindGrade":
+                    String studentGradeId = (String) in.readObject();
+                    out.writeObject(StuMSServerSrv.studentFindGrade(studentGradeId));
+                    out.flush();
+                    break;
+                case "teacherFindAllInfo":
+                    out.writeObject(StuMSServerSrv.teacherFindAllInfo());
+                    out.flush();
+                    break;
+                case "teacherAddInfo":
+                    Student student = (Student) in.readObject();
+                    out.writeObject(StuMSServerSrv.teacherAddInfo(student));
+                    out.flush();
+                    break;
+                case "teacherDeleteInfo":
+                    String studentId2 = (String) in.readObject();
+                    out.writeObject(StuMSServerSrv.teacherDeleteInfo(studentId2));
+                    out.flush();
+                    break;
+                case "teaccherModifyInfo":
+                    Student student2 = (Student) in.readObject();
+                    out.writeObject(StuMSServerSrv.teacherModifyInfo(student2));
+                    out.flush();
+                    break;
+                case "teacherFindAllGrade":
+                    out.writeObject(StuMSServerSrv.teacherFindAllGrade());
+                    out.flush();
+                    break;
+                case "teacherModifyGrade":
+                    Grade grade = (Grade) in.readObject();
+                    out.writeObject(StuMSServerSrv.teacherModifyGrade(grade));
+                    out.flush();
+                    break;
+                case "teacherDeleteGrade":
+                    String studentId3 = (String) in.readObject();
+                    String courseId = (String) in.readObject();
+                    boolean isFirst = (boolean) in.readObject();
+                    out.writeObject(StuMSServerSrv.teacherDeleteGrade(studentId3, courseId, isFirst));
+                    out.flush();
+                    break;
             }
         } else {
             System.out.println("Unknown function: " + function);
