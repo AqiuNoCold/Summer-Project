@@ -79,7 +79,8 @@ public class MainServer {
                 String function = (String) in.readObject();
                 switch (model) {
                     case "1":
-                        LoginPage(function, in, out);
+                        userid = (String) in.readObject();
+                        LoginPage(function, in, out, userid);
                         break;
                     case "2":
                         CoursePage(function, in, out);
@@ -192,13 +193,11 @@ public class MainServer {
         out.flush();
     }
 
-    private static void LoginPage(String function, ObjectInputStream in, ObjectOutputStream out)
+    private static void LoginPage(String function, ObjectInputStream in, ObjectOutputStream out, String userId)
             throws IOException, ClassNotFoundException {
         if (function != null) {
-            String userId = null;
             switch (function) {
                 case "Login":
-                    userId = (String) in.readObject();
                     String password = (String) in.readObject();
 
                     if (userMap.containsKey(userId)) {
@@ -218,7 +217,6 @@ public class MainServer {
                     break;
 
                 case "Forget":
-                    userId = (String) in.readObject();
                     String email = (String) in.readObject();
                     User finduser = IUserServerSrv.forgetPassword(userId, email);
                     out.writeObject(finduser);
@@ -226,7 +224,6 @@ public class MainServer {
                     break;
 
                 case "Reset":
-                    userId = (String) in.readObject();
                     String newPassword = (String) in.readObject();
                     boolean success = IUserServerSrv.resetPassword(userId, newPassword);
                     out.writeObject(success);
