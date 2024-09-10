@@ -3,6 +3,7 @@ package Pages.Pages;
 import Pages.Pages.ECard.ECardPage;
 import Pages.Pages.StudentMSPages.StudentMainPage;
 import Pages.Pages.StudentMSPages.TeacherMainPage;
+import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
@@ -65,8 +66,8 @@ public class NavigationPage extends JFrame {
                     out.writeObject("initialShopStudent");
                     out.writeObject(user);
                     out.flush();
-//                    ShopStudent response = (ShopStudent) in.readObject();
-//                    openPage(new StorePage(response));
+                    ShopStudent response = (ShopStudent) in.readObject();
+                    openPage(new StorePage(response));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
