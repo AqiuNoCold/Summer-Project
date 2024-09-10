@@ -1,10 +1,17 @@
 package Pages.Pages.StudentMSPages;
 
+import Pages.MainApp;
+import vCampus.Entity.Student;
+import vCampus.Entity.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +87,8 @@ public class TeacherInfoMS {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
+
+
         // 应用渲染器到所有列
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
@@ -91,9 +100,34 @@ public class TeacherInfoMS {
         }
 
         // 初始化数据
+        User user = MainApp.getCurrentUser();
+        ObjectInputStream in = MainApp.getIn();
+        ObjectOutputStream out = MainApp.getOut();
+        List<Student> students = new ArrayList<>();
+        try {
+            out.writeObject("6");
+            out.writeObject("teacherFindAllInfo");
+            out.flush();
+//            Object response = in.readObject();
+            students = (List<Student>) in.readObject();
+            System.out.println(students.size());
+            for (Student student : students) {
+                System.out.println(student);
+//                Object[] row = new Object[]{student.getCardId(), student.getName(), student.getGender(), "详情", "修改", "删除"};
+//                tableModel.addRow(row);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         data = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            data.add(new Object[]{i, "Person " + i, 20 + i, "Action 1", "Action 2", "Action 3"});
+//        for (int i = 1; i <= 20; i++) {
+//            data.add(new Object[]{i, "Person " + i, 20 + i, "Action 1", "Action 2", "Action 3"});
+//        }
+        for (Student student : students) {
+            data.add(new Object[]{student.getCardId(), student.getName(), student.getGender(),  "Action 1", "Action 2", "Action 3"});
         }
         filteredData = new ArrayList<>(data); // 初始化为全数据
 
@@ -276,7 +310,7 @@ public class TeacherInfoMS {
                 // 更新表格数据
                 updateTableData();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "一卡通号必须是数字", "错误", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "一卡通号错误", "错误", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

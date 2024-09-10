@@ -1,12 +1,18 @@
 package Pages.Pages.StudentMSPages;
 
+import Pages.MainApp;
+import vCampus.Entity.Student;
+import vCampus.Entity.User;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class StudentInfo extends JFrame {
     public static void main(String[] args) {
         // 创建一个示例 Student 对象
-        StudentInfo.Student student = new StudentInfo.Student("2024001", "张三", "男", 20, "计算机科学");
+        StudentInfo.StudentTemp student = new StudentInfo.StudentTemp("XIII", "帕朵菲莉丝", "女", 20, "逐火之蛾");
 
         // 使用 SwingUtilities.invokeLater 确保界面创建在事件调度线程中
         SwingUtilities.invokeLater(() -> {
@@ -17,14 +23,14 @@ public class StudentInfo extends JFrame {
     }
 
     // 内部类定义 Student
-    public static class Student {
+    public static class StudentTemp {
         private String id;
         private String name;
         private String gender;
         private int age;
         private String className;
 
-        public Student(String id, String name, String gender, int age, String className) {
+        public StudentTemp(String id, String name, String gender, int age, String className) {
             this.id = id;
             this.name = name;
             this.gender = gender;
@@ -53,7 +59,22 @@ public class StudentInfo extends JFrame {
         }
     }
 
-    public StudentInfo(Student student) {
+    public StudentInfo(StudentTemp student) {
+        User user = MainApp.getCurrentUser();
+        ObjectInputStream in = MainApp.getIn();
+        ObjectOutputStream out = MainApp.getOut();
+        Student student1 = null;
+        try {
+            out.writeObject("6");
+            out.writeObject("studentFindInfo");
+            out.writeObject(user.getCard());
+            out.flush();
+            student1 = (Student) in.readObject();
+//            in.close();
+//            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         setTitle("学生详细信息");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -91,40 +112,40 @@ public class StudentInfo extends JFrame {
         mainPanel.setBorder(BorderFactory.createLineBorder(new Color(144, 238, 144), 1)); // 浅绿色边框，宽度为5像素
 
         // 创建组件
-        JLabel nameLabel = new JLabel("  姓名:          "+student.getName());
+        JLabel nameLabel = new JLabel("  姓名:          " + student1.getName());
         nameLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel cardIdLabel = new JLabel("    一卡通号:"+"1234567890");
+        JLabel cardIdLabel = new JLabel("    一卡通号:" + student1.getCardId());
         cardIdLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel genderLabel = new JLabel("    性别:        "+student.getGender());
+        JLabel genderLabel = new JLabel("    性别:        " + student1.getGender());
         genderLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel birthLabel = new JLabel("    出生日期:"+student.getAge() + "");
+        JLabel birthLabel = new JLabel("    出生日期:" + student1.getBirth() + "");
         birthLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel collegeLabel = new JLabel("    所属学院:"+"计算机科学与技术学院");
+        JLabel collegeLabel = new JLabel("    所属学院:" + student1.getCollege());
         collegeLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel gradeLabel = new JLabel("    年级:        "+"2020");
+        JLabel gradeLabel = new JLabel("    年级:        " + student1.getGrade());
         gradeLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel majorLabel = new JLabel("    专业:        "+"计算机科学与技术");
+        JLabel majorLabel = new JLabel("    专业:        " + student1.getMajor());
         majorLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel emailLabel = new JLabel("    邮箱: "+"1234567890@qq.com");
+        JLabel emailLabel = new JLabel("    邮箱: " + student1.getEmail());
         emailLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel stageLabel = new JLabel("    入学阶段: "+"本科");
+        JLabel stageLabel = new JLabel("    入学阶段: " + student1.getStage());
         stageLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel honorLabel = new JLabel("    荣誉信息:"+"无");
+        JLabel honorLabel = new JLabel("    荣誉信息:" + student1.getHonor());
         honorLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel punishLabel = new JLabel("    处分信息:"+"无");
+        JLabel punishLabel = new JLabel("    处分信息:" + student1.getPunish());
         punishLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
-        JLabel stuCodeLabel = new JLabel("    学籍号:"+"2020");
+        JLabel stuCodeLabel = new JLabel("    学籍号:" + student1.getStuCode());
         stuCodeLabel.setFont(new Font("Serif", Font.PLAIN, 20));
 
         JButton backButton = new JButton("返回");

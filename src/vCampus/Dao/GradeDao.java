@@ -121,6 +121,37 @@ public class GradeDao implements BaseDao<Grade> {
         return grade;
     }
 
+    public List<Grade> findAll() {
+        List<Grade> grades = new ArrayList<>();
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "SELECT * FROM tblGrade";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Grade grade = new Grade(
+                        rs.getString("id"),
+                        rs.getString("card_id"),
+                        rs.getString("course_name"),
+                        rs.getString("course_id"),
+                        rs.getDouble("usual"),
+                        rs.getDouble("mid"),
+                        rs.getDouble("final"),
+                        rs.getDouble("total"),
+                        rs.getDouble("point"),
+                        rs.getBoolean("is_first"),
+                        rs.getString("term")
+                );
+                grades.add(grade);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return grades;
+    }
 
     public List<Grade> findAllByCardId(String cardId) {
         List<Grade> grades = new ArrayList<>();
@@ -154,106 +185,106 @@ public class GradeDao implements BaseDao<Grade> {
         }
         return grades;
     }
-    public List<Grade> findAllByCourseId(String courseId) {
-        List<Grade> grades = new ArrayList<>();
-        try {
-            conn = DbConnection.getConnection();
-            String sql = "SELECT * FROM tblGrade WHERE course_id = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, courseId);
-            rs = pstmt.executeQuery();
+//    public List<Grade> findAllByCourseId(String courseId) {
+//        List<Grade> grades = new ArrayList<>();
+//        try {
+//            conn = DbConnection.getConnection();
+//            String sql = "SELECT * FROM tblGrade WHERE course_id = ?";
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, courseId);
+//            rs = pstmt.executeQuery();
+//
+//            while (rs.next()) {
+//                Grade grade = new Grade(
+//                        rs.getString("id"),
+//                        rs.getString("card_id"),
+//                        rs.getString("course_name"),
+//                        rs.getString("course_id"),
+//                        rs.getDouble("usual"),
+//                        rs.getDouble("mid"),
+//                        rs.getDouble("final"),
+//                        rs.getDouble("total"),
+//                        rs.getDouble("point"),
+//                        rs.getBoolean("is_first"),
+//                        rs.getString("term")
+//                );
+//                grades.add(grade);
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            DbConnection.closeConnection(conn);
+//        }
+//        return grades;
+//    }
 
-            while (rs.next()) {
-                Grade grade = new Grade(
-                        rs.getString("id"),
-                        rs.getString("card_id"),
-                        rs.getString("course_name"),
-                        rs.getString("course_id"),
-                        rs.getDouble("usual"),
-                        rs.getDouble("mid"),
-                        rs.getDouble("final"),
-                        rs.getDouble("total"),
-                        rs.getDouble("point"),
-                        rs.getBoolean("is_first"),
-                        rs.getString("term")
-                );
-                grades.add(grade);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbConnection.closeConnection(conn);
-        }
-        return grades;
-    }
+//    public List<Grade> findGrade(String cardId, String courseId) {
+//        List<Grade> grades = new ArrayList<>();
+//        try {
+//            conn = DbConnection.getConnection();
+//            String sql = "SELECT * FROM tblGrade WHERE card_id = ? AND course_id = ?";
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, cardId);
+//            pstmt.setString(2, courseId);
+//            rs = pstmt.executeQuery();
+//
+//            while (rs.next()) {
+//                Grade grade = new Grade(
+//                        rs.getString("id"),
+//                        rs.getString("card_id"),
+//                        rs.getString("course_name"),
+//                        rs.getString("course_id"),
+//                        rs.getDouble("usual"),
+//                        rs.getDouble("mid"),
+//                        rs.getDouble("final"),
+//                        rs.getDouble("total"),
+//                        rs.getDouble("point"),
+//                        rs.getBoolean("is_first"),
+//                        rs.getString("term")
+//                );
+//                grades.add(grade);
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            DbConnection.closeConnection(conn);
+//        }
+//        return grades;
+//    }
 
-    public List<Grade> findGrade(String cardId, String courseId) {
-        List<Grade> grades = new ArrayList<>();
-        try {
-            conn = DbConnection.getConnection();
-            String sql = "SELECT * FROM tblGrade WHERE card_id = ? AND course_id = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, cardId);
-            pstmt.setString(2, courseId);
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Grade grade = new Grade(
-                        rs.getString("id"),
-                        rs.getString("card_id"),
-                        rs.getString("course_name"),
-                        rs.getString("course_id"),
-                        rs.getDouble("usual"),
-                        rs.getDouble("mid"),
-                        rs.getDouble("final"),
-                        rs.getDouble("total"),
-                        rs.getDouble("point"),
-                        rs.getBoolean("is_first"),
-                        rs.getString("term")
-                );
-                grades.add(grade);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbConnection.closeConnection(conn);
-        }
-        return grades;
-    }
-
-    public Grade findGradeIsFirst(Grade grade) {
-        Grade gradeResult = null;
-        try {
-            conn = DbConnection.getConnection();
-            String sql = "SELECT * FROM tblGrade WHERE card_id = ? AND course_id = ? AND is_first = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, grade.getCardId());
-            pstmt.setString(2, grade.getCourseId());
-            pstmt.setBoolean(3, grade.isFirst());
-            rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                gradeResult = new Grade(
-                        rs.getString("id"),
-                        rs.getString("card_id"),
-                        rs.getString("course_name"),
-                        rs.getString("course_id"),
-                        rs.getDouble("usual"),
-                        rs.getDouble("mid"),
-                        rs.getDouble("final"),
-                        rs.getDouble("total"),
-                        rs.getDouble("point"),
-                        rs.getBoolean("is_first"),
-                        rs.getString("term")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbConnection.closeConnection(conn);
-        }
-        return gradeResult;
-    }
+//    public Grade findGradeIsFirst(Grade grade) {
+//        Grade gradeResult = null;
+//        try {
+//            conn = DbConnection.getConnection();
+//            String sql = "SELECT * FROM tblGrade WHERE card_id = ? AND course_id = ? AND is_first = ?";
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, grade.getCardId());
+//            pstmt.setString(2, grade.getCourseId());
+//            pstmt.setBoolean(3, grade.isFirst());
+//            rs = pstmt.executeQuery();
+//
+//            if (rs.next()) {
+//                gradeResult = new Grade(
+//                        rs.getString("id"),
+//                        rs.getString("card_id"),
+//                        rs.getString("course_name"),
+//                        rs.getString("course_id"),
+//                        rs.getDouble("usual"),
+//                        rs.getDouble("mid"),
+//                        rs.getDouble("final"),
+//                        rs.getDouble("total"),
+//                        rs.getDouble("point"),
+//                        rs.getBoolean("is_first"),
+//                        rs.getString("term")
+//                );
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            DbConnection.closeConnection(conn);
+//        }
+//        return gradeResult;
+//    }
 
     public boolean setGrade(Grade grade) {
         boolean isUpdated = false;
@@ -279,7 +310,25 @@ public class GradeDao implements BaseDao<Grade> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return false;
+        return isUpdated;
+    }
+    public boolean deleteGrade(String cardId, String courseId, boolean isFirst) {
+        boolean isDeleted = false;
+        try {
+            conn = DbConnection.getConnection();
+            String sql = "DELETE FROM tblGrade WHERE course_id = ?AND card_id = ?AND is_first = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, courseId);
+            pstmt.setString(2, cardId);
+            pstmt.setBoolean(3, isFirst);
+            int rowsAffected = pstmt.executeUpdate();
+            isDeleted = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbConnection.closeConnection(conn);
+        }
+        return isDeleted;
     }
 
 

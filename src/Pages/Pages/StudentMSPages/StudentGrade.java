@@ -1,13 +1,22 @@
 package Pages.Pages.StudentMSPages;
 
+import Pages.MainApp;
+import vCampus.Entity.Grade;
+import vCampus.Entity.Student;
+import vCampus.Entity.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StudentGrade {
     private static final int ROWS_PER_PAGE = 8; // 每页显示的行数
@@ -20,6 +29,8 @@ public class StudentGrade {
     private static JTextField searchField;
     private static JComboBox<String> searchComboBox;
     private static JFrame frame;
+    // 在 StudentGrade 类中
+    private static final Map<Integer, Object[]> rowDataMap = new HashMap<>();
 
     public static void main(String[] args) {
         StudentGrade infoPage = new StudentGrade();
@@ -27,6 +38,7 @@ public class StudentGrade {
     }
 
     public void createAndShowGUIGrade() {
+
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -75,12 +87,39 @@ public class StudentGrade {
         table.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
         table.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JCheckBox(), table));
 
-        data = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            // 添加课程编号、课程名称、学分和最终成绩的示例数据
-            data.add(new Object[]{i, "课程 " + i, i + 1, i + 2, "Details"});
+        User user = MainApp.getCurrentUser();
+        ObjectInputStream in = MainApp.getIn();
+        ObjectOutputStream out = MainApp.getOut();
+        List<Grade> grades = new ArrayList<>();
+
+        try {
+            out.writeObject("6");
+            out.writeObject("studentFindGrade");
+            out.writeObject(user.getCard());
+            out.flush();
+            grades = (List<Grade>) in.readObject();
+            System.out.println(grades.size());
+            for (Grade grade : grades) {
+                System.out.println(grade);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        filteredData = new ArrayList<>(data); // 初始化为全数据
+        data = new ArrayList<>();
+
+        for (Grade grade : grades) {
+            data.add(new Object[]{grade.getCourseId(),grade.getCourseName(), grade.getPoint(), grade.getTotal()==0? "未录入" : grade.getTotal() , "Details",grade.getUsual(),grade.getMid(),grade.getFinal()});
+        }
+
+        // 创建 filteredData 列表，只包含 data 的前5列数据
+        filteredData = new ArrayList<>();
+        for (Object[] row : data) {
+            if (row.length >= 5) {  // 确保每行至少有5列数据
+                Object[] filteredRow = new Object[5];
+                System.arraycopy(row, 0, filteredRow, 0, 5);
+                filteredData.add(filteredRow);
+            }
+        }
 
         updateTableData();
 
@@ -226,16 +265,18 @@ public class StudentGrade {
         if (searchType != null && !searchTerm.isEmpty()) {
             try {
                 if (searchType.equals("课程编号")) {
-                    int courseNumber = Integer.parseInt(searchTerm);
+                    System.out.println(searchTerm);
+//                    System.out.println(searchTerm);
                     filteredData = data.stream()
-                            .filter(row -> row[0].equals(courseNumber))
+                            .filter(row -> row[0].equals(searchTerm))
                             .collect(Collectors.toList());
+                    System.out.println(filteredData.size());
                 }
                 currentPage = 0;
                 updateTableData();
                 pageNumberField.setText(String.valueOf(currentPage + 1));
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "课程编号必须是数字", "错误", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "课程编号错误", "错误", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             filteredData = new ArrayList<>(data);
@@ -293,8 +334,11 @@ public class StudentGrade {
                 int column = table.getSelectedColumn();
                 if (column == 4) {
                     // 详情按钮操作
+                    // 使用 data 获取完整的行数据
                     Object[] rowData = getRowData(row);
-                    JOptionPane.showMessageDialog(button, "详细信息:\n课程编号: " + rowData[0] + "\n课程名称: " + rowData[1] + "\n学分: " + rowData[2] + "\n最终成绩: " + rowData[3]);
+                    JOptionPane.showMessageDialog(button, "详细信息:\n课程编号: " + rowData[0] +
+                            "\n课程名称: " + rowData[1] + "\n学分: " + rowData[2] + "\n最终成绩: " + rowData[3] +
+                            "\n平时成绩: " + rowData[5] + "\n期中成绩: " + rowData[6] + "\n期末成绩: " + rowData[7]);
                 }
             });
         }
@@ -341,12 +385,13 @@ public class StudentGrade {
         }
 
         private Object[] getRowData(int row) {
-            return new Object[]{
-                    table.getValueAt(row, 0),
-                    table.getValueAt(row, 1),
-                    table.getValueAt(row, 2),
-                    table.getValueAt(row, 3)
-            };
+            // 从 data 中获取完整的行数据
+            if (row >= 0 && row < data.size()) {
+                return data.get(row);
+            } else {
+                return new Object[0];
+            }
         }
     }
+
 }

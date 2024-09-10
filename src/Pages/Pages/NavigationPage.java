@@ -1,7 +1,6 @@
 package Pages.Pages;
 
 import Pages.Pages.ECard.ECardPage;
-import vCampus.Entity.Shop.ShopStudent;
 import Pages.Pages.StudentMSPages.StudentMainPage;
 import Pages.Pages.StudentMSPages.TeacherMainPage;
 import vCampus.Entity.User;
@@ -66,8 +65,8 @@ public class NavigationPage extends JFrame {
                     out.writeObject("initialShopStudent");
                     out.writeObject(user);
                     out.flush();
-                    ShopStudent response = (ShopStudent) in.readObject();
-                    openPage(new StorePage(response));
+//                    ShopStudent response = (ShopStudent) in.readObject();
+//                    openPage(new StorePage(response));
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -96,22 +95,24 @@ public class NavigationPage extends JFrame {
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("studentRecordButton");
                 // 创建 User 实例
-                // User user = new User(
-                // "user123", // id
-                // "password", // pwd
-                // 25, // age
-                // true, // gender
-                // "ST", // role
-                // "user123@example.com", // email
-                // "123456789", // card
-                // false // lost
-                // );
-                User user1 = MainApp.getCurrentUser();
-                if (user.getRole() == "ST") {
+//                User user = new User(
+//                        "user123",        // id
+//                        "password",       // pwd
+//                        25,               // age
+//                        true,             // gender
+//                        "ST",        // role
+//                        "user123@example.com", // email
+//                        "123456789",      // card
+//                        false             // lost
+//                );
+                User user=MainApp.getCurrentUser();
+                System.out.println(user.getRole());
+                if (user.getRole().equals("ST")) {
                     openPage(new StudentMainPage());
 
-                } else if (user.getRole() == "TC") {
+                } else if (user.getRole().equals("TC")) {
                     openPage(new TeacherMainPage());
                 }
             }
