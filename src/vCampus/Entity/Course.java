@@ -1,6 +1,7 @@
 package vCampus.Entity;
+import java.io.Serializable;
 
-public class Course {
+public class Course implements Serializable{
     private String courseId;       // 课程编号
     private String courseName;     // 课程名称
     private String teacherName;    // 教师名称（一卡通号）

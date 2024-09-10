@@ -94,7 +94,8 @@ public class NavigationPage extends JFrame {
         courseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new CoursePage());
+                new CoursePage();
+                //openPage(new CoursePage());
             }
         });
     }
