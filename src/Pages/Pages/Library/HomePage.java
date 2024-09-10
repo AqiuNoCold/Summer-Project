@@ -27,6 +27,9 @@ public class HomePage extends JPanel {
     private JPanel paginationPanel;
     private JButton prevButton;
     private JButton nextButton;
+    private JDialog loadingDialog;
+    private JLayeredPane layeredPane;
+    private JPanel advancedSearchOverlay;
 
     public HomePage() {
         setLayout(new BorderLayout());
@@ -88,8 +91,16 @@ public class HomePage extends JPanel {
         advancedSearchPanel = new JPanel();
         advancedSearchPanel.setLayout(new BoxLayout(advancedSearchPanel, BoxLayout.Y_AXIS));
         advancedSearchPanel.setVisible(false);
-        advancedSearchPanel.setPreferredSize(new Dimension(topPanel.getWidth(), 200)); // 固定高度
-        add(advancedSearchPanel, BorderLayout.SOUTH); // 添加到布局中
+        advancedSearchPanel.setPreferredSize(new Dimension(topPanel.getWidth(), 50)); // 固定高度
+        advancedSearchOverlay = new JPanel(new BorderLayout());
+        advancedSearchOverlay.add(advancedSearchPanel, BorderLayout.CENTER);
+        advancedSearchOverlay.setVisible(false);
+
+        // 使用 JLayeredPane 以便高级搜索框覆盖在其他元素上方
+        layeredPane = new JLayeredPane();
+        layeredPane.setLayout(new BorderLayout());
+        layeredPane.add(this, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(advancedSearchOverlay, JLayeredPane.PALETTE_LAYER);
 
         // 添加初始的高级搜索行
         addAdvancedSearchRow();
@@ -126,6 +137,8 @@ public class HomePage extends JPanel {
     private class BookLoader extends SwingWorker<List<Book>, Void> {
         @Override
         protected List<Book> doInBackground() throws Exception {
+            // 显示加载对话框
+            SwingUtilities.invokeLater(() -> showLoadingDialog());
             return ClientUtils.getRandomBooksAndInitialize(8);
         }
 
@@ -163,13 +176,34 @@ public class HomePage extends JPanel {
                 bookDisplayPanel.repaint();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
+            } finally {
+                // 关闭加载对话框
+                SwingUtilities.invokeLater(() -> hideLoadingDialog());
             }
+        }
+    }
+
+    private void showLoadingDialog() {
+        if (loadingDialog == null) {
+            loadingDialog = new JDialog(SwingUtilities.getWindowAncestor(this), "加载中",
+                    Dialog.ModalityType.APPLICATION_MODAL);
+            JLabel loadingLabel = new JLabel("图书信息正在加载中，请稍候...", JLabel.CENTER);
+            loadingDialog.add(loadingLabel);
+            loadingDialog.setSize(300, 150);
+            loadingDialog.setLocationRelativeTo(this);
+        }
+        loadingDialog.setVisible(true);
+    }
+
+    private void hideLoadingDialog() {
+        if (loadingDialog != null) {
+            loadingDialog.dispose();
         }
     }
 
     private void toggleAdvancedSearch() {
         isAdvancedSearchVisible = !isAdvancedSearchVisible;
-        advancedSearchPanel.setVisible(isAdvancedSearchVisible);
+        advancedSearchOverlay.setVisible(isAdvancedSearchVisible);
         searchField.setEditable(!isAdvancedSearchVisible);
     }
 
