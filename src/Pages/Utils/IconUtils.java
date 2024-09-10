@@ -1,5 +1,7 @@
 package Pages.Utils;
 
+import java.awt.Color;
+
 import javax.swing.*;
 
 public class IconUtils {
@@ -27,5 +29,15 @@ public class IconUtils {
     public static void setButtonBorder(JButton button, double scaleFactor) {
         button.setBorder(BorderFactory.createEmptyBorder((int) (10 * scaleFactor), (int) (10 * scaleFactor),
                 (int) (10 * scaleFactor), (int) (10 * scaleFactor))); // 根据缩放比例调整按钮内边距
+    }
+
+    public static JButton createImageButton(String imagePath, int windowWidth, int windowHeight) {
+        ImageIcon icon = loadSVGImage(imagePath, windowWidth, windowHeight);
+        JButton button = new JButton(icon);
+        button.setBackground(new Color(255, 255, 255)); // 设置背景颜色
+        button.setFocusPainted(false);
+        double scaleFactor = Math.min(windowWidth / 1920.0, windowHeight / 1080.0);
+        setButtonBorder(button, scaleFactor); // 设置按钮边框
+        return button;
     }
 }
