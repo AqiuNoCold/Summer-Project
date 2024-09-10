@@ -44,11 +44,13 @@ public class ShopServerSrv {
         }
 
         for(Product product : student.getFavorites()){
-            shopSet.add(product.getId());
+            if(product != null)
+                shopSet.add(product.getId());
         }
 
         for(Product product : student.getBelongs()){
-            shopSet.add(product.getId());
+            if(product != null)
+                shopSet.add(product.getId());
         }
 
         for (String Element : shopSet) {
@@ -203,7 +205,8 @@ public class ShopServerSrv {
             product.setNumbers(0);
             product.setDiscount(1);
             product.setPrice(0);
-            product.setNewImage("src/vCampus/Shop/img/noimage.png");
+            String projectRoot = System.getProperty("user.dir");
+            product.setNewImage(projectRoot+"/vCampus/Shop/img/noimage.png");
 
             int index = 0;
             for (Product productB : student.getBelongs()) {

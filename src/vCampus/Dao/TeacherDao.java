@@ -28,14 +28,14 @@ public class TeacherDao implements BaseDao<Teacher> {
         }
     }
 
-    // Find a teacher by ID
-    public Teacher find(String id) {
-        String sql = "SELECT * FROM tblTeacher WHERE id = ?";
+    // Find a teacher by course_ID
+    public Teacher find(String course_id) {
+        String sql = "SELECT * FROM tblTeacher WHERE course = ?";
 
         try (Connection conn = DbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, id);
+            pstmt.setString(1, course_id);
 
             ResultSet rs = pstmt.executeQuery();
 

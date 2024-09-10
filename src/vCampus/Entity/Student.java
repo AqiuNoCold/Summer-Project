@@ -1,8 +1,9 @@
 package vCampus.Entity;
 import vCampus.Dao.StuDao;
 //import java.util.Date;
+import java.io.Serializable;
 import java.sql.Date; // 确保使用 java.sql.Date
-public class Student {
+public class Student implements Serializable {
     private String id;
     private String cardId;  // 9 characters, primary key
     private String name;     // Up to 10 characters

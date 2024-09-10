@@ -1,12 +1,21 @@
 package Pages.Pages.StudentMSPages;
 
+import Pages.MainApp;
+import vCampus.Entity.Grade;
+import vCampus.Entity.User;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TeacherGrade {
@@ -20,6 +29,8 @@ public class TeacherGrade {
     private static JTextField searchField;
     private static JComboBox<String> searchComboBox;
     private static JFrame frame;
+    // 在 StudentGrade 类中
+    private static final Map<Integer, Object[]> rowDataMap = new HashMap<>();
 
     public static void main(String[] args) {
         TeacherGrade infoPage = new TeacherGrade();
@@ -78,11 +89,38 @@ public class TeacherGrade {
             table.getColumnModel().getColumn(i).setCellEditor(new ButtonEditor(new JCheckBox(), table));
         }
 
-        data = new ArrayList<>();
-        for (int i = 1; i <= 20; i++) {
-            data.add(new Object[]{i, "Person " + i, (-1 + i) == 0 ? "未录入" : i, "Action 1", "Action 2", "Action 3"});
+        User user = MainApp.getCurrentUser();
+        ObjectInputStream in = MainApp.getIn();
+        ObjectOutputStream out = MainApp.getOut();
+        List<Grade> grades = new ArrayList<>();
+        try {
+            out.writeObject("6");
+            out.writeObject("teacherFindAllGrade");
+            out.flush();
+            grades = (List<Grade>) in.readObject();
+            System.out.println(grades.size());
+            for (Grade grade : grades) {
+                System.out.println(grade);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
-        filteredData = new ArrayList<>(data); // 初始化为全数据
+        data = new ArrayList<>();
+        for (Grade grade : grades) {
+            data.add(new Object[]{grade.getCourseId(), grade.getCardId(), grade.getTotal(), "Action 1", "Action 2", "Action 3",grade.getPoint(),grade.getUsual(),grade.getMid(),grade.getFinal(),grade.isFirst()});
+        }
+
+        // 创建 filteredData 列表，只包含 data 的前6列数据
+        filteredData = new ArrayList<>();
+        for (Object[] row : data) {
+            if (row.length >= 6) {  // 确保每行至少有6列数据
+                Object[] filteredRow = new Object[6];
+                System.arraycopy(row, 0, filteredRow, 0, 6);
+                filteredData.add(filteredRow);
+            }
+        }
 
         updateTableData();
 
@@ -199,7 +237,7 @@ public class TeacherGrade {
         mainPanel.add(searchPanel, gbc);
 
 
-        frame = new JFrame("学生信息管理");
+        frame = new JFrame("学生成绩管理");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.add(mainPanel);
@@ -236,9 +274,8 @@ public class TeacherGrade {
 //                System.out.println("search by cardId222");
 //                System.out.println(searchTerm);
 //                System.out.println(searchType);
-                int searchId = Integer.parseInt(searchTerm);
                 filteredData = data.stream()
-                        .filter(row -> row[0].equals(searchId))
+                        .filter(row -> row[0].equals(searchTerm))
                         .collect(Collectors.toList());
                 currentPage = 0; // 重置到第一页
                 updateTableData();
@@ -248,9 +285,8 @@ public class TeacherGrade {
 //                System.out.println("search by courseId222");
 //                System.out.println(searchTerm);
 //                System.out.println(searchType);
-                    int searchId = Integer.parseInt(searchTerm);
-                    filteredData = data.stream()
-                            .filter(row -> row[1].equals(searchId))
+                filteredData = data.stream()
+                            .filter(row -> row[1].equals(searchTerm))
                             .collect(Collectors.toList());
                     currentPage = 0; // 重置到第一页
                     updateTableData();
@@ -299,7 +335,6 @@ public class TeacherGrade {
         }
     }
 
-    // 自定义按钮编辑器
     static class ButtonEditor extends DefaultCellEditor {
         private JButton button;
         private String label;
@@ -319,29 +354,30 @@ public class TeacherGrade {
                 int column = table.getSelectedColumn();
                 if (column == 3) {
                     // 详情按钮操作
-                    Object[] rowData = getRowData(row);
-                    JOptionPane.showMessageDialog(button, "详细信息:\nCardId: " + rowData[0] + "\ncourseId: " + rowData[1] + "\nGrade: " + rowData[2]);
+                    int dataIndex = getDataIndex(row);
+                    if (dataIndex != -1 && dataIndex < data.size()) {
+                        Object[] rowData = data.get(dataIndex);
+                        JOptionPane.showMessageDialog(button, "详细信息:\n课程编号: " + rowData[0] +
+                                "\n一卡通号: " + rowData[1] +"\n最终成绩: " + rowData[2] + "\n学分: " + rowData[6] +
+                                "\n平时成绩: " + rowData[7] + "\n期中成绩: " + rowData[8] + "\n期末成绩: " +
+                                rowData[9]+"\n是否为首修: " + (rowData[10].equals(false)?"是":"否"));
+                    } else {
+                        JOptionPane.showMessageDialog(button, "未找到详细信息", "错误", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else if (column == 4) {
                     // 修改按钮操作
-                    Object[] rowData = getRowData(row);
-                    JTextField nameField = new JTextField((String) rowData[1]);
-                    JTextField genderField = new JTextField(rowData[2].toString());
-                    JPanel panel = new JPanel(new GridLayout(2, 2));
-                    panel.add(new JLabel("Name:"));
-                    panel.add(nameField);
-                    panel.add(new JLabel("Grade:"));
-                    panel.add(genderField);
-                    int result = JOptionPane.showConfirmDialog(button, panel, "修改信息", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    if (result == JOptionPane.OK_OPTION) {
-                        data.set(row, new Object[]{rowData[0], nameField.getText(), genderField.getText(), "Action 1", "Action 2", "Action 3"});
-                        updateTableData();
-                    }
+
                 } else if (column == 5) {
                     // 删除按钮操作
                     int result = JOptionPane.showConfirmDialog(button, "确定要删除这一行吗？", "确认", JOptionPane.YES_NO_OPTION);
                     if (result == JOptionPane.YES_OPTION) {
-                        data.remove(row);
-                        updateTableData();
+                        int dataIndex = getDataIndex(row);
+                        if (dataIndex != -1) {
+                            // 从 data 和 filteredData 中删除对应的行
+                            data.remove(dataIndex);
+                            filteredData.remove(row); // 同步更新 filteredData
+                            updateTableData(); // 刷新表格
+                        }
                     }
                 }
             });
@@ -389,6 +425,18 @@ public class TeacherGrade {
             super.fireEditingStopped();
         }
 
+        private int getDataIndex(int filteredRowIndex) {
+            // 查找 filteredData 在原始数据中的索引
+            Object[] filteredRow = filteredData.get(filteredRowIndex);
+            for (int i = 0; i < data.size(); i++) {
+                Object[] row = data.get(i);
+                if (java.util.Arrays.equals(filteredRow, java.util.Arrays.copyOfRange(row, 0, 6))) {
+                    return i;
+                }
+            }
+            return -1; // 如果没有找到匹配项，则返回 -1
+        }
+
         private Object[] getRowData(int row) {
             return new Object[]{
                     table.getValueAt(row, 0),
@@ -400,4 +448,5 @@ public class TeacherGrade {
             };
         }
     }
+
 }

@@ -1,9 +1,9 @@
 package Pages.Pages;
 
 import Pages.Pages.ECard.ECardPage;
-import vCampus.Entity.Shop.ShopStudent;
 import Pages.Pages.StudentMSPages.StudentMainPage;
 import Pages.Pages.StudentMSPages.TeacherMainPage;
+import vCampus.Entity.Shop.ShopStudent;
 import vCampus.Entity.User;
 import vCampus.Entity.ECard.ECard;
 import Pages.MainApp;
@@ -99,22 +99,24 @@ public class NavigationPage extends JFrame {
         studentRecordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("studentRecordButton");
                 // 创建 User 实例
-                // User user = new User(
-                // "user123", // id
-                // "password", // pwd
-                // 25, // age
-                // true, // gender
-                // "ST", // role
-                // "user123@example.com", // email
-                // "123456789", // card
-                // false // lost
-                // );
-                User user1 = MainApp.getCurrentUser();
-                if (user.getRole() == "ST") {
+//                User user = new User(
+//                        "user123",        // id
+//                        "password",       // pwd
+//                        25,               // age
+//                        true,             // gender
+//                        "ST",        // role
+//                        "user123@example.com", // email
+//                        "123456789",      // card
+//                        false             // lost
+//                );
+                User user=MainApp.getCurrentUser();
+                System.out.println(user.getRole());
+                if (user.getRole().equals("ST")) {
                     openPage(new StudentMainPage());
 
-                } else if (user.getRole() == "TC") {
+                } else if (user.getRole().equals("TC")) {
                     openPage(new TeacherMainPage());
                 }
             }
@@ -128,7 +130,8 @@ public class NavigationPage extends JFrame {
         courseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openPage(new CoursePage());
+                new CoursePage();
+                //openPage(new CoursePage());
             }
         });
     }

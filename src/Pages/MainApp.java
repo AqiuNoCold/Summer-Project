@@ -62,6 +62,9 @@ public class MainApp {
     public static void close_source() {
         try {
             out.writeObject("exit");
+            if (currentUser != null) {
+                out.writeObject(currentUser.getId());
+            }
             out.flush();
             System.out.println("exit");
         } catch (IOException e) {
