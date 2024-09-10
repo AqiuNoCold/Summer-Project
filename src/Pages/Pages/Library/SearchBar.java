@@ -171,6 +171,11 @@ public class SearchBar extends JPanel {
     }
 
     private void performSearch() {
+        // 关闭高级搜索框
+        if (isAdvancedSearchVisible) {
+            toggleAdvancedSearch();
+        }
+
         // 显示“正在搜索”对话框
         SwingUtilities.invokeLater(() -> searchingDialog.setVisible(true));
 
