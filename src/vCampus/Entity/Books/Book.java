@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import vCampus.Service.Books.BookService;
 
 public class Book implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String isbn; // ISBN
     private BigDecimal msrp; // 建议零售价
     private String image; // 图片

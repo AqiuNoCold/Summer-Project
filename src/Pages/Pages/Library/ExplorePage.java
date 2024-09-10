@@ -3,8 +3,6 @@ package Pages.Pages.Library;
 import Pages.MainApp;
 import Pages.Utils.IconUtils;
 import vCampus.Entity.Books.Book;
-import vCampus.Dao.Criteria.BookSearchCriteria;
-import vCampus.Dao.Criteria.BookSortCriteria;
 import vCampus.Service.SearchResult;
 
 import javax.swing.*;
@@ -34,6 +32,7 @@ public class ExplorePage extends JPanel {
     private int totalBooks = 0; // 总书籍数
     private Map<Integer, List<Book>> bookCache = new HashMap<>(); // 缓存每页的书籍列表
     private boolean isSearchMode = false; // 是否为搜索模式
+    private JPanel centerPanel; // 中间面板
 
     private ExplorePage() {
         // 私有构造函数，防止实例化
@@ -44,9 +43,13 @@ public class ExplorePage extends JPanel {
         bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
 
         // 创建搜索栏
-        searchBar = new SearchBar();
+        searchBar = SearchBar.getInstance();
         searchBar.setExplorePage(this); // 设置搜索结果页面
-        add(searchBar, BorderLayout.NORTH); // 将搜索栏添加到布局中
+
+        // 创建中间面板
+        centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.add(searchBar, new GridBagConstraints());
+        add(centerPanel, BorderLayout.CENTER);
 
         // 创建分页面板
         paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -58,6 +61,9 @@ public class ExplorePage extends JPanel {
         paginationPanel.add(pageNumberField);
         paginationPanel.add(nextButton);
 
+        // 初始化总书籍数标签
+        totalBooksLabel = new JLabel("符合条件的书籍数: " + totalBooks, JLabel.CENTER);
+
         // 添加窗口大小监听器
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -65,9 +71,6 @@ public class ExplorePage extends JPanel {
                 resizeBookImages();
             }
         });
-
-        add(bookDisplayPanel, BorderLayout.CENTER);
-        add(paginationPanel, BorderLayout.SOUTH);
 
         // 添加鼠标事件监听器
         addPaginationButtonListeners();
@@ -140,7 +143,8 @@ public class ExplorePage extends JPanel {
     public void switchToSearchMode() {
         if (!isSearchMode) {
             remove(totalBooksLabel);
-            add(searchBar, BorderLayout.NORTH);
+            remove(centerPanel);
+            add(totalBooksLabel, BorderLayout.NORTH);
             add(bookDisplayPanel, BorderLayout.CENTER);
             add(paginationPanel, BorderLayout.SOUTH);
             revalidate();
@@ -151,10 +155,10 @@ public class ExplorePage extends JPanel {
 
     public void switchToDefaultMode() {
         if (isSearchMode) {
-            remove(searchBar);
+            remove(totalBooksLabel);
             remove(bookDisplayPanel);
             remove(paginationPanel);
-            add(searchBar, BorderLayout.CENTER);
+            add(centerPanel, BorderLayout.CENTER); // 将中间面板添加到布局中
             revalidate();
             repaint();
             isSearchMode = false;
@@ -336,6 +340,7 @@ public class ExplorePage extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.add(ExplorePage.getInstance());
+        ExplorePage.getInstance().switchToDefaultMode();
         frame.setVisible(true);
 
         // 关闭资源

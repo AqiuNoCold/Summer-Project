@@ -16,7 +16,6 @@ import vCampus.User.IUserServerSrv;
 import vCampus.ECard.ECardServerSrv;
 import vCampus.Course.CourseCientSrv;
 import vCampus.Course.CourseServerSrv;
-//import vCampus.Shop.ShopServerSrv;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -24,7 +23,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 
@@ -190,9 +188,13 @@ public class MainServer {
                 out.writeObject(updatedRemoveUser);
                 break;
             case "getRandomBooks":
-                int count = (int) in.readObject();
-                List<Book> randomBooks = libraryService.getRandomBooks(count);
-                out.writeObject(randomBooks);
+                try {
+                    int count = (int) in.readObject();
+                    List<Book> randomBooks = libraryService.getRandomBooks(count);
+                    out.writeObject(randomBooks);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 System.out.println("Unknown function: " + function);

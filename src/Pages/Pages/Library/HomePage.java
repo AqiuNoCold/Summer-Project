@@ -14,9 +14,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 public class HomePage extends JPanel {
@@ -31,6 +33,7 @@ public class HomePage extends JPanel {
     private int currentPage = 1; // 当前页码
     private int totalBooks = 30859865; // 总书籍数
     private Map<Integer, List<Book>> bookCache = new HashMap<>(); // 缓存每页的书籍列表
+    private Queue<BookLoader> bookLoaderQueue = new LinkedList<>();
 
     // 定义页面状态
     private enum PageStatus {
@@ -51,7 +54,7 @@ public class HomePage extends JPanel {
         bookDisplayPanel.setPreferredSize(new Dimension(800, 400)); // 设置宽度为800，高度为400
 
         // 创建搜索栏
-        searchBar = new SearchBar();
+        searchBar = SearchBar.getInstance();
         add(searchBar, BorderLayout.NORTH); // 将搜索栏添加到布局中
 
         // 创建分页面板
@@ -235,7 +238,10 @@ public class HomePage extends JPanel {
         switch (status) {
             case NOT_LOADED:
                 pageStatusCache.put(page, PageStatus.LOADING);
-                new BookLoader(page, true).execute();
+                bookLoaderQueue.add(new BookLoader(page, true));
+                if (bookLoaderQueue.size() == 1) {
+                    bookLoaderQueue.peek().execute();
+                }
                 break;
             case LOADING:
                 // 显示加载框
@@ -248,12 +254,23 @@ public class HomePage extends JPanel {
         }
     }
 
-    // 添加预加载方法
+    // 修改 preloadNextPages 方法
     private void preloadNextPages(int startPage, int numberOfPages) {
         for (int i = startPage; i < startPage + numberOfPages; i++) {
             if (!bookCache.containsKey(i)) {
-                new BookLoader(i, false).execute(); // 不显示加载框
+                bookLoaderQueue.add(new BookLoader(i, false));
+                if (bookLoaderQueue.size() == 1) {
+                    bookLoaderQueue.peek().execute();
+                }
             }
+        }
+    }
+
+    // 添加 startNextBookLoader 方法
+    private void startNextBookLoader() {
+        bookLoaderQueue.poll(); // 移除已完成的任务
+        if (!bookLoaderQueue.isEmpty()) {
+            bookLoaderQueue.peek().execute(); // 启动下一个任务
         }
     }
 
@@ -305,6 +322,8 @@ public class HomePage extends JPanel {
                     // 关闭加载对话框
                     SwingUtilities.invokeLater(() -> hideLoadingDialog());
                 }
+                // 启动下一个任务
+                startNextBookLoader();
             }
         }
     }

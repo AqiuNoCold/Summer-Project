@@ -22,6 +22,7 @@ import vCampus.Service.SearchResult;
 import Pages.MainApp;
 
 public class SearchBar extends JPanel {
+    private static SearchBar instance; // 单实例
     private JTextField searchField;
     private JButton settingsButton;
     private JButton searchButton;
@@ -37,10 +38,6 @@ public class SearchBar extends JPanel {
     private BookSortCriteria sortCriteria;
     private ExplorePage explorePage;
 
-    public void setExplorePage(ExplorePage explorePage) {
-        this.explorePage = explorePage;
-    }
-
     // 显示字段名到实际字段名的映射
     private static final Map<String, String> fieldMap = new HashMap<>();
     static {
@@ -52,7 +49,7 @@ public class SearchBar extends JPanel {
         fieldMap.put("ISBN13", "isbn13");
     }
 
-    public SearchBar() {
+    private SearchBar() {
         setLayout(new BorderLayout());
 
         // 创建搜索栏
@@ -130,6 +127,17 @@ public class SearchBar extends JPanel {
         });
     }
 
+    public static synchronized SearchBar getInstance() {
+        if (instance == null) {
+            instance = new SearchBar();
+        }
+        return instance;
+    }
+
+    public void setExplorePage(ExplorePage explorePage) {
+        this.explorePage = explorePage;
+    }
+
     private void toggleAdvancedSearch() {
         isAdvancedSearchVisible = !isAdvancedSearchVisible;
         if (isAdvancedSearchVisible) {
@@ -137,9 +145,6 @@ public class SearchBar extends JPanel {
             advancedSearchDialog.setVisible(true);
             searchField.setEditable(false);
             searchField.setText(""); // 清空普通搜索框
-            for (AdvancedSearchRow row : rows) {
-                row.searchField.setEditable(true); // 确保高级搜索框的文本输入部分可用
-            }
         } else {
             advancedSearchDialog.setVisible(false);
             searchField.setEditable(true);
