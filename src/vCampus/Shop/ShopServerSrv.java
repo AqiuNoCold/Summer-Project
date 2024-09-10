@@ -205,7 +205,8 @@ public class ShopServerSrv {
             product.setNumbers(0);
             product.setDiscount(1);
             product.setPrice(0);
-            product.setNewImage("src/vCampus/Shop/img/noimage.png");
+            String projectRoot = System.getProperty("user.dir");
+            product.setNewImage(projectRoot+"/vCampus/Shop/img/noimage.png");
 
             int index = 0;
             for (Product productB : student.getBelongs()) {
