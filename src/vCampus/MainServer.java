@@ -220,7 +220,7 @@ public class MainServer {
                         userMap.put(userId, user); // 将用户ID和User对象存入userMap
                         out.writeObject(user); // 返回用户对象
                     } else {
-                        out.writeObject("Invalid login credentials."); // 登录失败信息
+                        out.writeObject("登录失败请检查账号密码"); // 登录失败信息
                     }
                     out.flush();
                     break;

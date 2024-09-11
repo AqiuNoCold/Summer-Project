@@ -457,6 +457,7 @@ public class TeacherGrade {
                             out.writeObject(rowData[1].toString());
                             out.writeObject(rowData[0].toString());
                             out.writeObject(rowData[10]);
+                            out.flush();
                             success = (boolean) in.readObject();
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);

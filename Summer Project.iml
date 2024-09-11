@@ -7,28 +7,28 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/build/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/demo/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/generated/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/legacy/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/main/core-api/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/main/core-impl/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/main/protocol-impl/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/main/user-api/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/main/user-impl/java" />
-          <root url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0/src/test/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/build/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/demo/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/generated/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/legacy/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/main/core-api/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/main/core-impl/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/main/protocol-impl/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/main/user-api/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/main/user-impl/java" />
+          <root url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0/src/test/java" />
         </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/../../../2024春/JAVA/mysql-connector-j-8.4.0" recursive="false" />
+        <jarDirectory url="file:///Users/2024春/JAVA/mysql-connector-j-8.4.0" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
           <root url="file://$USER_HOME$/Documents/Tencent Files/2841554526/FileRecv/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0" />
@@ -47,6 +47,39 @@
           <root url="file://$USER_HOME$/Documents/Tencent Files/2841554526/FileRecv/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0/src/test/java" />
         </SOURCES>
         <jarDirectory url="file://$USER_HOME$/Documents/Tencent Files/2841554526/FileRecv/mysql-connector-j-9.0.0/mysql-connector-j-9.0.0" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/build/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/demo/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/generated/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/legacy/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/main/core-api/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/main/core-impl/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/main/protocol-impl/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/main/user-api/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/main/user-impl/java" />
+          <root url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0/src/test/java" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Desktop/mysql-connector-j-9.0.0" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Desktop/batik-1.17" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/Desktop/batik-1.17/samples/tests/resources/java/sources" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Desktop/batik-1.17" recursive="false" />
       </library>
     </orderEntry>
   </component>

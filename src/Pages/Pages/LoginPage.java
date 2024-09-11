@@ -106,6 +106,32 @@ public class LoginPage extends JFrame {
             }
         });
 
+        passwordField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    out.writeObject("1");
+                    out.writeObject("Login");
+                    out.writeObject(usernameField.getText());
+                    out.writeObject(new String(passwordField.getPassword()));
+                    out.flush();
+
+                    Object response = in.readObject();
+
+                    if (response instanceof User) {
+                        MainApp.setCurrentUser((User) response);
+                        new NavigationPage().setVisible(true);
+                        dispose();
+                    } else if (response instanceof String) {
+                        String message = (String) response;
+                        messageLabel.setText(message);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    System.out.println(ex.getMessage());
+                }
+            }
+        });
         // 找回密码按钮事件
         forgotPasswordButton.addActionListener(new ActionListener() {
             @Override

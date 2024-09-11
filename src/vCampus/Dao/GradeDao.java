@@ -154,7 +154,7 @@ public class GradeDao implements BaseDao<Grade> {
             String sql = null;
             statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             if (condition_name.equals("null") && condition.equals("null")) {
-                sql = "SELECT* FROM tblprivate_course";
+                sql = "SELECT* FROM tblGrade";
             } else { // 如果两个参数不为空
                 if (condition_name.equals("card_id")) {
                     isInt = true;
@@ -405,7 +405,7 @@ public class GradeDao implements BaseDao<Grade> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return false;
+        return isUpdated;
     }
     
     public boolean deleteGrade(String cardId, String courseId, boolean isFirst) {
