@@ -117,26 +117,45 @@ public class BookshelvesPage extends JPanel {
             loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
             SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
 
-            new Thread(() -> {
-                try {
-                    out.writeObject("4");
-                    out.writeObject("createBookShelf");
-                    out.writeObject(name);
-                    out.flush();
-                    BookShelf newShelf = (BookShelf) in.readObject();
-                    currentUser.getBookShelves().add(newShelf);
-                    SwingUtilities.invokeLater(() -> {
-                        bookshelfComboBox.addItem(newShelf.getName());
-                        loadingDialog.dispose();
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    SwingUtilities.invokeLater(() -> {
-                        loadingDialog.dispose();
-                        JOptionPane.showMessageDialog(this, "创建书架失败，请重试。", "错误", JOptionPane.ERROR_MESSAGE);
-                    });
+            Thread thread = new Thread(() -> {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("线程 " + threadName + " 正在执行创建书架功能");
+
+                synchronized (MainApp.class) {
+                    System.out.println("线程 " + threadName + " 获取了同步锁");
+
+                    try {
+                        ObjectOutputStream out = MainApp.getOut();
+                        ObjectInputStream in = MainApp.getIn();
+
+                        out.writeObject("4");
+                        out.writeObject("createBookShelf");
+                        out.writeObject(currentUser);
+                        out.writeObject(name);
+                        out.flush();
+
+                        currentUser = (BookUser) in.readObject();
+                        BookUser.setCurrentUser(currentUser);
+
+                        SwingUtilities.invokeLater(() -> {
+                            bookshelfComboBox.addItem(currentUser.getCurrentBookShelf().getName());
+                            bookshelfComboBox.setSelectedItem(currentUser.getCurrentBookShelf().getName());
+                            loadingDialog.dispose();
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        SwingUtilities.invokeLater(() -> {
+                            loadingDialog.dispose();
+                            JOptionPane.showMessageDialog(this, "创建书架失败，请重试。", "错误", JOptionPane.ERROR_MESSAGE);
+                        });
+                    } finally {
+                        System.out.println("线程 " + threadName + " 释放了同步锁");
+                    }
                 }
-            }).start();
+            });
+
+            thread.setName("创建书架线程");
+            thread.start();
         }
     }
 
