@@ -122,7 +122,7 @@ public class BookDetailPage extends JPanel {
         favoriteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BookshelvesPage bookshelvesPage = new BookshelvesPage();
+                BookshelvesPage bookshelvesPage = BookshelvesPage.getInstance();
                 bookshelvesPage.addBookToShelf(getCurrentBook());
             }
         });
