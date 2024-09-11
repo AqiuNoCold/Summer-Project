@@ -147,6 +147,7 @@ public class LibraryService {
 
         // 将新的书架添加到 BookUserService 对象中
         bookUserService.addBookShelf(newShelf);
+        bookUserService.setCurrentBookShelf(newShelf);
 
         // 将更新后的 BookUserService 对象转换回 BookUser 对象并返回
         return new BookUser(bookUserService);
