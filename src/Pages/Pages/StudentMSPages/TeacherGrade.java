@@ -528,7 +528,7 @@ public class TeacherGrade {
             for (int i = 0; i < data.size(); i++) {
                 Object[] row = data.get(i);
                 if (java.util.Arrays.equals(filteredRow, java.util.Arrays.copyOfRange(row, 0, 6))) {
-                    return i;
+                    return i+currentPage*ROWS_PER_PAGE;
                 }
             }
             return -1; // 如果没有找到匹配项，则返回 -1
