@@ -344,6 +344,7 @@ public class TeacherInfoMS {
             inputPanel.add(stuCodeField);
         while (true) {
             // 初始化字段内容（如果需要填充之前的数据）
+            //无初始化内容
             int result = JOptionPane.showConfirmDialog(frame, inputPanel, "新建记录", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
             if (result == JOptionPane.OK_OPTION) {

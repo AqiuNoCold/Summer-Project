@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+//修改为滚动条
 public class TeacherGrade {
     private static List<Object[]> data; // 表格数据
     private static List<Object[]> filteredData; // 过滤后的数据
