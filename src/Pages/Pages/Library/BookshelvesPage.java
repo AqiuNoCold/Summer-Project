@@ -119,6 +119,7 @@ public class BookshelvesPage extends JPanel {
 
             new Thread(() -> {
                 try {
+                    out.writeObject("4");
                     out.writeObject("createBookShelf");
                     out.writeObject(name);
                     out.flush();
