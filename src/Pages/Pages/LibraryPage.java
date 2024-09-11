@@ -93,7 +93,12 @@ public class LibraryPage extends JFrame {
     }
 
     private void login() {
+        String threadName = Thread.currentThread().getName();
+        System.out.println("线程 " + threadName + " 正在执行登录功能");
+
         synchronized (MainApp.class) {
+            System.out.println("线程 " + threadName + " 获取了同步锁");
+
             try {
                 ObjectOutputStream out = MainApp.getOut();
                 ObjectInputStream in = MainApp.getIn();
@@ -111,6 +116,8 @@ public class LibraryPage extends JFrame {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                System.out.println("线程 " + threadName + " 释放了同步锁");
             }
         }
     }
