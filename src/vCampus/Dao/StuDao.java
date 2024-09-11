@@ -11,11 +11,12 @@ public class StuDao implements BaseDao<Student> {
 
     // 添加学生信息
     public boolean add(Student student) {
-        String sql = "INSERT INTO tblStu (id, card_id, name, gender, birth, college, grade, major, email, stage, honor, punish, stu_code) " +
+        String sql = "INSERT INTO tblStu (id, card_id, name, gender, birth, college, grade, major, email, stage, honor, punish, stu_code) "
+                +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, student.getId());
             pstmt.setString(2, student.getCardId());
@@ -45,7 +46,7 @@ public class StuDao implements BaseDao<Student> {
         String sql = "SELECT * FROM tblStu WHERE card_id = ?";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, cardId);
 
@@ -65,8 +66,7 @@ public class StuDao implements BaseDao<Student> {
                         rs.getString("stage"),
                         rs.getString("honor"),
                         rs.getString("punish"),
-                        rs.getString("stu_code")
-                );
+                        rs.getString("stu_code"));
             }
 
         } catch (SQLException e) {
@@ -81,7 +81,7 @@ public class StuDao implements BaseDao<Student> {
         String sql = "UPDATE tblStu SET name = ?, gender = ?, birth = ?, college = ?, grade = ?, major = ?, email = ?, stage = ?, honor = ?, punish = ?, stu_code = ? WHERE card_id = ?";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, student.getName());
             pstmt.setString(2, student.getGender());
@@ -110,7 +110,7 @@ public class StuDao implements BaseDao<Student> {
         String sql = "DELETE FROM tblStu WHERE card_id = ?";
 
         try (Connection conn = DbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, cardId);
 
@@ -129,8 +129,8 @@ public class StuDao implements BaseDao<Student> {
         List<Student> students = new ArrayList<>();
 
         try (Connection conn = DbConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Student student = new Student(
@@ -146,8 +146,7 @@ public class StuDao implements BaseDao<Student> {
                         rs.getString("stage"),
                         rs.getString("honor"),
                         rs.getString("punish"),
-                        rs.getString("stu_code")
-                );
+                        rs.getString("stu_code"));
                 students.add(student);
             }
 
@@ -156,5 +155,30 @@ public class StuDao implements BaseDao<Student> {
         }
 
         return students;
+    }
+
+    public static void main(String[] args) {
+        StuDao stuDao = new StuDao();
+        Student student = new Student(
+                "213221715",
+                "213221715",
+                "吴清晏",
+                "男",
+                Date.valueOf("2004-08-13"),
+                "计算机学院",
+                "2022",
+                "计算机科学与技术",
+                "1377575364@qq.com",
+                "本科",
+                "无",
+                "无",
+                "213221715");
+
+        boolean result = stuDao.add(student);
+        if (result) {
+            System.out.println("学生信息添加成功！");
+        } else {
+            System.out.println("学生信息添加失败！");
+        }
     }
 }

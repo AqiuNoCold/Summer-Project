@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.Random;
 
 public class BookshelvesPage extends JPanel {
+    private static BookshelvesPage instance; // 单实例
     private JComboBox<String> bookshelfComboBox;
     private JButton deleteBookshelfButton;
     private JButton addBookshelfButton;
@@ -23,7 +24,7 @@ public class BookshelvesPage extends JPanel {
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    public BookshelvesPage() {
+    private BookshelvesPage() {
         setLayout(new BorderLayout());
 
         currentUser = BookUser.getCurrentUser();
@@ -79,6 +80,13 @@ public class BookshelvesPage extends JPanel {
         displayBooks(currentUser.getCurrentBookShelf());
     }
 
+    public static synchronized BookshelvesPage getInstance() {
+        if (instance == null) {
+            instance = new BookshelvesPage();
+        }
+        return instance;
+    }
+
     private void setCurrentBookshelf(BookShelf bookshelf) {
         try {
             out.writeObject("setCurrentBookShelf");
@@ -111,6 +119,7 @@ public class BookshelvesPage extends JPanel {
 
             new Thread(() -> {
                 try {
+                    out.writeObject("4");
                     out.writeObject("createBookShelf");
                     out.writeObject(name);
                     out.flush();

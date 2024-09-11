@@ -146,10 +146,14 @@ public class MainServer {
                         pageSize);
                 out.writeObject(searchResult);
                 break;
-            case "getTotalBooks":
-                BookSearchCriteria totalSearchCriteria = (BookSearchCriteria) in.readObject();
-                int totalBooks = libraryService.getTotalBooks(totalSearchCriteria);
-                out.writeObject(totalBooks);
+            case "searchBorrowRecords":
+                BorrowRecordSearchCriteria borrowSearchCriteria = (BorrowRecordSearchCriteria) in.readObject();
+                BorrowRecordSortCriteria borrowSortCriteria = (BorrowRecordSortCriteria) in.readObject();
+                int borrowPage = (int) in.readObject();
+                int borrowPageSize = (int) in.readObject();
+                SearchResult<BorrowRecord> borrowSearchResult = libraryService.searchBorrowRecords(borrowSearchCriteria,
+                        borrowSortCriteria, borrowPage, borrowPageSize);
+                out.writeObject(borrowSearchResult);
                 break;
             case "createBookShelf":
                 BookUser shelfUser = (BookUser) in.readObject();

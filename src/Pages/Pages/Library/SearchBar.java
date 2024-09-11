@@ -203,25 +203,27 @@ public class SearchBar extends JPanel {
                 searchCriteria.addCriteria("synopsis", query, "OR");
             }
 
-            ObjectOutputStream out = MainApp.getOut();
-            ObjectInputStream in = MainApp.getIn();
+            synchronized (MainApp.class) {
+                try {
+                    ObjectOutputStream out = MainApp.getOut();
+                    ObjectInputStream in = MainApp.getIn();
 
-            try {
-                out.writeObject("4");
-                out.writeObject("searchBooks");
-                out.writeObject(searchCriteria);
-                out.writeObject(sortCriteria);
-                out.writeObject(currentPage);
-                out.writeObject(8); // 每页显示 8 本书
-                out.flush();
+                    out.writeObject("4");
+                    out.writeObject("searchBooks");
+                    out.writeObject(searchCriteria);
+                    out.writeObject(sortCriteria);
+                    out.writeObject(currentPage);
+                    out.writeObject(8); // 每页显示 8 本书
+                    out.flush();
 
-                // 接收搜索结果
-                SearchResult<Book> searchResult = (SearchResult<Book>) in.readObject();
-                books = searchResult.getResult();
-                totalResults = searchResult.getTotal();
-                books = searchResult.getResult();
-            } catch (Exception e) {
-                e.printStackTrace();
+                    // 接收搜索结果
+                    SearchResult<Book> searchResult = (SearchResult<Book>) in.readObject();
+                    books = searchResult.getResult();
+                    totalResults = searchResult.getTotal();
+                    books = searchResult.getResult();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             // 输出搜索结果

@@ -4,6 +4,8 @@ import vCampus.Dao.Books.BookDao;
 import vCampus.Dao.Books.BorrowRecordDao;
 import vCampus.Dao.Criteria.BookSearchCriteria;
 import vCampus.Dao.Criteria.BookSortCriteria;
+import vCampus.Dao.Criteria.BorrowRecordSearchCriteria;
+import vCampus.Dao.Criteria.BorrowRecordSortCriteria;
 import vCampus.Entity.Books.Book;
 import vCampus.Entity.Books.BookUser;
 import vCampus.Entity.Books.BookShelf;
@@ -112,6 +114,22 @@ public class LibraryService {
         }
 
         return new SearchResult<Book>(totalBooks, page, pageSize, books);
+    }
+
+    // 搜索并获取借阅记录的方法
+    public SearchResult<BorrowRecord> searchBorrowRecords(BorrowRecordSearchCriteria searchCriteria,
+            BorrowRecordSortCriteria sortCriteria,
+            int page, int pageSize) {
+        int totalRecords = borrowRecordDao.getTotalRecords(searchCriteria);
+        List<BorrowRecordService> recordServices = borrowRecordDao.findAllByPage(searchCriteria, sortCriteria, page,
+                pageSize);
+        List<BorrowRecord> records = new ArrayList<>();
+
+        for (BorrowRecordService recordService : recordServices) {
+            records.add(new BorrowRecord(recordService));
+        }
+
+        return new SearchResult<BorrowRecord>(totalRecords, page, pageSize, records);
     }
 
     // 获取图书总数的方法

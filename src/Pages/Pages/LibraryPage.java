@@ -36,9 +36,9 @@ public class LibraryPage extends JFrame {
         // 创建内容面板
         contentPanel = new JPanel(new CardLayout());
         contentPanel.add(HomePage.getInstance(), "home");
-        contentPanel.add(new BookshelvesPage(), "bookshelves");
+        contentPanel.add(BookshelvesPage.getInstance(), "bookshelves");
         contentPanel.add(ExplorePage.getInstance(), "explore");
-        contentPanel.add(new ProfilePage(), "profile");
+        contentPanel.add(ProfilePage.getInstance(), "profile");
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -93,23 +93,25 @@ public class LibraryPage extends JFrame {
     }
 
     private void login() {
-        try {
-            ObjectOutputStream out = MainApp.getOut();
-            ObjectInputStream in = MainApp.getIn();
+        synchronized (MainApp.class) {
+            try {
+                ObjectOutputStream out = MainApp.getOut();
+                ObjectInputStream in = MainApp.getIn();
 
-            // 发送请求
-            out.writeObject("4"); // 图书馆模块
-            out.writeObject("login");
-            out.writeObject(MainApp.getCurrentUser().getId());
-            out.flush();
+                // 发送请求
+                out.writeObject("4"); // 图书馆模块
+                out.writeObject("login");
+                out.writeObject(MainApp.getCurrentUser().getId());
+                out.flush();
 
-            // 接收响应
-            bookUser = (BookUser) in.readObject();
+                // 接收响应
+                bookUser = (BookUser) in.readObject();
 
-            BookUser.setCurrentUser(bookUser);
+                BookUser.setCurrentUser(bookUser);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

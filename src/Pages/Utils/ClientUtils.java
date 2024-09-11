@@ -11,24 +11,26 @@ public class ClientUtils {
     // 获取随机书籍并初始化
     public static List<Book> getRandomBooksAndInitialize(int count) {
         List<Book> books = null;
-        try {
-            ObjectOutputStream out = MainApp.getOut();
-            ObjectInputStream in = MainApp.getIn();
+        synchronized (MainApp.class) {
+            try {
+                ObjectOutputStream out = MainApp.getOut();
+                ObjectInputStream in = MainApp.getIn();
 
-            // 发送请求
-            out.writeObject("4"); // 4 对应 LibraryPage
-            out.writeObject("getRandomBooks");
-            out.writeObject(count);
-            out.flush();
+                // 发送请求
+                out.writeObject("4"); // 4 对应 LibraryPage
+                out.writeObject("getRandomBooks");
+                out.writeObject(count);
+                out.flush();
 
-            // 接收响应
-            books = (List<Book>) in.readObject();
+                // 接收响应
+                books = (List<Book>) in.readObject();
 
-            // 初始化书籍
-            BookUtils.initializeBooks(books);
+                // 初始化书籍
+                BookUtils.initializeBooks(books);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return books;
     }
