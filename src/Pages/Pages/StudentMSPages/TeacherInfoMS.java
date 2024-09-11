@@ -233,7 +233,7 @@ public class TeacherInfoMS {
         // 添加“新建”按钮的动作监听器，调用 NewStudent 方法
         newButton.addActionListener(e -> NewStudent());
 
-//        paginationPanel.add(newButton); // 添加“新建”按钮
+        paginationPanel.add(newButton); // 添加“新建”按钮
         paginationPanel.add(previousButton);
         paginationPanel.add(nextButton);
         paginationPanel.add(new JLabel("Page:"));
@@ -300,53 +300,53 @@ public class TeacherInfoMS {
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
     }
-    // 封装“新建”功能的函数
     private void NewStudent() {
 
-        // 弹出对话框以输入新数据
-        JPanel inputPanel = new JPanel(new GridLayout(12, 2));
-        JTextField cardIdField = new JTextField();
-        JTextField nameField = new JTextField();
-        JTextField genderField = new JTextField();
-        JTextField birthField = new JTextField();
-        JTextField collegeField = new JTextField();
-        JTextField gradeField = new JTextField();
-        JTextField majorField = new JTextField();
-        JTextField emailField = new JTextField();
-        JTextField stageField = new JTextField();
-        JTextField honorField = new JTextField();
-        JTextField punishField = new JTextField();
-        JTextField stuCodeField = new JTextField();
+            // 弹出对话框以输入新数据
+            JPanel inputPanel = new JPanel(new GridLayout(12, 2));
+            JTextField cardIdField = new JTextField();
+            JTextField nameField = new JTextField();
+            JTextField genderField = new JTextField();
+            JTextField birthField = new JTextField();
+            JTextField collegeField = new JTextField();
+            JTextField gradeField = new JTextField();
+            JTextField majorField = new JTextField();
+            JTextField emailField = new JTextField();
+            JTextField stageField = new JTextField();
+            JTextField honorField = new JTextField();
+            JTextField punishField = new JTextField();
+            JTextField stuCodeField = new JTextField();
 
+            // 添加标签和字段到面板
+            inputPanel.add(new JLabel("一卡通号:"));
+            inputPanel.add(cardIdField);
+            inputPanel.add(new JLabel("姓名:"));
+            inputPanel.add(nameField);
+            inputPanel.add(new JLabel("性别:"));
+            inputPanel.add(genderField);
+            inputPanel.add(new JLabel("出生日期:"));
+            inputPanel.add(birthField);
+            inputPanel.add(new JLabel("所属学院:"));
+            inputPanel.add(collegeField);
+            inputPanel.add(new JLabel("年级:"));
+            inputPanel.add(gradeField);
+            inputPanel.add(new JLabel("专业:"));
+            inputPanel.add(majorField);
+            inputPanel.add(new JLabel("邮箱:"));
+            inputPanel.add(emailField);
+            inputPanel.add(new JLabel("培养阶段:"));
+            inputPanel.add(stageField);
+            inputPanel.add(new JLabel("荣誉奖项:"));
+            inputPanel.add(honorField);
+            inputPanel.add(new JLabel("奖惩信息:"));
+            inputPanel.add(punishField);
+            inputPanel.add(new JLabel("学籍:"));
+            inputPanel.add(stuCodeField);
+        while (true) {
+            // 初始化字段内容（如果需要填充之前的数据）
+            int result = JOptionPane.showConfirmDialog(frame, inputPanel, "新建记录", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        inputPanel.add(new JLabel("一卡通号:"));
-        inputPanel.add(cardIdField);
-        inputPanel.add(new JLabel("姓名:"));
-        inputPanel.add(nameField);
-        inputPanel.add(new JLabel("性别:"));
-        inputPanel.add(genderField);
-        inputPanel.add(new JLabel("出生日期:"));
-        inputPanel.add(birthField);
-        inputPanel.add(new JLabel("所属学院:"));
-        inputPanel.add(collegeField);
-        inputPanel.add(new JLabel("年级:"));
-        inputPanel.add(gradeField);
-        inputPanel.add(new JLabel("专业:"));
-        inputPanel.add(majorField);
-        inputPanel.add(new JLabel("邮箱:"));
-        inputPanel.add(emailField);
-        inputPanel.add(new JLabel("培养阶段:"));
-        inputPanel.add(stageField);
-        inputPanel.add(new JLabel("荣誉奖项:"));
-        inputPanel.add(honorField);
-        inputPanel.add(new JLabel("奖惩信息:"));
-        inputPanel.add(punishField);
-        inputPanel.add(new JLabel("学籍:"));
-        inputPanel.add(stuCodeField);
-
-        int result = JOptionPane.showConfirmDialog(frame, inputPanel, "新建记录", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            try {
+            if (result == JOptionPane.OK_OPTION) {
                 String cardId = cardIdField.getText().trim();
                 String name = nameField.getText().trim();
                 String gender = genderField.getText().trim();
@@ -359,6 +359,28 @@ public class TeacherInfoMS {
                 String honor = honorField.getText().trim();
                 String punish = punishField.getText().trim();
                 String stuCode = stuCodeField.getText().trim();
+
+                // 检查字段的有效性
+                if (cardId.isEmpty() || name.isEmpty() || gender.isEmpty() || birth.isEmpty() || college.isEmpty() ||
+                        grade.isEmpty() || major.isEmpty() || email.isEmpty() || stage.isEmpty() || honor.isEmpty() ||
+                        punish.isEmpty() || stuCode.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "所有字段都必须填写", "错误", JOptionPane.ERROR_MESSAGE);
+                    continue; // 继续循环以保持对话框打开
+                }
+
+                // 验证出生日期格式
+                try {
+                    Date.valueOf(birth);
+                } catch (IllegalArgumentException ex) {
+                    JOptionPane.showMessageDialog(frame, "出生日期格式错误，应为 YYYY-MM-DD", "错误", JOptionPane.ERROR_MESSAGE);
+                    continue; // 继续循环以保持对话框打开
+                }
+
+                // 验证邮箱格式
+                if (!email.matches("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)+$")) {
+                    JOptionPane.showMessageDialog(frame, "邮箱格式错误", "错误", JOptionPane.ERROR_MESSAGE);
+                    continue; // 继续循环以保持对话框打开
+                }
 
                 boolean success;
                 try {
@@ -397,19 +419,21 @@ public class TeacherInfoMS {
 
                     // 更新表格数据
                     updateTableData();
-                }
-                if (success) {
+
                     JOptionPane.showMessageDialog(frame, "新建成功", "成功", JOptionPane.INFORMATION_MESSAGE);
+                    break; // 退出循环，完成录入
                 } else {
                     JOptionPane.showMessageDialog(frame, "新建失败", "错误", JOptionPane.ERROR_MESSAGE);
+                    continue; // 继续循环以保持对话框打开
                 }
-
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(frame, "一卡通号错误", "错误", JOptionPane.ERROR_MESSAGE);
+            } else {
+                // 用户点击了取消
+                break;
             }
         }
     }
+
+
 
     private static void updateTableData() {
         // 清空表格模型
@@ -689,7 +713,7 @@ public class TeacherInfoMS {
             for (int i = 0; i < data.size(); i++) {
                 Object[] row = data.get(i);
                 if (java.util.Arrays.equals(filteredRow, java.util.Arrays.copyOfRange(row, 0, 6))) {
-                    return i;
+                    return i+currentPage*ROWS_PER_PAGE;
                 }
             }
             return -1; // 如果没有找到匹配项，则返回 -1
