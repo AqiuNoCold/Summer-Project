@@ -15,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -197,39 +198,9 @@ public class TeacherInfoMS {
             }
         });
 
-        goButton.addActionListener(e -> {
-            try {
-                int page = Integer.parseInt(pageNumberField.getText()) - 1;
-                if (page >= 0 && page < (filteredData.size() + ROWS_PER_PAGE - 1) / ROWS_PER_PAGE) {
-                    currentPage = page;
-                    updateTableData();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid page number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        goButton.addActionListener(e -> handleGoButtonAction());
 
-        searchButton.addActionListener(e -> {
-            String searchText = searchField.getText().trim();
-            if (!searchText.isEmpty()) {
-                try {
-                    filteredData = data.stream()
-                            .filter(row -> row[0].equals(searchText))
-                            .collect(Collectors.toList());
-                    currentPage = 0; // 重置到第一页
-                    updateTableData();
-                    pageNumberField.setText(null);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                filteredData = new ArrayList<>(data); // 如果搜索框为空，则显示所有数据
-                updateTableData();
-                pageNumberField.setText(String.valueOf(currentPage + 1));
-            }
-        });
+        searchButton.addActionListener(e -> performSearchAction());
         // 添加“新建”按钮的动作监听器，调用 NewStudent 方法
         newButton.addActionListener(e -> NewStudent());
 
@@ -300,6 +271,21 @@ public class TeacherInfoMS {
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
     }
+
+    private static void handleGoButtonAction() {
+        try {
+            int page = Integer.parseInt(pageNumberField.getText()) - 1;
+            if (page >= 0 && page < (data.size() + ROWS_PER_PAGE - 1) / ROWS_PER_PAGE) {
+                currentPage = page;
+                updateTableData();
+            } else {
+                JOptionPane.showMessageDialog(null, "无效的页码", "错误", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "请输入有效的数字", "错误", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void NewStudent() {
 
             // 弹出对话框以输入新数据
@@ -434,6 +420,20 @@ public class TeacherInfoMS {
         }
     }
 
+    private static void performSearchAction() {
+        String searchText = searchField.getText().trim();
+        if (!searchText.isEmpty()) {
+            filteredData = data.stream()
+                    .filter(row -> row[0].equals(searchText))
+                    .collect(Collectors.toList());
+            currentPage = 0; // 重置到第一页
+        } else {
+            filteredData = new ArrayList<>(data); // 如果搜索框为空，则显示所有数据
+            currentPage = 0; // 重置到第一页
+        }
+        updateTableData();
+        pageNumberField.setText(String.valueOf(currentPage + 1));
+    }
 
 
     private static void updateTableData() {
@@ -609,6 +609,11 @@ public class TeacherInfoMS {
                                 data.set(dataIndex, rowData);
                                 updateFilteredData();
                                 updateTableData();
+                                String searchText = searchField.getText().trim();
+                                if (!searchText.isEmpty()) {
+                                    performSearchAction();
+                                }
+                                handleGoButtonAction();
                             } catch (NumberFormatException ex) {
                                 JOptionPane.showMessageDialog(button, "请输入有效的数字", "错误", JOptionPane.ERROR_MESSAGE);
                             }
@@ -649,6 +654,11 @@ public class TeacherInfoMS {
                             data.remove(dataIndex);
                             filteredData.remove(row); // 同步更新 filteredData
                             updateTableData(); // 刷新表格
+                            String searchText = searchField.getText().trim();
+                            if (!searchText.isEmpty()) {
+                                performSearchAction();
+                            }
+                            handleGoButtonAction();
                         }
                     }
                 }
@@ -710,11 +720,23 @@ public class TeacherInfoMS {
         }
         private int getDataIndex(int filteredRowIndex) {
             // 查找 filteredData 在原始数据中的索引
-            Object[] filteredRow = filteredData.get(filteredRowIndex);
+            Object[] filteredRow = filteredData.get(filteredRowIndex+currentPage*ROWS_PER_PAGE);
+            System.out.println("//////////////");
+            System.out.println("filteredRowIndex: "+filteredRowIndex);
+            System.out.println("data: "+ Arrays.toString(Arrays.copyOfRange(filteredRow, 0, 6)));
+            System.out.println("filteredRow: " + filteredRow);
             for (int i = 0; i < data.size(); i++) {
                 Object[] row = data.get(i);
-                if (java.util.Arrays.equals(filteredRow, java.util.Arrays.copyOfRange(row, 0, 6))) {
-                    return i+currentPage*ROWS_PER_PAGE;
+                System.out.println("zhe shi data: ");
+                System.out.println("data: "+ Arrays.copyOfRange(row, 0, 6));
+                System.out.println("data: "+Arrays.toString(Arrays.copyOfRange(row, 0, 6)));
+                if (Arrays.toString(Arrays.copyOfRange(filteredRow, 0, 6)).equals
+                        (Arrays.toString(Arrays.copyOfRange(row, 0, 6))))
+                {
+                    System.out.println("找到index: "+i);
+                    System.out.println("data: "+ Arrays.copyOfRange(row, 0, 6));
+                    System.out.println("data: "+Arrays.toString(Arrays.copyOfRange(row, 0, 6)));
+                    return i;
                 }
             }
             return -1; // 如果没有找到匹配项，则返回 -1
