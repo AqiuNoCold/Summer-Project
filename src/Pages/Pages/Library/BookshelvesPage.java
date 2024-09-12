@@ -88,14 +88,29 @@ public class BookshelvesPage extends JPanel {
     }
 
     private void setCurrentBookshelf(BookShelf bookshelf) {
-        try {
-            out.writeObject("setCurrentBookShelf");
-            out.writeObject(bookshelf);
-            out.flush();
-            currentUser.setCurrentBookShelf(bookshelf);
-            displayBooks(bookshelf);
-        } catch (Exception e) {
-            e.printStackTrace();
+        String threadName = Thread.currentThread().getName();
+        System.out.println("线程 " + threadName + " 正在执行设置当前书架功能");
+
+        synchronized (MainApp.class) {
+            System.out.println("线程 " + threadName + " 获取了同步锁");
+
+            try {
+                ObjectOutputStream out = MainApp.getOut();
+                ObjectInputStream in = MainApp.getIn();
+
+                out.writeObject("4");
+                out.writeObject("setCurrentBookShelf");
+                out.writeObject(currentUser);
+                out.writeObject(bookshelf);
+                out.flush();
+
+                currentUser = (BookUser) in.readObject();
+                displayBooks(currentUser.getCurrentBookShelf());
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                System.out.println("线程 " + threadName + " 释放了同步锁");
+            }
         }
     }
 
@@ -284,55 +299,103 @@ public class BookshelvesPage extends JPanel {
     }
 
     private void copyBook(Book book) {
+        String threadName = Thread.currentThread().getName();
+        System.out.println("线程 " + threadName + " 正在执行复制书籍功能");
+
         BookShelf targetShelf = (BookShelf) JOptionPane.showInputDialog(this, "选择目标书架：", "复制书籍",
                 JOptionPane.PLAIN_MESSAGE, null, currentUser.getBookShelves().toArray(), null);
         if (targetShelf != null) {
-            try {
-                out.writeObject("addBookToShelfByObject");
-                out.writeObject(targetShelf);
-                out.writeObject(book);
-                out.flush();
-                targetShelf.getBooks().add(book);
-            } catch (Exception e) {
-                e.printStackTrace();
+            synchronized (MainApp.class) {
+                System.out.println("线程 " + threadName + " 获取了同步锁");
+
+                try {
+                    ObjectOutputStream out = MainApp.getOut();
+                    ObjectInputStream in = MainApp.getIn();
+
+                    out.writeObject("4");
+                    out.writeObject("addBookToShelfByObject");
+                    out.writeObject(currentUser);
+                    out.writeObject(targetShelf.getId());
+                    out.writeObject(book);
+                    out.flush();
+
+                    currentUser = (BookUser) in.readObject();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("线程 " + threadName + " 释放了同步锁");
+                }
             }
         }
     }
 
     private void moveBook(Book book) {
+        String threadName = Thread.currentThread().getName();
+        System.out.println("线程 " + threadName + " 正在执行移动书籍功能");
+
         BookShelf targetShelf = (BookShelf) JOptionPane.showInputDialog(this, "选择目标书架：", "移动书籍",
                 JOptionPane.PLAIN_MESSAGE, null, currentUser.getBookShelves().toArray(), null);
         if (targetShelf != null) {
-            try {
-                out.writeObject("removeBookFromShelfById");
-                out.writeObject(currentUser.getCurrentBookShelf());
-                out.writeObject(book.getId());
-                out.flush();
-                currentUser.getCurrentBookShelf().getBooks().remove(book);
+            synchronized (MainApp.class) {
+                System.out.println("线程 " + threadName + " 获取了同步锁");
 
-                out.writeObject("addBookToShelfByObject");
-                out.writeObject(targetShelf);
-                out.writeObject(book);
-                out.flush();
-                targetShelf.getBooks().add(book);
+                try {
+                    ObjectOutputStream out = MainApp.getOut();
+                    ObjectInputStream in = MainApp.getIn();
 
-                displayBooks(currentUser.getCurrentBookShelf());
-            } catch (Exception e) {
-                e.printStackTrace();
+                    out.writeObject("4");
+                    out.writeObject("removeBookFromShelfById");
+                    out.writeObject(currentUser);
+                    out.writeObject(currentUser.getCurrentBookShelf().getId());
+                    out.writeObject(book.getId());
+                    out.flush();
+
+                    currentUser = (BookUser) in.readObject();
+
+                    out.writeObject("4");
+                    out.writeObject("addBookToShelfByObject");
+                    out.writeObject(currentUser);
+                    out.writeObject(targetShelf.getId());
+                    out.writeObject(book);
+                    out.flush();
+
+                    currentUser = (BookUser) in.readObject();
+
+                    displayBooks(currentUser.getCurrentBookShelf());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("线程 " + threadName + " 释放了同步锁");
+                }
             }
         }
     }
 
     private void deleteBook(Book book) {
-        try {
-            out.writeObject("removeBookFromShelfById");
-            out.writeObject(currentUser.getCurrentBookShelf());
-            out.writeObject(book.getId());
-            out.flush();
-            currentUser.getCurrentBookShelf().getBooks().remove(book);
-            displayBooks(currentUser.getCurrentBookShelf());
-        } catch (Exception e) {
-            e.printStackTrace();
+        String threadName = Thread.currentThread().getName();
+        System.out.println("线程 " + threadName + " 正在执行删除书籍功能");
+
+        synchronized (MainApp.class) {
+            System.out.println("线程 " + threadName + " 获取了同步锁");
+
+            try {
+                ObjectOutputStream out = MainApp.getOut();
+                ObjectInputStream in = MainApp.getIn();
+
+                out.writeObject("4");
+                out.writeObject("removeBookFromShelfById");
+                out.writeObject(currentUser);
+                out.writeObject(currentUser.getCurrentBookShelf().getId());
+                out.writeObject(book.getId());
+                out.flush();
+
+                currentUser = (BookUser) in.readObject();
+                displayBooks(currentUser.getCurrentBookShelf());
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                System.out.println("线程 " + threadName + " 释放了同步锁");
+            }
         }
     }
 
@@ -366,6 +429,7 @@ public class BookshelvesPage extends JPanel {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String threadName = Thread.currentThread().getName();
                 try {
                     String selectedShelfName = (String) shelfComboBox.getSelectedItem();
                     BookShelf selectedShelf = currentUser.getBookShelves().stream()
@@ -381,16 +445,28 @@ public class BookshelvesPage extends JPanel {
                         book.setAverageRating(newAverageRating);
                         book.setReviewCount(newReviewCount);
                         // 这里可以添加保存书评的逻辑
-                        out.writeObject("addBookToShelfByObject");
-                        out.writeObject(selectedShelf);
-                        out.writeObject(book);
-                        out.flush();
-                        selectedShelf.getBooks().add(book);
+                        synchronized (MainApp.class) {
+                            System.out.println("线程 " + threadName + " 获取了同步锁");
+                            ObjectOutputStream out = MainApp.getOut();
+                            ObjectInputStream in = MainApp.getIn();
+
+                            out.writeObject("4");
+                            out.writeObject("addBookToShelfByObject");
+                            out.writeObject(currentUser);
+                            out.writeObject(selectedShelf.getId());
+                            out.writeObject(book);
+                            out.flush();
+
+                            currentUser = (BookUser) in.readObject();
+
+                        }
                         dialog.dispose();
                         displayBooks(currentUser.getCurrentBookShelf());
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                } finally {
+                    System.out.println("线程 " + threadName + " 释放了同步锁");
                 }
             }
         });

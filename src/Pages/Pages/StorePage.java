@@ -14,10 +14,7 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.sql.SQLException;
@@ -1386,17 +1383,16 @@ public class StorePage extends JFrame {
         errorFrame.add(errorLabel);
 
         // Play the WAV file
-        String projectRoot = System.getProperty("user.dir");
-//        playWav(projectRoot+"/searchfail.wav");
+        InputStream audioSrc = getClass().getResourceAsStream("/imgs/shop/searchfail.wav");
+        playWav(audioSrc);
 
         errorFrame.setVisible(true);
         errorFrame.setResizable(false);
     }
 
-    private void playWav(String filePath) {
+    private void playWav(InputStream audioSrc) {
         try {
-            File audioFile = new File(filePath);
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioSrc);
             Clip audioClip = AudioSystem.getClip();
             audioClip.open(audioStream);
             audioClip.start();
