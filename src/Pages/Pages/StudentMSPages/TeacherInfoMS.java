@@ -562,7 +562,7 @@ public class TeacherInfoMS {
                         panel.add(new JLabel("学籍号:"));
                         panel.add(stuCodeField);
 
-                        int result = JOptionPane.showConfirmDialog(button, panel, "修改成绩", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                        int result = JOptionPane.showConfirmDialog(button, panel, "修改学生信息", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                         boolean success = false;
                         if (result == JOptionPane.OK_OPTION) {
                             ObjectInputStream in = MainApp.getIn();
